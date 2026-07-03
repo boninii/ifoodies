@@ -1,0 +1,35 @@
+# Backstop do monorepo. Cada subprojeto (mobile/, api/) também tem o seu .gitignore.
+
+# Dependências
+node_modules/
+/vendor/
+**/vendor/
+
+# Ambiente / segredos
+.env
+**/.env
+!**/.env.example
+
+# Expo / builds
+.expo/
+dist/
+web-build/
+
+# Laravel
+/api/storage/*.key
+**/storage/framework/cache/*
+**/storage/framework/sessions/*
+**/storage/framework/views/*
+**/storage/logs/*
+**/bootstrap/cache/*.php
+
+# Banco local (SQLite de desenvolvimento)
+*.sqlite
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
