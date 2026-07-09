@@ -1,4 +1,4 @@
-# 🍔 Cantina App — IFSP
+# 🍔 iFoodies — IFSP
 
 Aplicativo mobile para a cantina de uma escola técnica. Os alunos fazem login,
 navegam pelo cardápio, montam o pedido em um carrinho e acompanham o histórico

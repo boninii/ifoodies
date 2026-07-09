@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function Header(){
     return(
         <View style={style.cabecalho}>
-            <Text style={style.titulo}>IFSP - Cantina</Text>
+            <Text style={style.titulo}>IFSP - iFoodies</Text>
         </View>
     )
 }

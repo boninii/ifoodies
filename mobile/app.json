@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "cantina-app",
-    "slug": "cantina-app",
+    "name": "ifoodies-app",
+    "slug": "ifoodies-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "cantinaapp",
+    "scheme": "ifoodiesapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

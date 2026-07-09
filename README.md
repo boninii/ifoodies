@@ -1,4 +1,4 @@
-# 🍔 Cantina Platform
+# 🍔 iFoodies
 
 Plataforma completa da cantina de uma escola técnica (IFSP): app mobile para os
 alunos pedirem, API para servir os dados e painel administrativo para a equipe
@@ -10,7 +10,7 @@ segue como peça de portfólio.
 ## Estrutura (monorepo)
 
 ```
-cantina/
+ifoodies/
 ├── mobile/   → App React Native / Expo (alunos fazem pedidos)
 └── api/      → Backend Laravel + Filament (API + painel do staff)
 ```

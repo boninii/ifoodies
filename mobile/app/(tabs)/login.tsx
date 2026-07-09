@@ -91,7 +91,7 @@ export default function Login() {
         </View>
 
         <View>
-          <Text style={styles.loginTitle}>Cantina APP</Text>
+          <Text style={styles.loginTitle}>iFoodies</Text>
           <Text style={styles.loginSubtitle}>Bem-vindo(a) à sua cantina digital</Text>
         </View>
 
