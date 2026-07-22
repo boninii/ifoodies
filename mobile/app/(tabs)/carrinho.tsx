@@ -239,7 +239,7 @@ export default function Carrinho(){
                         
                         <View style={style.bottomWaysToPay}>
                             <TouchableOpacity>
-                                <AntDesign name="creditcard" size={30} color="#32984D" />
+                                <AntDesign name="credit-card" size={30} color="#32984D" />
                             </TouchableOpacity>
                             
                             <TouchableOpacity>
