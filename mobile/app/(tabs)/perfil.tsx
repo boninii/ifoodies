@@ -301,7 +301,7 @@ const style = StyleSheet.create({
         paddingRight: 20,
     },
     dadosPerfil: {
-        fontFamily: 'Poppins',
+        fontFamily: 'ElmsSans',
         fontSize: 14,
         lineHeight: 14,
         color: '#666',
@@ -356,7 +356,7 @@ const style = StyleSheet.create({
         marginTop: 10,
     },
     buttonText: {
-        fontFamily: 'Poppins-SemiBold',
+        fontFamily: 'ElmsSans-SemiBold',
         fontSize: 14,
         lineHeight: 14,
         color: 'white', 
@@ -393,7 +393,7 @@ const style = StyleSheet.create({
         backgroundColor: '#FFF',
     },
     modalText: {
-        fontFamily: 'Poppins',
+        fontFamily: 'ElmsSans',
         fontSize: 16,
         marginBottom: 15,
         textAlign: 'center',
@@ -409,7 +409,7 @@ const style = StyleSheet.create({
         marginTop: 10,
     },
     modalButtonText: {
-        fontFamily: 'Poppins-SemiBold',
+        fontFamily: 'ElmsSans-SemiBold',
         fontSize: 14,
         color: '#FFF',
     }

@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     color: '#32984D',
   },
   loginSubtitle: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 16,
     fontWeight: 400,
     textAlign: 'center',
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 'auto',
   },
   loginFormButtonText: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 14,
     fontWeight: 'bold',
     color: '#FFF'
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12
   },
   loginFormLabel: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 14,
     fontWeight: 400,
     color: '#666'
@@ -259,19 +259,19 @@ const styles = StyleSheet.create({
   loginFormInput: {
     width: '100%',
     display: 'flex',
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 14,
     fontWeight: 400,
     color: '#666'
   },
   loginFormAccount: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 12,
     paddingTop: 5,
     marginLeft: 'auto'
   },
   loginFormAccountLink: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'ElmsSans-SemiBold',
     fontSize: 12,
   },
   modal: {
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   modalText: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 16,
     marginBottom: 15,
     textAlign: 'center',
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#32984D',
   },
   modalButtonText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'ElmsSans-SemiBold',
     fontSize: 14,
     color: '#FFF',
   },

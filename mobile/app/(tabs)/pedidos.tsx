@@ -202,15 +202,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   orderHeaderId: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 16,
   },
   orderHeaderPrice: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 16,
   },
   orderDate: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 12,    
   },
   orderFooter: {
@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     gap: 20
   },
   orderFooterItem: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 12,   
     lineHeight: 16,
     flexShrink: 1
@@ -248,29 +248,29 @@ const styles = StyleSheet.create({
     paddingBottom: 25
   },
   modalCardStatus: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 13, 
     lineHeight: 16,
   },
   modalCardValue: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 13, 
     lineHeight: 16,
   },
   modalCardProductTitle: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'ElmsSans-SemiBold',
     fontSize: 14,
     lineHeight: 14,
     paddingTop: 25,
     paddingBottom: 5
   },
   modalCardProductText: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 13, 
     lineHeight: 16,
   },
   modalCardButton: {
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'ElmsSans-Bold',
     fontSize: 13,
     lineHeight: 13,
     textTransform: 'uppercase',

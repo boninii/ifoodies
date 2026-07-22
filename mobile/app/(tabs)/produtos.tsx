@@ -279,12 +279,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   productPrice: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 16,
     textAlign: 'right',
   },
   productDescription: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 10,
     lineHeight: 11
   },
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   productCartNumber: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 13,
     lineHeight: 13
   },
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(50, 152, 77, 1)'
   },
   productButtonLessText: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 13,
     lineHeight: 13,
   },
@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(50, 152, 77, 1)'
   },
   productButtonPlusText: {
-    fontFamily: 'Poppins',
+    fontFamily: 'ElmsSans',
     fontSize: 13,
     lineHeight: 13,
   },
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#32984D',
   },
   modalButtonText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'ElmsSans-SemiBold',
     fontSize: 14,
     color: '#FFF',
   },

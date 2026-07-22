@@ -1,3 +1,9 @@
+import {
+  ElmsSans_400Regular,
+  ElmsSans_500Medium,
+  ElmsSans_600SemiBold,
+  ElmsSans_700Bold,
+} from '@expo-google-fonts/elms-sans'
 import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces'
 import * as Font from 'expo-font'
 import { Stack } from 'expo-router'
@@ -10,14 +16,11 @@ export default function RootLayout() {
   useEffect(() => {
     async function loadFonts() {
       await Font.loadAsync({
-        'Poppins': require('../../assets/fonts/Poppins-Regular.ttf'),
-        'Poppins-Light': require('../../assets/fonts/Poppins-Light.ttf'),
-        'Poppins-Thin': require('../../assets/fonts/Poppins-Thin.ttf'),
-        'Poppins-Bold': require('../../assets/fonts/Poppins-Bold.ttf'),
-        'Poppins-SemiBold': require('../../assets/fonts/Poppins-SemiBold.ttf'),
-        'Poppins-Black': require('../../assets/fonts/Poppins-Black.ttf'),
-        'Poppins-Medium': require('../../assets/fonts/Poppins-Medium.ttf'),
-        'Poppins-Italic': require('../../assets/fonts/Poppins-Italic.ttf'),
+        // Sans de texto (corpo, labels, botões)
+        'ElmsSans': ElmsSans_400Regular,
+        'ElmsSans-Medium': ElmsSans_500Medium,
+        'ElmsSans-SemiBold': ElmsSans_600SemiBold,
+        'ElmsSans-Bold': ElmsSans_700Bold,
         // Serif de marca (títulos, categorias e nomes de produto)
         'Fraunces': Fraunces_600SemiBold,
         'Fraunces-Bold': Fraunces_700Bold,

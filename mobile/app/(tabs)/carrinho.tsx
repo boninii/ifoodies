@@ -300,7 +300,7 @@ const screenHeight = Dimensions.get('window').height
 
 const style = StyleSheet.create({
     main: {
-        fontFamily: 'Poppins',
+        fontFamily: 'ElmsSans',
         flexGrow: 1,
         paddingVertical: 20,
         alignItems: 'center',
@@ -332,14 +332,14 @@ const style = StyleSheet.create({
     },
     itemQuantity: {
         width: '10%',
-        fontFamily: 'Poppins',
+        fontFamily: 'ElmsSans',
         fontSize: 16,
         lineHeight: 18,
         textAlign: 'center'
     },
     itemPrice: {
         width: '30%',
-        fontFamily: 'Poppins',
+        fontFamily: 'ElmsSans',
         fontSize: 16,
         lineHeight: 18,
         textAlign: 'right'
@@ -371,7 +371,7 @@ const style = StyleSheet.create({
         paddingHorizontal: 40
     },
     resultadoText: {
-        fontFamily: 'Poppins-SemiBold',
+        fontFamily: 'ElmsSans-SemiBold',
         fontSize: 14,
         lineHeight: 16,
         color: '#666'
@@ -388,7 +388,7 @@ const style = StyleSheet.create({
         paddingVertical: 40
     },
     bottomTitle: {
-        fontFamily: 'Poppins',
+        fontFamily: 'ElmsSans',
         fontSize: 20,
         lineHeight: 24,
         paddingVertical: 20,
@@ -413,7 +413,7 @@ const style = StyleSheet.create({
     },
     emptyCartButton: {
         width: 250,
-        fontFamily: 'Poppins-SemiBold',
+        fontFamily: 'ElmsSans-SemiBold',
         fontSize: 14,
         lineHeight: 16,
         paddingVertical: 15,
@@ -453,7 +453,7 @@ const style = StyleSheet.create({
         paddingBottom: 8
     },
     modalDescription: {
-        fontFamily: 'Poppins',
+        fontFamily: 'ElmsSans',
         textAlign: 'center',
         fontSize: 14,
         lineHeight: 16,
@@ -469,7 +469,7 @@ const style = StyleSheet.create({
         color: '#32984D'
     },
     modalQuantityButtonText: {
-        fontFamily: 'Poppins',
+        fontFamily: 'ElmsSans',
         fontSize: 18,
         lineHeight: 18,
         marginHorizontal: 10
@@ -482,7 +482,7 @@ const style = StyleSheet.create({
         backgroundColor: '#32984D',
     },
     modalButtonText: {
-        fontFamily: 'Poppins-SemiBold',
+        fontFamily: 'ElmsSans-SemiBold',
         fontSize: 14,
         lineHeight: 14,
         color: '#fff',
@@ -504,7 +504,7 @@ const style = StyleSheet.create({
         backgroundColor: '#32984D',
     },
     buttonConfirmText: {
-        fontFamily: 'Poppins-SemiBold',
+        fontFamily: 'ElmsSans-SemiBold',
         fontSize: 14,
         lineHeight: 14,
         color: '#fff',

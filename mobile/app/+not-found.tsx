@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   linkText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'ElmsSans-SemiBold',
     fontSize: 14,
     color: '#32984D',
   },
