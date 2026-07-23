@@ -1,10 +1,13 @@
-import Layout from '@/components/ui/Layout'
-import { api } from '@/services/api'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
-import React, { useEffect, useState } from 'react'
-import { Alert, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
+import { useTheme } from '@/theme/useTheme'
+import { money, spacing, type } from '@/theme/tokens'
+import { Screen } from '@/components/ui/Screen'
+import { BandHeader, Button, Empty, Price, Rule, Stepper } from '@/components/ui/primitives'
 
 interface Product {
   id: number
@@ -12,6 +15,7 @@ interface Product {
   description: string
   price: number
   image: string
+  /** Estoque disponível — o app usa como quantidade máxima selecionável. */
   quantity: number
 }
 
@@ -21,54 +25,90 @@ interface Category {
   products: Product[]
 }
 
-type ItemCardProps = {
+const STORAGE_KEY = '@pedido'
+
+/**
+ * Linha de produto: um bloco do quadro. Sem card, sem raio, sem sombra —
+ * o que separa uma linha da outra é o fio de régua.
+ *
+ * Esgotado é citação direta da aula cancelada: fundo rebaixado, tinta fraca
+ * e risco atravessando o nome.
+ */
+function ProductRow({
+  item,
+  quantity,
+  onIncrease,
+  onDecrease,
+}: {
   item: Product
-  isEven: boolean
   quantity: number
-  onIncrease: (item: Product) => void
-  onDecrease: (id: number) => void
-}
+  onIncrease: () => void
+  onDecrease: () => void
+}) {
+  const { colors } = useTheme()
+  const soldOut = item.quantity <= 0
 
-function ItemCard({ item, isEven, quantity, onIncrease, onDecrease }: ItemCardProps) {
   return (
-    <View style={[styles.product, isEven ? styles.productEven : styles.productOdd]}>
-      <View style={styles.productImage}>
-        <Image source={{ uri: item.image }} style={styles.productImageIn} />
-      </View>
+    <View
+      style={[styles.row, { backgroundColor: soldOut ? colors.ground : colors.surface }]}
+      accessibilityLabel={
+        soldOut ? `${item.name}, esgotado` : `${item.name}, ${money(item.price)}`
+      }
+    >
+      {item.image ? (
+        <Image
+          source={{ uri: item.image }}
+          style={[styles.thumb, { opacity: soldOut ? 0.4 : 1 }]}
+          accessibilityIgnoresInvertColors
+        />
+      ) : (
+        <View style={[styles.thumb, { backgroundColor: colors.greenWash }]} />
+      )}
 
-      <View style={styles.productInfo}>
-        <View style={styles.productInfoOne}>
-          <Text style={styles.productName}>{item.name}</Text>
+      <View style={styles.rowBody}>
+        <View style={styles.rowTop}>
+          <View style={styles.rowNames}>
+            <Text
+              style={[
+                type.headline,
+                {
+                  color: soldOut ? colors.inkMuted : colors.ink,
+                  textDecorationLine: soldOut ? 'line-through' : 'none',
+                },
+              ]}
+              numberOfLines={2}
+            >
+              {item.name}
+            </Text>
+            <Text
+              style={[type.bodySmall, { color: colors.inkMuted, marginTop: 2 }]}
+              numberOfLines={2}
+            >
+              {item.description}
+            </Text>
+          </View>
 
-          <Text style={styles.productDescription}>{item.description}</Text>
+          <Price value={item.price} muted={soldOut} />
         </View>
 
-        <View style={styles.productInfoTwo}>
-          <Text style={styles.productPrice}>R${Number(item.price).toFixed(2)}</Text>
+        <View style={styles.rowBottom}>
+          {soldOut ? (
+            <Text style={[type.label, { color: colors.struck }]}>Esgotado</Text>
+          ) : (
+            <Text style={[type.label, { color: colors.inkMuted }]}>
+              {item.quantity} no estoque
+            </Text>
+          )}
 
-          <View style={styles.productCart}>
-            <TouchableOpacity
-              style={[styles.productButtonLess, isEven ? styles.productButtonLessEven : styles.productButtonLessOdd]}
-              onPress={() => onDecrease(item.id)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              accessibilityRole="button"
-              accessibilityLabel={`Diminuir quantidade de ${item.name}`}
-            >
-              <Text style={styles.productButtonLessText}>-</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.productCartNumber}>{quantity}</Text>
-
-            <TouchableOpacity
-              style={[styles.productButtonPlus, isEven ? styles.productButtonPlusEven : styles.productButtonPlusOdd]}
-              onPress={() => onIncrease(item)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              accessibilityRole="button"
-              accessibilityLabel={`Aumentar quantidade de ${item.name}`}
-            >
-              <Text style={styles.productButtonPlusText}>+</Text>
-            </TouchableOpacity>
-          </View>
+          {soldOut ? null : (
+            <Stepper
+              value={quantity}
+              max={item.quantity}
+              itemName={item.name}
+              onIncrease={onIncrease}
+              onDecrease={onDecrease}
+            />
+          )}
         </View>
       </View>
     </View>
@@ -76,290 +116,201 @@ function ItemCard({ item, isEven, quantity, onIncrease, onDecrease }: ItemCardPr
 }
 
 export default function Produtos() {
-
   const { token, isAuthenticated, isLoading } = useAuth()
-
+  const { colors } = useTheme()
   const router = useRouter()
 
   const [categories, setCategories] = useState<Category[]>([])
-
   const [quantities, setQuantities] = useState<Record<number, number>>({})
-
-  const [showCheckout, setShowCheckout] = useState(false)
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace('/login')
-    }
+    if (!isLoading && !isAuthenticated) router.replace('/login')
   }, [isAuthenticated, isLoading, router])
 
-  useEffect(() => {
-    const total = Object.values(quantities).reduce((acc, qty) => acc + qty, 0)
-    setShowCheckout(total > 0)
-  }, [quantities])
-
-  useEffect(() => {
-
-    const fetchCategories = async () => {
-
-      if (!token) return
-
-      try {
-        const { ok, data } = await api<Category[]>('/menu')
-
-        if (ok) {
-          setCategories(data)
-        }
-        else {
-          console.error('Erro ao buscar cardápio:', data)
-        }
+  const fetchMenu = useCallback(async () => {
+    if (!token) return
+    setLoadState('loading')
+    try {
+      const { ok, data } = await api<Category[]>('/menu')
+      if (ok && Array.isArray(data)) {
+        setCategories(data)
+        setLoadState('ready')
+      } else {
+        setLoadState('error')
       }
-      catch (error) {
-        console.error('Erro ao conectar com o servidor:', error)
-      }
+    } catch {
+      setLoadState('error')
     }
-
-    fetchCategories()
   }, [token])
 
-  const handleCreateOrder = async () => {
+  useEffect(() => {
+    fetchMenu()
+  }, [fetchMenu])
 
-    try {
+  const selected = useMemo(
+    () =>
+      Object.entries(quantities)
+        .filter(([, q]) => q > 0)
+        .map(([id, q]) => ({ id: Number(id), quantity: q })),
+    [quantities],
+  )
 
-      const selectedProducts = Object
-        .entries(quantities)
-        .filter(([, quantity]) => quantity > 0)
-        .map(([id, quantity]) => {
-          const product = categories.flatMap(c => c.products).find(p => p.id === Number(id))
-          return {
-            id: product?.id,
-            name: product?.name,
-            description: product?.description,
-            quantity,
-            price: product?.price,
-            stock: product?.quantity
-          }
-        })
+  const { count, total } = useMemo(() => {
+    const all = categories.flatMap((c) => c.products)
+    return selected.reduce(
+      (acc, s) => {
+        const p = all.find((x) => x.id === s.id)
+        return {
+          count: acc.count + s.quantity,
+          total: acc.total + (p ? Number(p.price) * s.quantity : 0),
+        }
+      },
+      { count: 0, total: 0 },
+    )
+  }, [selected, categories])
 
-      await AsyncStorage.setItem('@pedido', JSON.stringify(selectedProducts))
+  const increase = (item: Product) =>
+    setQuantities((prev) => {
+      const current = prev[item.id] ?? 0
+      if (current >= item.quantity) return prev
+      return { ...prev, [item.id]: current + 1 }
+    })
 
-      router.push('/carrinho')
-    }
-    catch {
-      Alert.alert('Erro', 'Não foi possível salvar o pedido.')
-    }
+  const decrease = (id: number) =>
+    setQuantities((prev) => ({ ...prev, [id]: Math.max(0, (prev[id] ?? 0) - 1) }))
+
+  const goToCart = async () => {
+    const all = categories.flatMap((c) => c.products)
+    const payload = selected.map((s) => {
+      const p = all.find((x) => x.id === s.id)
+      return {
+        id: s.id,
+        name: p?.name,
+        description: p?.description,
+        quantity: s.quantity,
+        price: p?.price,
+        stock: p?.quantity,
+      }
+    })
+
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+    router.push('/carrinho')
   }
 
-  const increaseQuantity = (item: Product) => {
-
-    const currentQuantity = quantities[item.id] || 0
-
-    if (currentQuantity < item.quantity) {
-      setQuantities(prev => ({
-        ...prev,
-        [item.id]: currentQuantity + 1
-      }))
+  const body = () => {
+    if (loadState === 'loading') {
+      return (
+        <View style={styles.state}>
+          <Text style={[type.body, { color: colors.inkMuted }]}>Carregando o cardápio…</Text>
+        </View>
+      )
     }
-    else {
-      Alert.alert('Estoque esgotado', `A quantidade máxima para ${item.name} já foi selecionada.`)
-    }
-  }
 
-  const decreaseQuantity = (itemId: number) => {
-    setQuantities(prev => ({
-      ...prev,
-      [itemId]: Math.max(0, (prev[itemId] || 0) - 1)
-    }))
+    if (loadState === 'error') {
+      return (
+        <Empty
+          title="Não deu para carregar"
+          body="O cardápio não respondeu. Verifique sua conexão e tente de novo."
+          action={<Button label="Tentar de novo" onPress={fetchMenu} />}
+        />
+      )
+    }
+
+    if (!categories.length) {
+      return (
+        <Empty
+          title="Cardápio vazio"
+          body="A cantina ainda não publicou itens hoje. Volte daqui a pouco."
+        />
+      )
+    }
+
+    return categories.map((category) => (
+      <View key={category.id}>
+        <BandHeader label={category.name} trailing={`${category.products.length}`} />
+        {category.products.map((item, i) => (
+          <View key={item.id}>
+            {i > 0 ? <Rule inset={spacing.lg} /> : null}
+            <ProductRow
+              item={item}
+              quantity={quantities[item.id] ?? 0}
+              onIncrease={() => increase(item)}
+              onDecrease={() => decrease(item.id)}
+            />
+          </View>
+        ))}
+      </View>
+    ))
   }
 
   return (
-    <Layout>
-      <View style={styles.products}>
-        {
-          categories.map((category) => (
-            <View key={category.id}>
-              <Text style={styles.productsTitle}>{category.name}</Text>
-              {
-                category.products.map((item, index) => (
-                  <ItemCard
-                    key={item.id}
-                    item={item}
-                    isEven={index % 2 === 0}
-                    quantity={quantities[item.id] || 0}
-                    onIncrease={increaseQuantity}
-                    onDecrease={decreaseQuantity}
-                  />
-                ))
-              }
-            </View>
-          ))
-        }
-      </View>
-
-      {
-        showCheckout && (
-          <TouchableOpacity
-            onPress={handleCreateOrder}
-            style={styles.modalButton}
+    <Screen
+      title="Cardápio"
+      subtitle="Peça agora e retire pronto no balcão."
+      footer={
+        count > 0 ? (
+          <Pressable
+            onPress={goToCart}
             accessibilityRole="button"
-            accessibilityLabel="Finalizar pedido"
+            accessibilityLabel={`Revisar pedido, ${count} itens, total ${money(total)}`}
+            style={({ pressed }) => [
+              styles.cta,
+              { backgroundColor: colors.greenDeep, opacity: pressed ? 0.85 : 1 },
+            ]}
           >
-            <Text style={styles.modalButtonText}>FINALIZAR PEDIDO</Text>
-          </TouchableOpacity>
-        )
+            <Text style={[type.label, { color: colors.onGreen }]}>
+              Revisar {count} {count === 1 ? 'item' : 'itens'}
+            </Text>
+            <Text style={[type.numeral, { color: colors.onGreen }]}>{money(total)}</Text>
+          </Pressable>
+        ) : null
       }
-    </Layout>
+    >
+      {body()}
+    </Screen>
   )
 }
 
-const screenWidth = Dimensions.get('window').width
-
-const screenHeight = Dimensions.get('window').height
-
 const styles = StyleSheet.create({
-  products: {
-    flexGrow: 1
-  },
-  productsTitle: {
-    fontFamily: 'Fraunces',
-    fontSize: 24,
-    textAlign: 'center',
-    paddingVertical: 40
-  },
-  productsList: {
-    flex: 1,
-  },
-  product: {
-    display: 'flex',
-    flex: 1,
+  row: {
     flexDirection: 'row',
-    position: 'relative',
-    height: 110
-  },  
-  productEven: {
-    backgroundColor: 'rgba(50, 152, 77, .1)'
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    gap: spacing.md,
   },
-  productOdd: {
-    backgroundColor: 'rgba(50, 152, 77, .22)'
+  thumb: {
+    width: 72,
+    height: 72,
   },
-  productImage: {
-    width: 110,
-    height: 110,
-    display: 'flex',
-    alignContent: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    backgroundColor: '#FFF'
+  rowBody: {
+    flex: 1,
+    justifyContent: 'space-between',
+    gap: spacing.sm,
   },
-  productImageIn: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    padding: 10
-  },
-  productInfo: {
-    width: screenWidth - 110,
-    display: 'flex',
+  rowTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 5,
-    padding: 15,
+    gap: spacing.md,
   },
-  productInfoOne: {
-    width: '70%',
+  rowNames: {
     flex: 1,
   },
-  productInfoTwo: {
-    width: '30%',
-    flexDirection: 'column',
-  },
-  productName: {
-    fontFamily: 'Fraunces',
-    fontSize: 16,
-    lineHeight: 20,
-  },
-  productPrice: {
-    fontFamily: 'ElmsSans',
-    fontSize: 16,
-    textAlign: 'right',
-  },
-  productDescription: {
-    fontFamily: 'ElmsSans',
-    fontSize: 10,
-    lineHeight: 11
-  },
-  productCart: {
-    width: '100%',
+  rowBottom: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 'auto',
-    marginRight: 15,
-    display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    gap: spacing.md,
   },
-  productCartNumber: {
-    fontFamily: 'ElmsSans',
-    fontSize: 13,
-    lineHeight: 13
-  },
-  productButtonLess: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 1,
+  cta: {
+    minHeight: 52,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.lg,
+    borderRadius: 2,
   },
-  productButtonLessEven: {
-    borderColor: 'rgba(50, 152, 77, .4)'
-  },
-  productButtonLessOdd: {
-    borderColor: 'rgba(50, 152, 77, 1)'
-  },
-  productButtonLessText: {
-    fontFamily: 'ElmsSans',
-    fontSize: 13,
-    lineHeight: 13,
-  },
-  productButtonPlus: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  productButtonPlusEven: {
-    borderColor: 'rgba(50, 152, 77, .4)'
-  },
-  productButtonPlusOdd: {
-    borderColor: 'rgba(50, 152, 77, 1)'
-  },
-  productButtonPlusText: {
-    fontFamily: 'ElmsSans',
-    fontSize: 13,
-    lineHeight: 13,
-  },
-  modalButton: {
-    position: 'absolute',
-    top: screenHeight - 192,
-    left: '50%',
-    transform: [{ translateX: -0.5 * 250 }],
-    width: 250,    
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    backgroundColor: '#32984D',
-  },
-  modalButtonText: {
-    fontFamily: 'ElmsSans-SemiBold',
-    fontSize: 14,
-    color: '#FFF',
+  state: {
+    padding: spacing.xl,
   },
 })

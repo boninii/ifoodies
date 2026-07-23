@@ -1,317 +1,125 @@
-import { api } from '@/services/api'
-import { Ionicons } from '@expo/vector-icons'
-import { Text } from '@react-navigation/elements'
-import { Link, useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { Image, ScrollView, StatusBar, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Link, useRouter } from 'expo-router'
+import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
+import { useTheme } from '@/theme/useTheme'
+import { spacing, type } from '@/theme/tokens'
+import { AuthScreen } from '@/components/ui/Screen'
+import { Button, Field } from '@/components/ui/primitives'
 
 export default function Login() {
-
   const [email, setEmail] = useState('')
-
   const [password, setPassword] = useState('')
-
   const [showPassword, setShowPassword] = useState(false)
-
-  const [modalVisible, setModalVisible] = useState(false)
-    
-  const [modalMessage, setModalMessage] = useState('')
-
-  const [loginSuccess, setLoginSuccess] = useState(false)
+  const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   const { login, isAuthenticated, isLoading } = useAuth()
-
+  const { colors } = useTheme()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && !loginSuccess) {
-      router.replace('/produtos')
-    }
-  }, [isAuthenticated, isLoading, loginSuccess, router])
+    if (!isLoading && isAuthenticated) router.replace('/produtos')
+  }, [isAuthenticated, isLoading, router])
 
   const handleLogin = async () => {
+    setError('')
 
-    if (!email || !password) {
-      setModalMessage('Por favor, preencha todos os campos.')
-
-      setModalVisible(true)
-
+    if (!email.trim() || !password) {
+      setError('Preencha e-mail e senha para entrar.')
       return
     }
 
+    setSubmitting(true)
     try {
-
       const { ok, data } = await api<{ message: string; error: string; token: string }>('/login', {
         method: 'POST',
         auth: false,
-        body: { email, password }
+        body: { email, password },
       })
 
       if (ok) {
-        setModalMessage(data.message)
-
-        setLoginSuccess(true)
-
-        setModalVisible(true)
-
         await login(data.token)
+        router.replace('/produtos')
+      } else {
+        setError(data.error ?? 'Não foi possível entrar. Confira e-mail e senha.')
       }
-      else {
-        setModalMessage(data.error)
-        setModalVisible(true)
-      }
-    }
-    catch {
-      setModalMessage('Erro ao conectar com o servidor.')
-      setModalVisible(true)
+    } catch {
+      setError('Sem conexão com a cantina. Verifique sua internet e tente de novo.')
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  const handleCloseModal = () => {
-    setModalVisible(false)
-    
-    if (loginSuccess) {
-      setLoginSuccess(false)
-      router.replace('/produtos')
-    }
-  }
-  
   return (
-    <>
-      <StatusBar backgroundColor={"#F2F2F2"} barStyle="dark-content" />
-      
-      <ScrollView
-        contentContainerStyle={styles.login}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <AuthScreen title="iFoodies" tagline="A cantina do IFSP sem fila.">
+      <Field
+        label="E-mail"
+        value={email}
+        onChangeText={setEmail}
+        placeholder="voce@aluno.ifsp.edu.br"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+        textContentType="emailAddress"
+      />
+
+      <Field
+        label="Senha"
+        value={password}
+        onChangeText={setPassword}
+        placeholder="Sua senha"
+        secureTextEntry={!showPassword}
+        autoCapitalize="none"
+        autoCorrect={false}
+        textContentType="password"
+        error={error}
+      />
+
+      <Pressable
+        onPress={() => setShowPassword((v) => !v)}
+        hitSlop={8}
+        accessibilityRole="switch"
+        accessibilityState={{ checked: showPassword }}
+        accessibilityLabel="Mostrar senha"
+        style={styles.toggle}
       >
-        <View style={styles.loginLogo}>
-          <Image source={require('../../assets/images/Login/if-icon.png')} />
-        </View>
+        <Text style={[type.label, { color: colors.greenDeep }]}>
+          {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+        </Text>
+      </Pressable>
 
-        <View>
-          <Text style={styles.loginTitle}>iFoodies</Text>
-          <Text style={styles.loginSubtitle}>Bem-vindo(a) à sua cantina digital</Text>
-        </View>
+      <Button
+        label={submitting ? 'Entrando…' : 'Entrar'}
+        onPress={handleLogin}
+        loading={submitting}
+      />
 
-        <View style={styles.loginForm}>
-          <View style={styles.loginFormContainer}>
-            <Text style={styles.loginFormLabel}>E-mail</Text>
-            <View style={styles.loginFormWrapper}>
-              <Ionicons 
-                name="mail-outline" 
-                size={20} 
-                color="#666" 
-                style={styles.loginFormIcon} 
-              />
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                style={styles.loginFormInput}
-                placeholder="Digite seu e-mail"
-                placeholderTextColor="#999"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-          </View>
-
-          <View style={styles.loginFormContainer}>
-            <Text style={styles.loginFormLabel}>Senha</Text>
-            <View style={styles.loginFormWrapper}>
-              <TouchableOpacity 
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Ionicons 
-                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
-                  size={20} 
-                  color="#666" 
-                  style={styles.loginFormIcon}
-                />
-              </TouchableOpacity>
-              <TextInput
-                style={styles.loginFormInput}
-                placeholder="Digite sua senha"
-                placeholderTextColor="#999"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.loginFormButton} onPress={handleLogin}>
-            <Text style={styles.loginFormButtonText}>ENTRAR</Text>
-          </TouchableOpacity>
-        
-          <Text style={styles.loginFormAccount}>Não tem uma conta? <Link style={styles.loginFormAccountLink} href='/register'>Registre-se já!</Link></Text>
-        </View>
-      </ScrollView>
-
-      {
-        modalVisible && (
-          <View style={styles.modal}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>{modalMessage}</Text>
-              <TouchableOpacity onPress={handleCloseModal} style={styles.modalButton}>
-                <Text style={styles.modalButtonText}>FECHAR</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )
-      }
-    </>
+      <View style={styles.footer}>
+        <Text style={[type.body, { color: colors.inkMuted }]}>Ainda não tem conta? </Text>
+        <Link href="/register" asChild>
+          <Pressable hitSlop={8} accessibilityRole="link">
+            <Text style={[type.title, { color: colors.greenDeep }]}>Cadastre-se</Text>
+          </Pressable>
+        </Link>
+      </View>
+    </AuthScreen>
   )
 }
 
 const styles = StyleSheet.create({
-  login: {
-    flexGrow: 1,
+  toggle: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 56
+    marginBottom: spacing.md,
   },
-  loginLogo: {
-    width: 70,
-    height: 70,
-    borderRadius: 15,
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    backgroundColor: '#32984D',
-    shadowColor: 'rgba(50, 152, 77, 1)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  loginTitle: {
-    fontFamily: 'Fraunces',
-    fontSize: 26,
-    lineHeight: 30,
-    textAlign: 'center',
-    color: '#32984D',
-  },
-  loginSubtitle: {
-    fontFamily: 'ElmsSans',
-    fontSize: 16,
-    fontWeight: 400,
-    textAlign: 'center',
-    paddingTop: '2%',
-    color: '#666'
-  },
-  loginForm: {
-    width: '100%',
-    paddingTop: '20%'
-  },
-  loginFormButton: {
-    width: '100%',
-    height: 52,
-    backgroundColor: 'rgba(50, 152, 77, 1)',
-    borderRadius: 12,
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    marginHorizontal: 'auto',
-  },
-  loginFormButtonText: {
-    fontFamily: 'ElmsSans',
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#FFF'
-  },
-  loginFormContainer: {
-    marginBottom: 25,
-  },
-  loginFormWrapper: {
+  footer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e1e5e9',
-    paddingHorizontal: 16,
-    height: 52,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  loginFormIcon: {
-    paddingRight: 12,
-    paddingVertical: 12
-  },
-  loginFormLabel: {
-    fontFamily: 'ElmsSans',
-    fontSize: 14,
-    fontWeight: 400,
-    color: '#666'
-  },
-  loginFormInput: {
-    width: '100%',
-    display: 'flex',
-    fontFamily: 'ElmsSans',
-    fontSize: 14,
-    fontWeight: 400,
-    color: '#666'
-  },
-  loginFormAccount: {
-    fontFamily: 'ElmsSans',
-    fontSize: 12,
-    paddingTop: 5,
-    marginLeft: 'auto'
-  },
-  loginFormAccountLink: {
-    fontFamily: 'ElmsSans-SemiBold',
-    fontSize: 12,
-  },
-  modal: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 10,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, .5)',
-  },
-  modalContent: {
-    width: '80%',
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    backgroundColor: '#FFF',
-  },
-  modalText: {
-    fontFamily: 'ElmsSans',
-    fontSize: 16,
-    marginBottom: 15,
-    textAlign: 'center',
-    color: '#333',
-  },
-  modalButton: {
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    backgroundColor: '#32984D',
-  },
-  modalButtonText: {
-    fontFamily: 'ElmsSans-SemiBold',
-    fontSize: 14,
-    color: '#FFF',
+    flexWrap: 'wrap',
+    marginTop: spacing.xl,
   },
 })

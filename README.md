@@ -19,8 +19,9 @@ Separados, mas juntos: cada parte tem seu próprio ciclo, mas vivem no mesmo rep
 
 ## 📱 mobile — App do aluno
 
-React Native (Expo SDK 53) + TypeScript + Expo Router. Login, cardápio, carrinho,
-pedidos e perfil. Tipografia Fraunces (serif) + Poppins; identidade em verde.
+React Native (Expo SDK 54) + TypeScript + Expo Router. Login, cardápio, carrinho,
+pedidos e perfil. Sistema visual "Quadro de Horários" (ver [DESIGN.md](DESIGN.md)):
+faixas regradas, sem sombra, tema claro e escuro, no verde institucional do IFSP.
 
 Ver [mobile/README.md](mobile/README.md) para detalhes e como rodar.
 

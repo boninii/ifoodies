@@ -50,36 +50,48 @@ modelo de autenticação.
 
 ## 🛠️ Stack
 
-- **React Native 0.79** + **Expo SDK 53**
+- **React Native 0.81** + **Expo SDK 54**
 - **Expo Router** (navegação baseada em arquivos)
 - **TypeScript** (modo `strict`)
 - **AsyncStorage** para persistência local do token
-- **Fraunces** + **Poppins** (tipografia) e **@expo/vector-icons**
+- **Fraunces** + **Elms Sans** (tipografia) e **@expo/vector-icons**
 - Backend: **API em Laravel** (repositório separado)
 
 ### Identidade visual
 
-A cor verde é o núcleo da marca e guia toda a interface:
+O sistema completo está em **[DESIGN.md](../DESIGN.md)** — esta seção é só o
+resumo. A metáfora é o **quadro de horários** do IFSP: faixas regradas, blocos
+de cor chapada, numerais alinhados e o que acabou aparece riscado, como aula
+cancelada.
 
 | Token | Hex | Uso |
 |-------|-----|-----|
-| Verde da marca | `#32984D` | Botões, destaques, ícones ativos, divisórias |
-| Azul | `#1434A4` | Ação de troca de senha |
-| Vermelho | `#D54A4A` | Ações destrutivas (excluir, sair) |
-| Fundo | `#F2F2F2` | Background geral |
-| Texto secundário | `#666666` | Labels, descrições |
+| Verde IFSP | `#2F9E41` | Cor institucional oficial. Blocos, indicadores, texto ≥20px |
+| Verde profundo | `#1F6B2C` | Campos que carregam texto pequeno (6,58:1 com branco) |
+| Papel frio | `#F4F6F3` | Fundo geral |
+| Fio de régua | `#C9D2C8` | Separador estrutural de 1px |
+| Tinta | `#14201A` | Texto primário (15,3:1) |
+| Tijolo | `#A63A28` | Exclusivo de perda: esgotado, cancelado, erro |
 
-> As listas usam zebra com tints do verde da marca (`rgba(50,152,77,…)`):
-> linhas pares a 10% e ímpares a 22% de opacidade.
+Três regras que o código segue:
+
+- **Nada levita.** Não existe sombra em lugar nenhum; profundidade é fio + tom.
+- **Canto reto.** Raio 0 em faixas, linhas e campos; 2px só em botão.
+- **Verde legível.** Texto pequeno nunca vai sobre `#2F9E41` (3,49:1) — vai
+  sobre `#1F6B2C`.
+
+Tema claro e escuro são escritos separadamente (não é inversão automática) e
+seguem a preferência do sistema.
 
 **Tipografia** — pareamento serif + sans:
 
 | Papel | Fonte | Tamanho |
 |-------|-------|---------|
 | Marca, títulos de tela, categorias e nomes de produto | **Fraunces** (serif) | 16–26 |
-| Corpo, labels, inputs, botões, preços | **Poppins** (sans) | 13–14 |
+| Corpo, labels, inputs, botões, preços | **Elms Sans** (sans) | 11–16 |
 
-O serif dá o tom de "cardápio"; o Poppins pequeno carrega toda a interface.
+O serif dá o tom de "cardápio"; a Elms Sans carrega toda a interface, com
+numerais tabulares para que preço alinhe embaixo de preço.
 
 ---
 
@@ -114,13 +126,17 @@ app/
 ├── auth/              # storage do token + AuthProvider (contexto de sessão)
 ├── hooks/             # useAuth
 └── +not-found.tsx
-components/
-├── cabeçalho/         # Header
-├── rodape/            # Footer (navegação inferior)
-└── ui/                # Layout (casca: header + scroll + footer)
+components/ui/
+├── Screen.tsx         # casca das telas (Screen autenticada + AuthScreen)
+├── TabBar.tsx         # navegação inferior, 4 destinos com rótulo
+├── StatusTrack.tsx    # componente-assinatura: ciclo do pedido em faixas
+└── primitives.tsx     # Rule, BandHeader, Button, Field, Stepper, Price…
+theme/
+├── tokens.ts          # paletas clara/escura, escala, tipografia
+└── useTheme.ts        # tema conforme preferência do sistema
 services/
 └── api.ts             # cliente HTTP único (base URL, token, tratamento de 401)
-assets/                # fontes e imagens
+assets/                # imagens (as fontes vêm por pacote)
 ```
 
 ---
@@ -128,7 +144,7 @@ assets/                # fontes e imagens
 ## 🗺️ Próximos passos
 
 - [ ] Migrar o token de `AsyncStorage` para `expo-secure-store`.
-- [ ] Botão de visibilidade de senha no modal de troca de senha.
-- [ ] Skeleton/loading states durante as chamadas de rede.
-- [ ] Refino visual: unificar os dois tons de verde, alvos de toque ≥ 44px.
+- [ ] Pagamento no app (hoje a tela existe marcada como "em breve").
+- [ ] Avisar o aluno quando o pedido fica `ready` (push ou polling).
+- [ ] Skeleton nos carregamentos, no lugar do texto "Carregando…".
 - [ ] Testes automatizados.

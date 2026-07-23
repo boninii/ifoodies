@@ -1,12 +1,15 @@
-import Layout from '@/components/ui/Layout';
-import { api } from '@/services/api';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useCallback, useEffect, useState } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+import { useRouter } from 'expo-router'
+import { api } from '@/services/api'
+import { useAuth } from '@/hooks/useAuth'
+import { useTheme } from '@/theme/useTheme'
+import { money, spacing, type } from '@/theme/tokens'
+import { Screen } from '@/components/ui/Screen'
+import { BandHeader, Button, Empty, Rule } from '@/components/ui/primitives'
+import { StatusTrack } from '@/components/ui/StatusTrack'
 
-interface Product {
+interface OrderProduct {
   id: number
   name: string
   pivot: {
@@ -20,265 +23,211 @@ interface Order {
   total_value: string
   status: string
   created_at: string
-  products: Product[]
+  products: OrderProduct[]
 }
 
-type OrderCardProps = {
-  pedido: Order
-  isEven: boolean
-  onPress: (pedido: Order) => void
+function formatDate(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
 }
 
-const STATUS_MAP: Record<string, string> = {
-  open: 'Aberto',
-  awaiting_payment: 'Aguardando pagamento',
-  approved: 'Aprovado',
-  in_preparation: 'Em preparação',
-  ready: 'Pronto',
-  canceled: 'Cancelado'
+function formatTime(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
-function PedidoCard({ pedido, isEven, onPress }: OrderCardProps) {
+/**
+ * Um pedido é uma faixa do quadro: código à esquerda, horário e total à
+ * direita, a trilha de status abaixo e os itens listados como sub-linhas.
+ */
+function OrderBand({ order }: { order: Order }) {
+  const { colors } = useTheme()
+  const ready = order.status === 'ready'
+
   return (
-    <TouchableOpacity
-      onPress={() => onPress(pedido)}
-      style={[styles.order, isEven ? styles.orderEven : styles.orderOdd]}
-      accessibilityRole="button"
-      accessibilityLabel={`Ver detalhes do pedido ${pedido.id}`}
-    >
-      <View style={styles.orderHeader}>
-        <Text style={styles.orderHeaderId}>{pedido.id}</Text>
-        <Text style={styles.orderHeaderPrice}>R${pedido.total_value}</Text>
+    <View style={[styles.order, { backgroundColor: colors.surface }]}>
+      <View style={styles.orderTop}>
+        <View>
+          <Text style={[type.label, { color: colors.inkMuted }]}>Pedido</Text>
+          <Text style={[type.numeralLarge, { color: colors.ink }]}>
+            #{String(order.id).padStart(3, '0')}
+          </Text>
+        </View>
+
+        <View style={styles.orderMeta}>
+          <Text style={[type.label, { color: colors.inkMuted }]}>
+            {formatDate(order.created_at)} · {formatTime(order.created_at)}
+          </Text>
+          <Text style={[type.numeralLarge, { color: colors.ink, marginTop: 2 }]}>
+            {money(order.total_value)}
+          </Text>
+        </View>
       </View>
 
-      <Text style={styles.orderDate}>Data: { new Date(pedido.created_at).toLocaleDateString('pt-BR') }</Text>
+      {ready ? (
+        <View style={[styles.readyBand, { backgroundColor: colors.ifGreen }]}>
+          <Text style={[type.label, { color: colors.onGreen }]}>Pronto — retire no balcão</Text>
+        </View>
+      ) : null}
 
-      <View style={styles.orderFooter}>
-        <Text style={styles.orderFooterItem} numberOfLines={1} ellipsizeMode="tail">
-          {
-            pedido.products
-              .map(produto => `${produto.pivot.quantity}x ${produto.name}`)
-              .join(', ')
-          }
-        </Text>
+      <StatusTrack status={order.status} />
 
-        <Ionicons name="eye-outline" size={18} color="#000" style={styles.orderFooterIcon}/>
+      <View style={styles.items}>
+        {order.products.map((p) => (
+          <View key={p.id} style={styles.item}>
+            <Text style={[type.numeral, { color: colors.inkMuted, minWidth: 28 }]}>
+              {p.pivot.quantity}×
+            </Text>
+            <Text style={[type.body, { color: colors.ink, flex: 1 }]} numberOfLines={1}>
+              {p.name}
+            </Text>
+            <Text style={[type.numeral, { color: colors.inkMuted }]}>
+              {money(p.pivot.value_unitary)}
+            </Text>
+          </View>
+        ))}
       </View>
-    </TouchableOpacity>
+    </View>
   )
 }
 
 export default function Pedidos() {
-
   const { token, isAuthenticated, isLoading } = useAuth()
-
-  const [orders, setOrders] = useState<Order[]>([])
-
-  const [modalVisible, setModalVisible] = useState(false)
-
-  const [orderSelected, setOrderSelected] = useState<Order | null>(null)
-
+  const { colors } = useTheme()
   const router = useRouter()
 
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
+
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace('/login')
-    }
+    if (!isLoading && !isAuthenticated) router.replace('/login')
   }, [isAuthenticated, isLoading, router])
 
-  useEffect(() => {
-
-    const fetchOrders = async () => {
-
-      if (!token) return
-
-      try {
-        const { ok, data } = await api<{ orders: Order[] }>('/orders/user')
-
-        if (ok) {
-          setOrders(data.orders)
-        }
-        else {
-          console.error('Erro ao buscar pedidos:', data)
-        }
+  const fetchOrders = useCallback(async () => {
+    if (!token) return
+    setLoadState('loading')
+    try {
+      const { ok, data } = await api<{ orders: Order[] }>('/orders/user')
+      if (ok && Array.isArray(data?.orders)) {
+        setOrders(data.orders)
+        setLoadState('ready')
+      } else {
+        setLoadState('error')
       }
-      catch (error) {
-        console.error('Erro inesperado:', error)
-      }
+    } catch {
+      setLoadState('error')
     }
-
-    fetchOrders()
   }, [token])
 
-  const openOrder = (pedido: Order) => {
-    setOrderSelected(pedido)
-    setModalVisible(true)
-  }
+  useEffect(() => {
+    fetchOrders()
+  }, [fetchOrders])
 
-  const closeOrder = () => {
-    setModalVisible(false)
-    setOrderSelected(null)
+  const activeCount = orders.filter(
+    (o) => o.status !== 'ready' && o.status !== 'canceled',
+  ).length
+
+  const body = () => {
+    if (loadState === 'loading') {
+      return (
+        <View style={styles.state}>
+          <Text style={[type.body, { color: colors.inkMuted }]}>Carregando seus pedidos…</Text>
+        </View>
+      )
+    }
+
+    if (loadState === 'error') {
+      return (
+        <Empty
+          title="Não deu para carregar"
+          body="Seus pedidos não responderam. Verifique a conexão e tente de novo."
+          action={<Button label="Tentar de novo" onPress={fetchOrders} />}
+        />
+      )
+    }
+
+    if (!orders.length) {
+      return (
+        <Empty
+          title="Nenhum pedido ainda"
+          body="Quando você enviar um pedido, ele aparece aqui com o status até ficar pronto."
+          action={<Button label="Ver cardápio" onPress={() => router.replace('/produtos')} />}
+        />
+      )
+    }
+
+    return (
+      <>
+        <BandHeader
+          label={activeCount ? 'Em andamento' : 'Histórico'}
+          trailing={`${orders.length}`}
+        />
+        {orders.map((order, i) => (
+          <View key={order.id}>
+            {i > 0 ? <Rule inset={spacing.lg} /> : null}
+            <OrderBand order={order} />
+          </View>
+        ))}
+
+        <View style={styles.foot}>
+          <Button label="Atualizar status" variant="quiet" onPress={fetchOrders} />
+          <Text style={[type.bodySmall, { color: colors.inkMuted, marginTop: spacing.md }]}>
+            O status é atualizado pela cantina. O app ainda não avisa sozinho quando o pedido
+            fica pronto, então confira aqui enquanto espera.
+          </Text>
+        </View>
+      </>
+    )
   }
 
   return (
-    <Layout>
-      <View style={styles.orders}>
-        <Text style={styles.ordersTitle}>Seus Pedidos</Text>
-
-        <View style={styles.ordersList}>
-          {
-            orders.map((pedido, index) => (
-              <PedidoCard key={pedido.id} pedido={pedido} isEven={index % 2 === 0} onPress={openOrder} />
-            ))
-          }
-        </View>
-
-        <Modal
-          visible={modalVisible}
-          animationType="fade"
-          transparent={true}
-          onRequestClose={closeOrder}
-        >
-          <View style={styles.modalBackground}>
-            <View style={styles.modalCard}>
-              <Text style={styles.modalCardNumber}>Pedido #{orderSelected?.id}</Text>
-              
-              <Text style={styles.modalCardStatus}>Status: {STATUS_MAP[orderSelected?.status || ''] || orderSelected?.status || 'Desconhecido'}</Text>
-              
-              <Text style={styles.modalCardValue}>Valor Total: R${parseFloat(orderSelected?.total_value || '0').toFixed(2)}</Text>
-
-              <Text style={styles.modalCardProductTitle}>Produtos:</Text>
-              
-              <ScrollView style={{ marginTop: 10 }}>
-                {
-                  orderSelected?.products.map(produto => (
-                    <View key={produto.id} style={{ marginBottom: 10 }}>
-                      <Text style={styles.modalCardProductText}>{produto.pivot.quantity}x {produto.name}</Text>
-                      <Text style={styles.modalCardProductText}>Valor unitário: R${parseFloat(produto.pivot.value_unitary).toFixed(2)}</Text>
-                    </View>
-                  ))
-                }
-              </ScrollView>
-
-              <Pressable onPress={closeOrder}>
-                <Text style={styles.modalCardButton}>Fechar</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
-      </View>
-    </Layout>
+    <Screen
+      title="Pedidos"
+      subtitle={
+        activeCount
+          ? `${activeCount} em andamento agora.`
+          : 'Seu histórico de retiradas na cantina.'
+      }
+    >
+      {body()}
+    </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  orders: {
-    flex: 1
-  },
-  ordersTitle: {
-    fontFamily: 'Fraunces',
-    fontSize: 24,
-    textAlign: 'center',
-    paddingVertical: 40
-  },
-  ordersList: {
-    flex: 1,
-  },
   order: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    padding: 15,
-    height: 110
-  },  
-  orderEven: {
-    backgroundColor: 'rgba(50, 152, 77, .1)'
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
   },
-  orderOdd: {
-    backgroundColor: 'rgba(50, 152, 77, .22)'
-  },
-  orderHeader: {
+  orderTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  orderHeaderId: {
-    fontFamily: 'ElmsSans',
-    fontSize: 16,
+  orderMeta: {
+    alignItems: 'flex-end',
   },
-  orderHeaderPrice: {
-    fontFamily: 'ElmsSans',
-    fontSize: 16,
+  readyBand: {
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
-  orderDate: {
-    fontFamily: 'ElmsSans',
-    fontSize: 12,    
+  items: {
+    marginTop: spacing.lg,
+    gap: spacing.sm,
   },
-  orderFooter: {
+  item: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 20
+    gap: spacing.sm,
   },
-  orderFooterItem: {
-    fontFamily: 'ElmsSans',
-    fontSize: 12,   
-    lineHeight: 16,
-    flexShrink: 1
+  state: {
+    padding: spacing.xl,
   },
-  orderFooterIcon: {
-    marginVertical: 'auto',
-    alignItems: 'center'
+  foot: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xl,
   },
-  modalBackground: {
-    flex: 1, 
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, .5)' 
-  },
-  modalCard: {
-    maxHeight: '80%',
-    padding: 20, 
-    margin: 20, 
-    borderRadius: 10, 
-    backgroundColor: '#FFF'
-  },
-  modalCardNumber: {
-    fontFamily: 'Fraunces',
-    fontSize: 20,
-    lineHeight: 24,
-    paddingBottom: 25
-  },
-  modalCardStatus: {
-    fontFamily: 'ElmsSans',
-    fontSize: 13, 
-    lineHeight: 16,
-  },
-  modalCardValue: {
-    fontFamily: 'ElmsSans',
-    fontSize: 13, 
-    lineHeight: 16,
-  },
-  modalCardProductTitle: {
-    fontFamily: 'ElmsSans-SemiBold',
-    fontSize: 14,
-    lineHeight: 14,
-    paddingTop: 25,
-    paddingBottom: 5
-  },
-  modalCardProductText: {
-    fontFamily: 'ElmsSans',
-    fontSize: 13, 
-    lineHeight: 16,
-  },
-  modalCardButton: {
-    fontFamily: 'ElmsSans-Bold',
-    fontSize: 13,
-    lineHeight: 13,
-    textTransform: 'uppercase',
-    textAlign: 'center',
-    marginTop: 10,
-    paddingVertical: 15,
-    borderRadius: 8,
-    color: '#FFF',
-    backgroundColor: '#32984D'
-  }
 })

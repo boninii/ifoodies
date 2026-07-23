@@ -8,6 +8,7 @@ import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraun
 import * as Font from 'expo-font'
 import { Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AuthProvider } from '@/context/AuthProvider'
 
 export default function RootLayout() {
@@ -34,16 +35,21 @@ export default function RootLayout() {
   if (!fontsLoaded) return null
 
   return (
-    <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" options={{ title: 'Início' }} />
-        <Stack.Screen name="login" options={{ title: 'Login' }} />
-        <Stack.Screen name="produtos" options={{ title: 'Produtos' }} />
-        <Stack.Screen name="register" options={{ title: 'Registro' }} />
-        <Stack.Screen name="perfil" options={{ title: 'Perfil' }} />
-        <Stack.Screen name="carrinho" options={{ title: 'Carrinho' }} />
-        <Stack.Screen name="pedidos" options={{ title: 'Meus Pedidos' }} />
-      </Stack>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        {/* As telas desenham o próprio cabeçalho (o "quadro"), então o
+            header nativo fica desligado — mas o gesto de voltar do sistema
+            continua vivo, que é o que Android e iOS garantem ao usuário. */}
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" options={{ title: 'Início' }} />
+          <Stack.Screen name="login" options={{ title: 'Entrar' }} />
+          <Stack.Screen name="produtos" options={{ title: 'Cardápio' }} />
+          <Stack.Screen name="register" options={{ title: 'Criar conta' }} />
+          <Stack.Screen name="perfil" options={{ title: 'Perfil' }} />
+          <Stack.Screen name="carrinho" options={{ title: 'Carrinho' }} />
+          <Stack.Screen name="pedidos" options={{ title: 'Pedidos' }} />
+        </Stack>
+      </AuthProvider>
+    </SafeAreaProvider>
   )
 }

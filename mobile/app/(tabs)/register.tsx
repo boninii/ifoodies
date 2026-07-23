@@ -1,381 +1,186 @@
-import { api } from '@/services/api'
-import { Ionicons } from '@expo/vector-icons'
-import { Text } from '@react-navigation/elements'
-import { Link, useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
-import { Image, ScrollView, StatusBar, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Link, useRouter } from 'expo-router'
+import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
+import { useTheme } from '@/theme/useTheme'
+import { spacing, type } from '@/theme/tokens'
+import { AuthScreen } from '@/components/ui/Screen'
+import { Button, Field } from '@/components/ui/primitives'
+
+type FieldErrors = {
+  name?: string
+  email?: string
+  student_id?: string
+  password?: string
+  general?: string
+}
 
 export default function Register() {
-
   const [name, setName] = useState('')
-  
   const [email, setEmail] = useState('')
-  
   const [studentId, setStudentId] = useState('')
-
   const [password, setPassword] = useState('')
-
   const [showPassword, setShowPassword] = useState(false)
-
-  const [registerSuccess, setRegisterSuccess] = useState(false)
-  
-  const [modalVisible, setModalVisible] = useState(false)
-  
-  const [modalMessage, setModalMessage] = useState('')
+  const [errors, setErrors] = useState<FieldErrors>({})
+  const [submitting, setSubmitting] = useState(false)
 
   const { login, isAuthenticated, isLoading } = useAuth()
-
+  const { colors } = useTheme()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && !registerSuccess) {
-      router.replace('/produtos')
-    }
-  }, [isAuthenticated, isLoading, registerSuccess, router])
+    if (!isLoading && isAuthenticated) router.replace('/produtos')
+  }, [isAuthenticated, isLoading, router])
 
   const handleRegister = async () => {
+    setErrors({})
 
-    if (!name || !email || !studentId || !password) {
-      setModalMessage('Por favor, preencha todos os campos.')
+    const missing: FieldErrors = {}
+    if (!name.trim()) missing.name = 'Informe seu nome.'
+    if (!email.trim()) missing.email = 'Informe seu e-mail.'
+    if (!studentId.trim()) missing.student_id = 'Informe seu prontuário.'
+    if (!password) missing.password = 'Crie uma senha de ao menos 6 caracteres.'
 
-      setModalVisible(true)
-
+    if (Object.keys(missing).length) {
+      setErrors(missing)
       return
     }
 
+    setSubmitting(true)
     try {
-
-      const body = {
-        name,
-        email,
-        student_id: studentId,
-        password,
-        password_confirmation: password
-      }
-
       const { ok, data } = await api<{
         message: string
         token: string
-        errors?: { email?: string[]; student_id?: string[]; password?: string[] }
-      }>('/register', { method: 'POST', auth: false, body })
+        errors?: Record<string, string[]>
+      }>('/register', {
+        method: 'POST',
+        auth: false,
+        body: {
+          name,
+          email,
+          student_id: studentId,
+          password,
+          password_confirmation: password,
+        },
+      })
 
       if (ok) {
-        setModalMessage(data.message)
-
-        setRegisterSuccess(true)
-
-        setModalVisible(true)
-
         await login(data.token)
+        router.replace('/produtos')
+        return
       }
-      else {
-        const messages = [
-          data.errors?.email,
-          data.errors?.student_id,
-          data.errors?.password
-        ].flat().filter(Boolean)
 
-        setModalMessage(messages.length ? messages.join(' & ') : 'Não foi possível concluir o cadastro.')
-
-        setModalVisible(true)
-      }
-    }
-    catch {
-      setModalMessage('Erro ao conectar com o servidor.')
-      setModalVisible(true)
+      // A API devolve os erros por campo; cada um volta ao seu próprio campo
+      // em vez de virar um alerta genérico.
+      const apiErrors = data.errors ?? {}
+      setErrors({
+        name: apiErrors.name?.[0],
+        email: apiErrors.email?.[0],
+        student_id: apiErrors.student_id?.[0],
+        password: apiErrors.password?.[0],
+        general: Object.keys(apiErrors).length ? undefined : 'Não foi possível concluir o cadastro.',
+      })
+    } catch {
+      setErrors({ general: 'Sem conexão com a cantina. Verifique sua internet e tente de novo.' })
+    } finally {
+      setSubmitting(false)
     }
   }
-  
+
   return (
-    <>
-      <StatusBar backgroundColor={"#F2F2F2"} barStyle="dark-content" />
+    <AuthScreen title="Criar conta" tagline="Seu prontuário identifica você na retirada.">
+      <Field
+        label="Nome"
+        value={name}
+        onChangeText={setName}
+        placeholder="Seu nome completo"
+        autoCapitalize="words"
+        autoCorrect={false}
+        error={errors.name}
+      />
 
-      <ScrollView
-        contentContainerStyle={styles.login}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <Field
+        label="E-mail"
+        value={email}
+        onChangeText={setEmail}
+        placeholder="voce@aluno.ifsp.edu.br"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
+        error={errors.email}
+      />
+
+      <Field
+        label="Prontuário"
+        value={studentId}
+        onChangeText={setStudentId}
+        placeholder="SP0000000"
+        autoCapitalize="characters"
+        autoCorrect={false}
+        error={errors.student_id}
+      />
+
+      <Field
+        label="Senha"
+        value={password}
+        onChangeText={setPassword}
+        placeholder="Ao menos 6 caracteres"
+        secureTextEntry={!showPassword}
+        autoCapitalize="none"
+        autoCorrect={false}
+        error={errors.password}
+      />
+
+      <Pressable
+        onPress={() => setShowPassword((v) => !v)}
+        hitSlop={8}
+        accessibilityRole="switch"
+        accessibilityState={{ checked: showPassword }}
+        accessibilityLabel="Mostrar senha"
+        style={styles.toggle}
       >
-        <View style={styles.loginLogo}>
-          <Image source={require('../../assets/images/Login/if-icon.png')} />
-        </View>
+        <Text style={[type.label, { color: colors.greenDeep }]}>
+          {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+        </Text>
+      </Pressable>
 
-        <View>
-          <Text style={styles.loginTitle}>iFoodies</Text>
-          <Text style={styles.loginSubtitle}>Bem-vindo(a) à sua cantina digital</Text>
-        </View>
+      {errors.general ? (
+        <Text style={[type.bodySmall, { color: colors.struck, marginBottom: spacing.md }]}>
+          {errors.general}
+        </Text>
+      ) : null}
 
-        <View style={styles.loginForm}>
-          <View style={styles.loginFormContainer}>
-            <Text style={styles.loginFormLabel}>Nome</Text>
-            <View style={styles.loginFormWrapper}>
-              <Ionicons 
-                name="person-circle-outline" 
-                size={20} 
-                color="#666" 
-                style={styles.loginFormIcon} 
-              />
-              <TextInput
-                value={name}
-                onChangeText={setName}
-                style={styles.loginFormInput}
-                placeholder="Digite seu nome"
-                placeholderTextColor="#999"
-                keyboardType="default"
-                autoCapitalize="words"
-                autoCorrect={false}
-              />
-            </View>
-          </View>
+      <Button
+        label={submitting ? 'Criando…' : 'Criar conta'}
+        onPress={handleRegister}
+        loading={submitting}
+      />
 
-          <View style={styles.loginFormContainer}>
-            <Text style={styles.loginFormLabel}>E-mail</Text>
-            <View style={styles.loginFormWrapper}>
-              <Ionicons 
-                name="mail-outline" 
-                size={20} 
-                color="#666" 
-                style={styles.loginFormIcon} 
-              />
-              <TextInput
-                value={email}
-                onChangeText={setEmail}
-                style={styles.loginFormInput}
-                placeholder="Digite seu e-mail"
-                placeholderTextColor="#999"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-          </View>
-          
-          <View style={styles.loginFormContainer}>
-            <Text style={styles.loginFormLabel}>Prontuário</Text>
-            <View style={styles.loginFormWrapper}>
-              <Ionicons 
-                name="grid-outline" 
-                size={20} 
-                color="#666" 
-                style={styles.loginFormIcon} 
-              />
-              <TextInput
-                value={studentId}
-                onChangeText={setStudentId}
-                style={styles.loginFormInput}
-                placeholder="Digite seu prontuário"
-                placeholderTextColor="#999"
-                keyboardType="default"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-          </View>
-
-          <View style={styles.loginFormContainer}>
-            <Text style={styles.loginFormLabel}>Senha</Text>
-            <View style={styles.loginFormWrapper}>
-              <TouchableOpacity 
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Ionicons 
-                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
-                  size={20} 
-                  color="#666" 
-                  style={styles.loginFormIcon}
-                />
-              </TouchableOpacity>
-              <TextInput
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                style={styles.loginFormInput}
-                placeholder="Digite sua senha"
-                placeholderTextColor="#999"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.loginFormButton} onPress={handleRegister}>
-            <Text style={styles.loginFormButtonText}>CADASTRAR</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.loginFormAccount}>Já tem uma conta? <Link style={styles.loginFormAccountLink} href='/login'>Entre!</Link></Text>
-        </View>
-      </ScrollView>
-
-      {
-        modalVisible && (
-          <View style={styles.modal}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>{modalMessage}</Text>
-              <TouchableOpacity 
-                onPress={() => {
-                  setModalVisible(false)
-                  if (registerSuccess) {
-                    setRegisterSuccess(false)
-                    router.replace('/produtos')
-                  }
-                }} 
-                style={styles.modalButton}
-              >
-                <Text style={styles.modalButtonText}>FECHAR</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )
-      }
-    </>
+      <View style={styles.footer}>
+        <Text style={[type.body, { color: colors.inkMuted }]}>Já tem conta? </Text>
+        <Link href="/login" asChild>
+          <Pressable hitSlop={8} accessibilityRole="link">
+            <Text style={[type.title, { color: colors.greenDeep }]}>Entrar</Text>
+          </Pressable>
+        </Link>
+      </View>
+    </AuthScreen>
   )
 }
 
 const styles = StyleSheet.create({
-  login: {
-    fontFamily: 'ElmsSans',
-    flexGrow: 1,
+  toggle: {
+    alignSelf: 'flex-start',
+    minHeight: 44,
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 56
+    marginBottom: spacing.md,
   },
-  loginLogo: {
-    width: 70,
-    height: 70,
-    borderRadius: 15,
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    backgroundColor: '#32984D',
-    shadowColor: 'rgba(50, 152, 77, 1)',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  loginTitle: {
-    fontFamily: 'Fraunces',
-    fontSize: 26,
-    lineHeight: 30,
-    textAlign: 'center',
-    color: '#32984D',
-  },
-  loginSubtitle: {
-    fontFamily: 'ElmsSans',
-    fontSize: 16,
-    fontWeight: 400,
-    textAlign: 'center',
-    paddingTop: '2%',
-    color: '#666'
-  },
-  loginForm: {
-    width: '100%',
-    paddingTop: '15%'
-  },
-  loginFormButton: {
-    width: '100%',
-    height: 52,
-    backgroundColor: 'rgba(50, 152, 77, 1)',
-    borderRadius: 12,
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center',
-    marginHorizontal: 'auto',
-  },
-  loginFormButtonText: {
-    fontFamily: 'ElmsSans',
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#FFF'
-  },
-  loginFormContainer: {
-    marginBottom: 25,
-  },
-  loginFormWrapper: {
+  footer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e1e5e9',
-    paddingRight: 16,
-    height: 52,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  loginFormIcon: {
-    padding: 12,
-  },
-  loginFormLabel: {
-    fontFamily: 'ElmsSans',
-    fontSize: 14,
-    fontWeight: 400,
-    color: '#666'
-  },
-  loginFormInput: {
-    width: '100%',
-    display: 'flex',
-    fontFamily: 'ElmsSans',
-    fontSize: 14,
-    fontWeight: 400,
-    color: '#666'
-  },
-  loginFormAccount: {
-    fontFamily: 'ElmsSans',
-    fontSize: 12,
-    paddingTop: 5,
-    marginLeft: 'auto'
-  },
-   loginFormAccountLink: {
-    fontFamily: 'ElmsSans',
-    fontSize: 12,
-    fontWeight: 'bold'
-  },
-  modal: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 10,
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, .5)',
-  },
-  modalContent: {
-    width: '80%',
-    padding: 20,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    backgroundColor: '#FFF',
-  },
-  modalText: {
-    fontFamily: 'ElmsSans',
-    fontSize: 16,
-    marginBottom: 15,
-    textAlign: 'center',
-    color: '#333',
-  },
-  modalButton: {
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-    backgroundColor: '#32984D',
-  },
-  modalButtonText: {
-    fontFamily: 'ElmsSans-SemiBold',
-    fontSize: 14,
-    color: '#FFF',
+    flexWrap: 'wrap',
+    marginTop: spacing.xl,
   },
 })
