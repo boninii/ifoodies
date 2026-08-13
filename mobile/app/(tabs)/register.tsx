@@ -89,7 +89,7 @@ export default function Register() {
   }
 
   return (
-    <AuthScreen title="Criar conta" tagline="Seu prontuário identifica você na retirada.">
+    <AuthScreen title="Bora furar a fila" tagline="Crie a conta com seu prontuário — é ele que identifica você na retirada.">
       <Field
         label="Nome"
         value={name}
@@ -140,7 +140,7 @@ export default function Register() {
         accessibilityLabel="Mostrar senha"
         style={styles.toggle}
       >
-        <Text style={[type.label, { color: colors.greenDeep }]}>
+        <Text style={[type.label, { color: colors.primary }]}>
           {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
         </Text>
       </Pressable>
@@ -161,7 +161,7 @@ export default function Register() {
         <Text style={[type.body, { color: colors.inkMuted }]}>Já tem conta? </Text>
         <Link href="/login" asChild>
           <Pressable hitSlop={8} accessibilityRole="link">
-            <Text style={[type.title, { color: colors.greenDeep }]}>Entrar</Text>
+            <Text style={[type.title, { color: colors.primary }]}>Entrar</Text>
           </Pressable>
         </Link>
       </View>

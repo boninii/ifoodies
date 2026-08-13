@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { money, spacing, type } from '@/theme/tokens'
+import { brandGradient, money, radius, shadow, spacing, type } from '@/theme/tokens'
 import { Screen } from '@/components/ui/Screen'
-import { BandHeader, Button, Empty, Price, Rule, Stepper } from '@/components/ui/primitives'
+import { Badge, BandHeader, Button, Empty, Price, Stepper } from '@/components/ui/primitives'
 
 interface Product {
   id: number
@@ -28,13 +29,11 @@ interface Category {
 const STORAGE_KEY = '@pedido'
 
 /**
- * Linha de produto: um bloco do quadro. Sem card, sem raio, sem sombra —
- * o que separa uma linha da outra é o fio de régua.
- *
- * Esgotado é citação direta da aula cancelada: fundo rebaixado, tinta fraca
- * e risco atravessando o nome.
+ * Card de produto: superfície arredondada sobre o papel lavanda, foto com
+ * canto próprio, preço tabular e o contador em pílula. Esgotado rebaixa o
+ * card e ganha selo — sem fingir disponibilidade.
  */
-function ProductRow({
+function ProductCard({
   item,
   quantity,
   onIncrease,
@@ -47,10 +46,15 @@ function ProductRow({
 }) {
   const { colors } = useTheme()
   const soldOut = item.quantity <= 0
+  const lowStock = !soldOut && item.quantity <= 5
 
   return (
     <View
-      style={[styles.row, { backgroundColor: soldOut ? colors.ground : colors.surface }]}
+      style={[
+        styles.card,
+        { backgroundColor: colors.surface, borderColor: colors.rule },
+        soldOut && { opacity: 0.72 },
+      ]}
       accessibilityLabel={
         soldOut ? `${item.name}, esgotado` : `${item.name}, ${money(item.price)}`
       }
@@ -58,24 +62,18 @@ function ProductRow({
       {item.image ? (
         <Image
           source={{ uri: item.image }}
-          style={[styles.thumb, { opacity: soldOut ? 0.4 : 1 }]}
+          style={[styles.thumb, { opacity: soldOut ? 0.35 : 1 }]}
           accessibilityIgnoresInvertColors
         />
       ) : (
-        <View style={[styles.thumb, { backgroundColor: colors.greenWash }]} />
+        <View style={[styles.thumb, { backgroundColor: colors.primarySoft }]} />
       )}
 
-      <View style={styles.rowBody}>
-        <View style={styles.rowTop}>
-          <View style={styles.rowNames}>
+      <View style={styles.cardBody}>
+        <View style={styles.cardTop}>
+          <View style={styles.cardNames}>
             <Text
-              style={[
-                type.headline,
-                {
-                  color: soldOut ? colors.inkMuted : colors.ink,
-                  textDecorationLine: soldOut ? 'line-through' : 'none',
-                },
-              ]}
+              style={[type.headline, { color: soldOut ? colors.inkMuted : colors.ink }]}
               numberOfLines={2}
             >
               {item.name}
@@ -91,12 +89,14 @@ function ProductRow({
           <Price value={item.price} muted={soldOut} />
         </View>
 
-        <View style={styles.rowBottom}>
+        <View style={styles.cardBottom}>
           {soldOut ? (
-            <Text style={[type.label, { color: colors.struck }]}>Esgotado</Text>
+            <Badge label="Esgotado" tone="struck" />
+          ) : lowStock ? (
+            <Badge label={`Só restam ${item.quantity}`} tone="accent" />
           ) : (
-            <Text style={[type.label, { color: colors.inkMuted }]}>
-              {item.quantity} no estoque
+            <Text style={[type.micro, { color: colors.inkMuted }]}>
+              {item.quantity} disponíveis
             </Text>
           )}
 
@@ -229,16 +229,14 @@ export default function Produtos() {
     return categories.map((category) => (
       <View key={category.id}>
         <BandHeader label={category.name} trailing={`${category.products.length}`} />
-        {category.products.map((item, i) => (
-          <View key={item.id}>
-            {i > 0 ? <Rule inset={spacing.lg} /> : null}
-            <ProductRow
-              item={item}
-              quantity={quantities[item.id] ?? 0}
-              onIncrease={() => increase(item)}
-              onDecrease={() => decrease(item.id)}
-            />
-          </View>
+        {category.products.map((item) => (
+          <ProductCard
+            key={item.id}
+            item={item}
+            quantity={quantities[item.id] ?? 0}
+            onIncrease={() => increase(item)}
+            onDecrease={() => decrease(item.id)}
+          />
         ))}
       </View>
     ))
@@ -254,15 +252,19 @@ export default function Produtos() {
             onPress={goToCart}
             accessibilityRole="button"
             accessibilityLabel={`Revisar pedido, ${count} itens, total ${money(total)}`}
-            style={({ pressed }) => [
-              styles.cta,
-              { backgroundColor: colors.greenDeep, opacity: pressed ? 0.85 : 1 },
-            ]}
+            style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.97 : 1 }] }, shadow.floating]}
           >
-            <Text style={[type.label, { color: colors.onGreen }]}>
-              Revisar {count} {count === 1 ? 'item' : 'itens'}
-            </Text>
-            <Text style={[type.numeral, { color: colors.onGreen }]}>{money(total)}</Text>
+            <LinearGradient
+              colors={brandGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.cta}
+            >
+              <Text style={[type.label, { color: colors.onPrimary }]}>
+                Revisar {count} {count === 1 ? 'item' : 'itens'}
+              </Text>
+              <Text style={[type.numeral, { color: colors.onPrimary }]}>{money(total)}</Text>
+            </LinearGradient>
           </Pressable>
         ) : null
       }
@@ -273,42 +275,46 @@ export default function Produtos() {
 }
 
 const styles = StyleSheet.create({
-  row: {
+  card: {
     flexDirection: 'row',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    padding: spacing.md,
     gap: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   thumb: {
-    width: 72,
-    height: 72,
+    width: 76,
+    height: 76,
+    borderRadius: radius.md,
   },
-  rowBody: {
+  cardBody: {
     flex: 1,
     justifyContent: 'space-between',
     gap: spacing.sm,
   },
-  rowTop: {
+  cardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
-  rowNames: {
+  cardNames: {
     flex: 1,
   },
-  rowBottom: {
+  cardBottom: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
   },
   cta: {
-    minHeight: 52,
+    minHeight: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    borderRadius: 2,
+    paddingHorizontal: spacing.xl,
+    borderRadius: radius.pill,
   },
   state: {
     padding: spacing.xl,

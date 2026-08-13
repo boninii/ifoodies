@@ -84,12 +84,19 @@ máxima selecionável por produto.
 
 - **Nome:** iFoodies (o projeto se chamava "Cantina" antes; o nome atual é o
   real e definitivo).
-- **Cores do IF.** O usuário determinou que o design use as cores
-  institucionais do Instituto Federal. O app hoje usa o verde `#32984D`. O tom
-  institucional exato ainda precisa ser confirmado antes de virar token.
-- **Tom desejado:** moderno.
+- **Identidade própria** (redefinido pelo usuário em 2026-08-13, substituindo
+  a diretriz anterior de usar as cores institucionais do IF): o iFoodies deve
+  parecer uma marca real de food service, com paleta própria — explicitamente
+  **não** copiar as cores institucionais do Instituto Federal, não copiar
+  outras marcas (iFood etc.), não parecer fast-food genérico nem sistema
+  administrativo.
+- **Tom desejado:** jovem, moderno, divertido, tecnológico, gastronômico,
+  universitário — sem ser infantil.
+- **Identidade construída** (ver DESIGN.md): "Açaí & Manga" — roxo açaí como
+  cor de marca, manga como acento, wordmark em Unbounded com o pingo do "i"
+  em manga como gesto-assinatura.
 - **Contexto institucional:** é a cantina de uma escola pública federal
-  (IFSP), não uma marca comercial de food service.
+  (IFSP), mas a marca do app é própria, não a do instituto.
 
 ## Evidence on Hand
 

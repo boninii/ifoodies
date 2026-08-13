@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { spacing, type } from '@/theme/tokens'
+import { radius, spacing, type } from '@/theme/tokens'
 import { Screen } from '@/components/ui/Screen'
 import { BandHeader, Button, Field } from '@/components/ui/primitives'
 
@@ -116,10 +116,10 @@ export default function Perfil() {
     <Screen title="Perfil" subtitle="Seus dados na cantina.">
       <BandHeader label="Identificação" />
 
-      <View style={[styles.block, { backgroundColor: colors.surface }]}>
+      <View style={[styles.block, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
         {/* O prontuário identifica o aluno na retirada — é código, não campo. */}
-        <View style={[styles.prontuario, { backgroundColor: colors.greenWash }]}>
-          <Text style={[type.label, { color: colors.inkMuted }]}>Prontuário</Text>
+        <View style={[styles.prontuario, { backgroundColor: colors.primarySoft }]}>
+          <Text style={[type.micro, { color: colors.primary }]}>Prontuário</Text>
           <Text style={[type.numeralLarge, { color: colors.ink, marginTop: spacing.xs }]}>
             {studentId || '—'}
           </Text>
@@ -131,7 +131,7 @@ export default function Perfil() {
 
       <BandHeader label="Dados" />
 
-      <View style={[styles.block, { backgroundColor: colors.surface }]}>
+      <View style={[styles.block, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
         <Field
           label="Nome"
           value={name}
@@ -158,7 +158,7 @@ export default function Perfil() {
 
       <BandHeader label="Senha" />
 
-      <View style={[styles.block, { backgroundColor: colors.surface }]}>
+      <View style={[styles.block, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
         <Field
           label="Senha atual"
           value={oldPassword}
@@ -201,12 +201,15 @@ export default function Perfil() {
 
 const styles = StyleSheet.create({
   block: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.lg,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   prontuario: {
     padding: spacing.lg,
+    borderRadius: radius.md,
   },
   exit: {
     paddingHorizontal: spacing.lg,

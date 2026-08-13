@@ -1,10 +1,5 @@
-import {
-  ElmsSans_400Regular,
-  ElmsSans_500Medium,
-  ElmsSans_600SemiBold,
-  ElmsSans_700Bold,
-} from '@expo-google-fonts/elms-sans'
-import { Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces'
+import { Sora_400Regular, Sora_600SemiBold, Sora_700Bold } from '@expo-google-fonts/sora'
+import { Unbounded_700Bold } from '@expo-google-fonts/unbounded'
 import * as Font from 'expo-font'
 import { Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
@@ -17,14 +12,12 @@ export default function RootLayout() {
   useEffect(() => {
     async function loadFonts() {
       await Font.loadAsync({
-        // Sans de texto (corpo, labels, botões)
-        'ElmsSans': ElmsSans_400Regular,
-        'ElmsSans-Medium': ElmsSans_500Medium,
-        'ElmsSans-SemiBold': ElmsSans_600SemiBold,
-        'ElmsSans-Bold': ElmsSans_700Bold,
-        // Serif de marca (títulos, categorias e nomes de produto)
-        'Fraunces': Fraunces_600SemiBold,
-        'Fraunces-Bold': Fraunces_700Bold,
+        // Corpo e interface (Sora: geométrica, legível, tabular nos números)
+        'Sora': Sora_400Regular,
+        'Sora-SemiBold': Sora_600SemiBold,
+        'Sora-Bold': Sora_700Bold,
+        // Voz da marca (Unbounded: wordmark e títulos de tela)
+        'Unbounded-Bold': Unbounded_700Bold,
       })
       setFontsLoaded(true)
     }

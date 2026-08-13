@@ -6,9 +6,9 @@ import { useFocusEffect, useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { money, spacing, type } from '@/theme/tokens'
+import { money, radius, spacing, type } from '@/theme/tokens'
 import { Screen } from '@/components/ui/Screen'
-import { BandHeader, Button, Empty, Notice, Price, Rule, Stepper } from '@/components/ui/primitives'
+import { BandHeader, Button, Empty, Notice, Price, Stepper } from '@/components/ui/primitives'
 
 // Mesma chave usada pelo cardápio: uma única fonte de verdade do carrinho.
 const STORAGE_KEY = '@pedido'
@@ -140,11 +140,9 @@ export default function Carrinho() {
     >
       <BandHeader label="Itens" trailing={`${count}`} />
 
-      {products.map((item, i) => (
+      {products.map((item) => (
         <View key={item.id}>
-          {i > 0 ? <Rule inset={spacing.lg} /> : null}
-
-          <View style={[styles.row, { backgroundColor: colors.surface }]}>
+          <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
             <View style={styles.rowTop}>
               <Text style={[type.headline, { color: colors.ink, flex: 1 }]} numberOfLines={2}>
                 {item.name}
@@ -182,15 +180,15 @@ export default function Carrinho() {
         </View>
       ))}
 
-      {/* Linha somatória: lida como o rodapé de uma tabela, não como card. */}
-      <View style={[styles.sum, { backgroundColor: colors.greenWash }]}>
+      {/* Card somatório: o total ganha destaque açaí-névoa com numeral grande. */}
+      <View style={[styles.sum, { backgroundColor: colors.primarySoft }]}>
         <Text style={[type.title, { color: colors.ink }]}>Total</Text>
-        <Text style={[type.numeralLarge, { color: colors.ink }]}>{money(total)}</Text>
+        <Text style={[type.numeralLarge, { color: colors.primary }]}>{money(total)}</Text>
       </View>
 
       <BandHeader label="Pagamento" />
 
-      <View style={[styles.payment, { backgroundColor: colors.surface }]}>
+      <View style={[styles.payment, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
         <View style={styles.methods}>
           {PAYMENT_METHODS.map((m) => (
             <View
@@ -217,9 +215,12 @@ export default function Carrinho() {
 
 const styles = StyleSheet.create({
   row: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    padding: spacing.lg,
     gap: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   rowTop: {
     flexDirection: 'row',
@@ -242,14 +243,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
-    marginTop: spacing.xs,
+    marginHorizontal: spacing.lg,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
   },
   payment: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    marginHorizontal: spacing.lg,
+    padding: spacing.lg,
     gap: spacing.lg,
+    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   methods: {
     flexDirection: 'row',
@@ -259,6 +262,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 56,
     borderWidth: StyleSheet.hairlineWidth * 2,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.xs,

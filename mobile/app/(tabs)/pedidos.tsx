@@ -4,9 +4,9 @@ import { useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { money, spacing, type } from '@/theme/tokens'
+import { money, radius, spacing, type } from '@/theme/tokens'
 import { Screen } from '@/components/ui/Screen'
-import { BandHeader, Button, Empty, Rule } from '@/components/ui/primitives'
+import { BandHeader, Button, Empty } from '@/components/ui/primitives'
 import { StatusTrack } from '@/components/ui/StatusTrack'
 
 interface OrderProduct {
@@ -39,25 +39,31 @@ function formatTime(iso: string): string {
 }
 
 /**
- * Um pedido é uma faixa do quadro: código à esquerda, horário e total à
- * direita, a trilha de status abaixo e os itens listados como sub-linhas.
+ * Card de pedido: código e total no topo, a trilha açaí abaixo e os itens
+ * como sub-linhas. Quando fica pronto, o card ganha a faixa manga — o momento
+ * de celebração da marca, com o texto em tinta.
  */
 function OrderBand({ order }: { order: Order }) {
   const { colors } = useTheme()
   const ready = order.status === 'ready'
 
   return (
-    <View style={[styles.order, { backgroundColor: colors.surface }]}>
+    <View
+      style={[
+        styles.order,
+        { backgroundColor: colors.surface, borderColor: ready ? colors.accent : colors.rule },
+      ]}
+    >
       <View style={styles.orderTop}>
         <View>
-          <Text style={[type.label, { color: colors.inkMuted }]}>Pedido</Text>
+          <Text style={[type.micro, { color: colors.inkMuted }]}>Pedido</Text>
           <Text style={[type.numeralLarge, { color: colors.ink }]}>
             #{String(order.id).padStart(3, '0')}
           </Text>
         </View>
 
         <View style={styles.orderMeta}>
-          <Text style={[type.label, { color: colors.inkMuted }]}>
+          <Text style={[type.micro, { color: colors.inkMuted }]}>
             {formatDate(order.created_at)} · {formatTime(order.created_at)}
           </Text>
           <Text style={[type.numeralLarge, { color: colors.ink, marginTop: 2 }]}>
@@ -67,8 +73,10 @@ function OrderBand({ order }: { order: Order }) {
       </View>
 
       {ready ? (
-        <View style={[styles.readyBand, { backgroundColor: colors.ifGreen }]}>
-          <Text style={[type.label, { color: colors.onGreen }]}>Pronto — retire no balcão</Text>
+        <View style={[styles.readyBand, { backgroundColor: colors.accent }]}>
+          <Text style={[type.label, { color: colors.onAccent }]}>
+            Pronto! Retire no balcão
+          </Text>
         </View>
       ) : null}
 
@@ -164,11 +172,8 @@ export default function Pedidos() {
           label={activeCount ? 'Em andamento' : 'Histórico'}
           trailing={`${orders.length}`}
         />
-        {orders.map((order, i) => (
-          <View key={order.id}>
-            {i > 0 ? <Rule inset={spacing.lg} /> : null}
-            <OrderBand order={order} />
-          </View>
+        {orders.map((order) => (
+          <OrderBand key={order.id} order={order} />
         ))}
 
         <View style={styles.foot}>
@@ -198,8 +203,11 @@ export default function Pedidos() {
 
 const styles = StyleSheet.create({
   order: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
+    padding: spacing.lg,
+    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   orderTop: {
     flexDirection: 'row',
@@ -213,6 +221,8 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    alignSelf: 'flex-start',
   },
   items: {
     marginTop: spacing.lg,

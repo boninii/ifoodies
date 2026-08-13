@@ -3,7 +3,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { usePathname, useRouter } from 'expo-router'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useTheme } from '@/theme/useTheme'
-import { spacing, TOUCH_TARGET, type } from '@/theme/tokens'
+import { CONTENT_MAX_WIDTH, radius, spacing, TOUCH_TARGET, type } from '@/theme/tokens'
 import { Rule } from './primitives'
 
 type Destination = {
@@ -22,8 +22,8 @@ const DESTINATIONS: Destination[] = [
 
 /**
  * Navegação principal. Cada destino tem rótulo visível — ícone sozinho é
- * adivinhação, e o aluno está com pressa. O item ativo ganha um campo verde
- * cheio no topo, citando o bloco preenchido do quadro.
+ * adivinhação, e o aluno está com pressa. O item ativo senta numa pílula
+ * açaí-névoa, com ícone e rótulo em açaí.
  */
 export function TabBar() {
   const { colors } = useTheme()
@@ -33,66 +33,72 @@ export function TabBar() {
   return (
     <View style={{ backgroundColor: colors.surface }}>
       <Rule />
-      <View style={styles.bar}>
-        {DESTINATIONS.map((d) => {
-          const active = pathname === d.route
+      <View style={styles.column}>
+        <View style={styles.bar}>
+          {DESTINATIONS.map((d) => {
+            const active = pathname === d.route
 
-          return (
-            <Pressable
-              key={d.route}
-              onPress={() => router.replace(d.route)}
-              accessibilityRole="tab"
-              accessibilityLabel={d.label}
-              accessibilityState={{ selected: active }}
-              style={styles.item}
-            >
-              <View
-                style={[
-                  styles.marker,
-                  { backgroundColor: active ? colors.ifGreen : 'transparent' },
-                ]}
-              />
-              <MaterialCommunityIcons
-                name={d.icon}
-                size={22}
-                color={active ? colors.ink : colors.inkMuted}
-              />
-              <Text
-                style={[
-                  type.label,
-                  {
-                    color: active ? colors.ink : colors.inkMuted,
-                    fontSize: 10,
-                    letterSpacing: 0.4,
-                    marginTop: spacing.xs,
-                  },
-                ]}
-                numberOfLines={1}
+            return (
+              <Pressable
+                key={d.route}
+                onPress={() => router.replace(d.route)}
+                accessibilityRole="tab"
+                accessibilityLabel={d.label}
+                accessibilityState={{ selected: active }}
+                style={styles.item}
               >
-                {d.label}
-              </Text>
-            </Pressable>
-          )
-        })}
+                <View
+                  style={[
+                    styles.pill,
+                    { backgroundColor: active ? colors.primarySoft : 'transparent' },
+                  ]}
+                >
+                  <MaterialCommunityIcons
+                    name={d.icon}
+                    size={22}
+                    color={active ? colors.primary : colors.inkMuted}
+                  />
+                  <Text
+                    style={[
+                      type.micro,
+                      { color: active ? colors.primary : colors.inkMuted, marginTop: 2 },
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {d.label}
+                  </Text>
+                </View>
+              </Pressable>
+            )
+          })}
+        </View>
       </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  column: {
+    width: '100%',
+    maxWidth: CONTENT_MAX_WIDTH,
+    alignSelf: 'center',
+  },
   bar: {
     flexDirection: 'row',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
   },
   item: {
     flex: 1,
-    minHeight: TOUCH_TARGET + 12,
+    minHeight: TOUCH_TARGET + 8,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: spacing.sm,
   },
-  marker: {
-    height: 3,
-    alignSelf: 'stretch',
-    marginBottom: spacing.sm,
+  pill: {
+    alignItems: 'center',
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    minWidth: 72,
   },
 })

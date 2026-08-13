@@ -13,7 +13,7 @@ import { useTheme } from '@/theme/useTheme'
 import { money, radius, spacing, TOUCH_TARGET, type } from '@/theme/tokens'
 
 /* ------------------------------------------------------------------ *
- * Fio de régua — o separador estrutural do sistema. 1px, nunca sombra.
+ * Traço separador. 1px; profundidade no iFoodies é tom, não sombra.
  * ------------------------------------------------------------------ */
 export function Rule({ inset = 0 }: { inset?: number }) {
   const { colors } = useTheme()
@@ -29,26 +29,27 @@ export function Rule({ inset = 0 }: { inset?: number }) {
 }
 
 /* ------------------------------------------------------------------ *
- * Cabeçalho de faixa — o que dá o ritmo de "quadro" à tela.
- * Campo verde profundo (6,58:1 com branco) porque carrega texto pequeno.
+ * Cabeçalho de seção: título em tinta + contador em pílula açaí-névoa.
  * ------------------------------------------------------------------ */
 export function BandHeader({ label, trailing }: { label: string; trailing?: string }) {
   const { colors } = useTheme()
   return (
-    <View style={[styles.bandHeader, { backgroundColor: colors.greenDeep }]}>
-      <Text style={[type.label, { color: colors.onGreen }]} numberOfLines={1}>
+    <View style={styles.bandHeader}>
+      <Text style={[type.headline, { color: colors.ink }]} numberOfLines={1}>
         {label}
       </Text>
       {trailing ? (
-        <Text style={[type.label, { color: colors.onGreen }]}>{trailing}</Text>
+        <View style={[styles.countPill, { backgroundColor: colors.primarySoft }]}>
+          <Text style={[type.micro, { color: colors.primary }]}>{trailing}</Text>
+        </View>
       ) : null}
     </View>
   )
 }
 
 /* ------------------------------------------------------------------ *
- * Botão. Canto 2px, altura 52, sem sombra, sem escala no press.
- * Desabilitado exige motivo dito por extenso (prop `disabledReason`).
+ * Botão em pílula. Aperto encolhe de leve (0.97) — feedback tátil sem
+ * exagero. Desabilitado exige motivo dito por extenso.
  * ------------------------------------------------------------------ */
 export function Button({
   label,
@@ -72,12 +73,12 @@ export function Button({
 
   const field =
     variant === 'primary'
-      ? colors.greenDeep
+      ? colors.primary
       : variant === 'destructive'
         ? colors.struck
         : colors.surface
 
-  const fg = variant === 'quiet' ? colors.ink : colors.onGreen
+  const fg = variant === 'quiet' ? colors.ink : colors.onPrimary
 
   return (
     <View>
@@ -90,10 +91,11 @@ export function Button({
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: isOff ? colors.rule : field,
+            backgroundColor: isOff ? colors.rule : pressed && variant === 'primary' ? colors.primaryDeep : field,
             borderColor: variant === 'quiet' ? colors.rule : 'transparent',
             borderWidth: variant === 'quiet' ? StyleSheet.hairlineWidth * 2 : 0,
-            opacity: pressed ? 0.82 : 1,
+            transform: [{ scale: pressed ? 0.97 : 1 }],
+            opacity: pressed && variant !== 'primary' ? 0.85 : 1,
           },
         ]}
       >
@@ -114,7 +116,7 @@ export function Button({
 }
 
 /* ------------------------------------------------------------------ *
- * Campo de formulário. Reto, fio de 1px; foco troca o fio para verde.
+ * Campo de formulário. Arredondado, foco em açaí 2px — sem glow.
  * Erro nomeia o problema E a recuperação.
  * ------------------------------------------------------------------ */
 export function Field({
@@ -126,11 +128,11 @@ export function Field({
   const { colors } = useTheme()
   const [focused, setFocused] = React.useState(false)
 
-  const border = error ? colors.struck : focused ? colors.ifGreen : colors.rule
+  const border = error ? colors.struck : focused ? colors.primary : colors.rule
 
   return (
     <View style={{ marginBottom: spacing.lg }}>
-      <Text style={[type.label, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
+      <Text style={[type.micro, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
         {label}
       </Text>
 
@@ -169,8 +171,7 @@ export function Field({
 }
 
 /* ------------------------------------------------------------------ *
- * Contador de quantidade. Único elemento em pílula do sistema — ele é o
- * que se manipula, e a forma diz isso.
+ * Contador de quantidade em pílula — o elemento que se manipula.
  * ------------------------------------------------------------------ */
 export function Stepper({
   value,
@@ -189,7 +190,12 @@ export function Stepper({
   const atMax = typeof max === 'number' && value >= max
 
   return (
-    <View style={[styles.stepper, { borderColor: colors.rule }]}>
+    <View
+      style={[
+        styles.stepper,
+        { borderColor: colors.rule, backgroundColor: value > 0 ? colors.primarySoft : colors.surface },
+      ]}
+    >
       <Pressable
         onPress={value > 0 ? onDecrease : undefined}
         disabled={value === 0}
@@ -199,7 +205,7 @@ export function Stepper({
         style={styles.stepperButton}
       >
         <Text
-          style={[type.numeralLarge, { color: value === 0 ? colors.rule : colors.ink }]}
+          style={[type.numeralLarge, { color: value === 0 ? colors.rule : colors.primary }]}
         >
           −
         </Text>
@@ -220,7 +226,7 @@ export function Stepper({
         accessibilityLabel={`Aumentar ${itemName}`}
         style={styles.stepperButton}
       >
-        <Text style={[type.numeralLarge, { color: atMax ? colors.rule : colors.ifGreen }]}>
+        <Text style={[type.numeralLarge, { color: atMax ? colors.rule : colors.primary }]}>
           +
         </Text>
       </Pressable>
@@ -229,7 +235,7 @@ export function Stepper({
 }
 
 /* ------------------------------------------------------------------ *
- * Preço. Sempre tabular e alinhado à direita (Regra do Numeral Tabular).
+ * Preço. Sempre tabular e alinhado à direita (Regra do Numeral).
  * ------------------------------------------------------------------ */
 export function Price({ value, muted }: { value: number | string; muted?: boolean }) {
   const { colors } = useTheme()
@@ -241,7 +247,30 @@ export function Price({ value, muted }: { value: number | string; muted?: boolea
 }
 
 /* ------------------------------------------------------------------ *
- * Aviso em faixa. Usado para o que é verdade mas ainda não funciona
+ * Selo pequeno (esgotado, em breve, estoque baixo).
+ * ------------------------------------------------------------------ */
+export function Badge({
+  label,
+  tone = 'neutral',
+}: {
+  label: string
+  tone?: 'accent' | 'struck' | 'neutral'
+}) {
+  const { colors } = useTheme()
+  const bg =
+    tone === 'accent' ? colors.accent : tone === 'struck' ? colors.struck : colors.primarySoft
+  const fg =
+    tone === 'accent' ? colors.onAccent : tone === 'struck' ? colors.onPrimary : colors.primary
+
+  return (
+    <View style={[styles.badge, { backgroundColor: bg }]}>
+      <Text style={[type.micro, { color: fg }]}>{label}</Text>
+    </View>
+  )
+}
+
+/* ------------------------------------------------------------------ *
+ * Aviso em card tingido. Para o que é verdade mas ainda não funciona
  * (ex.: pagamento no app) — nunca finge que está pronto.
  * ------------------------------------------------------------------ */
 export function Notice({
@@ -254,19 +283,19 @@ export function Notice({
   tone?: 'pending' | 'struck' | 'neutral'
 }) {
   const { colors } = useTheme()
-  const accent =
+  const accentColor =
     tone === 'pending' ? colors.pending : tone === 'struck' ? colors.struck : colors.inkMuted
 
   return (
-    <View style={[styles.notice, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
-      <Text style={[type.label, { color: accent, marginBottom: spacing.xs }]}>{label}</Text>
+    <View style={[styles.notice, { backgroundColor: colors.primarySoft }]}>
+      <Text style={[type.micro, { color: accentColor, marginBottom: spacing.xs }]}>{label}</Text>
       <Text style={[type.bodySmall, { color: colors.inkMuted }]}>{children}</Text>
     </View>
   )
 }
 
 /* ------------------------------------------------------------------ *
- * Estado vazio. Faixa, não ilustração genérica.
+ * Estado vazio: um convite para agir, não um beco.
  * ------------------------------------------------------------------ */
 export function Empty({
   title,
@@ -280,7 +309,9 @@ export function Empty({
   const { colors } = useTheme()
   return (
     <View style={styles.empty}>
-      <Text style={[type.headline, { color: colors.ink, marginBottom: spacing.sm }]}>{title}</Text>
+      <Text style={[type.headline, { color: colors.ink, marginBottom: spacing.sm, textAlign: 'center' }]}>
+        {title}
+      </Text>
       <Text
         style={[type.body, { color: colors.inkMuted, marginBottom: spacing.xl, textAlign: 'center' }]}
       >
@@ -301,18 +332,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
+  },
+  countPill: {
+    minWidth: 28,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    alignItems: 'center',
   },
   button: {
     minHeight: 52,
-    borderRadius: radius.chip,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.xl,
   },
   field: {
     minHeight: 52,
-    borderRadius: radius.none,
+    borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
@@ -332,9 +371,14 @@ const styles = StyleSheet.create({
     minWidth: 24,
     textAlign: 'center',
   },
+  badge: {
+    alignSelf: 'flex-start',
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: spacing.xs,
+  },
   notice: {
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    borderRadius: radius.none,
+    borderRadius: radius.md,
     padding: spacing.lg,
   },
   empty: {

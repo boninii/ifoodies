@@ -53,7 +53,7 @@ export default function Login() {
   }
 
   return (
-    <AuthScreen title="iFoodies" tagline="A cantina do IFSP sem fila.">
+    <AuthScreen title="Bem-vindo(a) de volta" tagline="A fila anda. Você não precisa.">
       <Field
         label="E-mail"
         value={email}
@@ -85,7 +85,7 @@ export default function Login() {
         accessibilityLabel="Mostrar senha"
         style={styles.toggle}
       >
-        <Text style={[type.label, { color: colors.greenDeep }]}>
+        <Text style={[type.label, { color: colors.primary }]}>
           {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
         </Text>
       </Pressable>
@@ -100,7 +100,7 @@ export default function Login() {
         <Text style={[type.body, { color: colors.inkMuted }]}>Ainda não tem conta? </Text>
         <Link href="/register" asChild>
           <Pressable hitSlop={8} accessibilityRole="link">
-            <Text style={[type.title, { color: colors.greenDeep }]}>Cadastre-se</Text>
+            <Text style={[type.title, { color: colors.primary }]}>Cadastre-se</Text>
           </Pressable>
         </Link>
       </View>

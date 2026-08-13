@@ -20,8 +20,8 @@ Separados, mas juntos: cada parte tem seu próprio ciclo, mas vivem no mesmo rep
 ## 📱 mobile — App do aluno
 
 React Native (Expo SDK 54) + TypeScript + Expo Router. Login, cardápio, carrinho,
-pedidos e perfil. Sistema visual "Quadro de Horários" (ver [DESIGN.md](DESIGN.md)):
-faixas regradas, sem sombra, tema claro e escuro, no verde institucional do IFSP.
+pedidos e perfil. Identidade própria "Açaí & Manga" (ver [DESIGN.md](DESIGN.md)):
+roxo açaí + manga, Unbounded + Sora, cards arredondados, tema claro e escuro.
 
 Ver [mobile/README.md](mobile/README.md) para detalhes e como rodar.
 

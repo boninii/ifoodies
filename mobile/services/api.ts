@@ -1,12 +1,35 @@
+import Constants from 'expo-constants'
+import { Platform } from 'react-native'
 import { getToken } from '@/services/auth'
 
 /**
- * URL base da API (Laravel). Vem de variável de ambiente pública do Expo
- * (`EXPO_PUBLIC_API_URL`) e cai num default caso o `.env` não exista, para
- * que o projeto rode logo após o clone.
+ * URL base da API (Laravel).
+ *
+ * Em desenvolvimento o host é derivado sozinho — o IP do notebook muda a
+ * cada renovação do DHCP, e um IP fixo no .env quebrava a conexão toda vez:
+ * - web: mesmo hostname que serve o app (window.location);
+ * - nativo (Expo Go): o host do Metro (Constants.expoConfig.hostUri), que é
+ *   sempre o IP atual da máquina de desenvolvimento.
+ *
+ * Em build de produção vale `EXPO_PUBLIC_API_URL` (ou o default remoto).
  */
-const BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? 'https://cantinaapi.dingols.com.br/api/cantina'
+const API_PORT = 8000
+const API_PATH = '/api/cantina'
+
+function resolveDevHost(): string | null {
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    return window.location.hostname
+  }
+  const hostUri = Constants.expoConfig?.hostUri
+  if (hostUri) return hostUri.split(':')[0]
+  return null
+}
+
+const devHost = __DEV__ ? resolveDevHost() : null
+
+const BASE_URL = devHost
+  ? `http://${devHost}:${API_PORT}${API_PATH}`
+  : (process.env.EXPO_PUBLIC_API_URL ?? 'https://cantinaapi.dingols.com.br/api/cantina')
 
 /**
  * Handler chamado quando a API responde 401. O AuthProvider registra aqui o

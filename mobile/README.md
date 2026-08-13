@@ -54,44 +54,47 @@ modelo de autenticação.
 - **Expo Router** (navegação baseada em arquivos)
 - **TypeScript** (modo `strict`)
 - **AsyncStorage** para persistência local do token
-- **Fraunces** + **Elms Sans** (tipografia) e **@expo/vector-icons**
+- **Unbounded** + **Sora** (tipografia) e **@expo/vector-icons**
 - Backend: **API em Laravel** (repositório separado)
 
 ### Identidade visual
 
 O sistema completo está em **[DESIGN.md](../DESIGN.md)** — esta seção é só o
-resumo. A metáfora é o **quadro de horários** do IFSP: faixas regradas, blocos
-de cor chapada, numerais alinhados e o que acabou aparece riscado, como aula
-cancelada.
+resumo. A marca é própria ("Açaí & Manga"): roxo açaí como cor principal,
+manga como acento raro, e o **pingo do "i"** do wordmark em manga como
+gesto-assinatura (ele reaparece só no símbolo e na etapa atual da trilha de
+pedido).
 
 | Token | Hex | Uso |
 |-------|-----|-----|
-| Verde IFSP | `#2F9E41` | Cor institucional oficial. Blocos, indicadores, texto ≥20px |
-| Verde profundo | `#1F6B2C` | Campos que carregam texto pequeno (6,58:1 com branco) |
-| Papel frio | `#F4F6F3` | Fundo geral |
-| Fio de régua | `#C9D2C8` | Separador estrutural de 1px |
-| Tinta | `#14201A` | Texto primário (15,3:1) |
-| Tijolo | `#A63A28` | Exclusivo de perda: esgotado, cancelado, erro |
+| Açaí | `#6C2BD9` | Cor da marca: botões, foco, trilha, item ativo (7,0:1 com branco) |
+| Açaí profundo | `#4A1FA3` | Pressed e fim do degradê da marca |
+| Névoa de açaí | `#F1EAFE` | Superfícies tingidas: chips, total, pílula ativa |
+| Manga | `#FFB300` | O pingo do "i". Selos e "Pronto!" — sempre com tinta por cima |
+| Papel lavanda | `#F7F5FC` | Fundo geral |
+| Tinta ameixa | `#191331` | Texto primário (16,5:1) |
+| Morango | `#D6284A` | Exclusivo de perda: esgotado, cancelado, erro |
 
 Três regras que o código segue:
 
-- **Nada levita.** Não existe sombra em lugar nenhum; profundidade é fio + tom.
-- **Canto reto.** Raio 0 em faixas, linhas e campos; 2px só em botão.
-- **Verde legível.** Texto pequeno nunca vai sobre `#2F9E41` (3,49:1) — vai
-  sobre `#1F6B2C`.
+- **A Regra do Pingo.** O pingo manga só existe no wordmark, no símbolo e na
+  etapa atual da trilha.
+- **A Regra dos Dois Voos.** Sombra só no CTA flutuante e em modal.
+- **A Regra da Voz Única.** Unbounded no máximo duas vezes por tela; o resto
+  é Sora.
 
-Tema claro e escuro são escritos separadamente (não é inversão automática) e
-seguem a preferência do sistema.
+Tema claro e escuro são escritos separadamente (o escuro é berinjela tingida,
+não inversão) e seguem a preferência do sistema.
 
-**Tipografia** — pareamento serif + sans:
+**Tipografia** — display + sans geométrica:
 
 | Papel | Fonte | Tamanho |
 |-------|-------|---------|
-| Marca, títulos de tela, categorias e nomes de produto | **Fraunces** (serif) | 16–26 |
-| Corpo, labels, inputs, botões, preços | **Elms Sans** (sans) | 11–16 |
+| Wordmark e título de tela | **Unbounded** (700) | 24–30 |
+| Corpo, labels, inputs, botões, preços | **Sora** (400/600/700) | 11–20 |
 
-O serif dá o tom de "cardápio"; a Elms Sans carrega toda a interface, com
-numerais tabulares para que preço alinhe embaixo de preço.
+A Unbounded é a voz da marca, usada com parcimônia; a Sora carrega toda a
+interface, com numerais tabulares para que preço alinhe embaixo de preço.
 
 ---
 
@@ -101,10 +104,7 @@ numerais tabulares para que preço alinhe embaixo de preço.
 # 1. Instale as dependências
 npm install
 
-# 2. Configure o ambiente
-cp .env.example .env   # ajuste EXPO_PUBLIC_API_URL se necessário
-
-# 3. Suba o app
+# 2. Suba o app (em dev o host da API é descoberto sozinho)
 npx expo start
 ```
 
@@ -114,7 +114,7 @@ Abra no **Expo Go** (Android/iOS), num **emulador** ou no **navegador** (`w`).
 
 | Variável | Descrição |
 |----------|-----------|
-| `EXPO_PUBLIC_API_URL` | URL base da API Laravel (ex.: `https://.../api/cantina`) |
+| `EXPO_PUBLIC_API_URL` | URL base da API **em build de produção**. Em desenvolvimento o app descobre o host sozinho (web: hostname da página; Expo Go: IP do Metro) |
 
 ---
 
@@ -129,7 +129,7 @@ app/
 components/ui/
 ├── Screen.tsx         # casca das telas (Screen autenticada + AuthScreen)
 ├── TabBar.tsx         # navegação inferior, 4 destinos com rótulo
-├── StatusTrack.tsx    # componente-assinatura: ciclo do pedido em faixas
+├── StatusTrack.tsx    # trilha do pedido em pílulas, com o pingo manga
 └── primitives.tsx     # Rule, BandHeader, Button, Field, Stepper, Price…
 theme/
 ├── tokens.ts          # paletas clara/escura, escala, tipografia

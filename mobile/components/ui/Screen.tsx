@@ -8,16 +8,17 @@ import {
   Text,
   View,
 } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme } from '@/theme/useTheme'
-import { spacing, type } from '@/theme/tokens'
+import { brandGradient, CONTENT_MAX_WIDTH, radius, spacing, type } from '@/theme/tokens'
 import { TabBar } from './TabBar'
-import { Rule } from './primitives'
+import { Wordmark } from './Logo'
 
 /**
- * Shell das telas autenticadas. Respeita safe area nos dois SOs (notch,
- * Dynamic Island, barra de gestos) e mantém a lista sangrando de ponta a
- * ponta — sem margem lateral, como um quadro afixado na parede.
+ * Shell das telas autenticadas. Respeita safe area nos dois SOs e, em telas
+ * largas (web/tablet), centraliza o conteúdo em uma coluna de 600px — em vez
+ * de esticar uma tela de celular.
  */
 export function Screen({
   title,
@@ -29,7 +30,7 @@ export function Screen({
   title: string
   subtitle?: string
   children: React.ReactNode
-  /** Ação fixa no rodapé, acima da navegação (ex.: finalizar pedido). */
+  /** Ação fixa no rodapé, acima da navegação (ex.: enviar pedido). */
   footer?: React.ReactNode
   scroll?: boolean
 }) {
@@ -37,7 +38,7 @@ export function Screen({
   const insets = useSafeAreaInsets()
 
   const body = (
-    <>
+    <View style={styles.column}>
       <View style={styles.masthead}>
         <Text style={[type.display, { color: colors.ink }]}>{title}</Text>
         {subtitle ? (
@@ -47,7 +48,7 @@ export function Screen({
         ) : null}
       </View>
       {children}
-    </>
+    </View>
   )
 
   return (
@@ -71,9 +72,8 @@ export function Screen({
       )}
 
       {footer ? (
-        <View style={{ backgroundColor: colors.ground }}>
-          <Rule />
-          <View style={styles.footer}>{footer}</View>
+        <View style={styles.footerWrap} pointerEvents="box-none">
+          <View style={[styles.column, styles.footer]}>{footer}</View>
         </View>
       ) : null}
 
@@ -84,9 +84,9 @@ export function Screen({
 }
 
 /**
- * Shell das telas de entrada (login e cadastro). Sem navegação — quem não
- * está autenticado não tem para onde ir. O campo verde no topo é a marca
- * ocupando região inteira, não um logo solto num fundo branco.
+ * Shell das telas de entrada (login e cadastro). O herói é o degradê açaí
+ * com o wordmark — a marca ocupa a primeira dobra, e o formulário vem num
+ * card que sobrepõe o herói.
  */
 export function AuthScreen({
   title,
@@ -102,7 +102,7 @@ export function AuthScreen({
 
   return (
     <View style={[styles.root, { backgroundColor: colors.ground }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.greenDeep} />
+      <StatusBar barStyle="light-content" backgroundColor={brandGradient[0]} />
 
       <KeyboardAvoidingView
         style={styles.flex}
@@ -114,19 +114,24 @@ export function AuthScreen({
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View
-            style={[
-              styles.authMasthead,
-              { backgroundColor: colors.greenDeep, paddingTop: insets.top + spacing.xxl },
-            ]}
+          <LinearGradient
+            colors={brandGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.hero, { paddingTop: insets.top + spacing.xxl }]}
           >
-            <Text style={[type.display, { color: colors.onGreen }]}>{title}</Text>
-            <Text style={[type.body, { color: colors.onGreen, marginTop: spacing.sm, opacity: 0.9 }]}>
-              {tagline}
-            </Text>
-          </View>
+            <View style={styles.column}>
+              <Wordmark size={30} color="#FFFFFF" />
+              <Text style={[type.headline, styles.heroTitle]}>{title}</Text>
+              <Text style={[type.body, styles.heroTagline]}>{tagline}</Text>
+            </View>
+          </LinearGradient>
 
-          <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.xl }}>{children}</View>
+          {/* O card do formulário morde o herói: a transição marca a passagem
+              da marca para a tarefa. */}
+          <View style={[styles.column, styles.authCardWrap]}>
+            <View style={[styles.authCard, { backgroundColor: colors.surface }]}>{children}</View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -136,17 +141,42 @@ export function AuthScreen({
 const styles = StyleSheet.create({
   root: { flex: 1 },
   flex: { flex: 1 },
-  authMasthead: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
+  column: {
+    width: '100%',
+    maxWidth: CONTENT_MAX_WIDTH,
+    alignSelf: 'center',
   },
   masthead: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.sm,
+  },
+  footerWrap: {
+    width: '100%',
   },
   footer: {
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  hero: {
+    paddingBottom: spacing.xxl + spacing.lg,
+    paddingHorizontal: spacing.lg,
+  },
+  heroTitle: {
+    color: '#FFFFFF',
+    marginTop: spacing.xl,
+  },
+  heroTagline: {
+    color: '#FFFFFF',
+    opacity: 0.85,
+    marginTop: spacing.xs,
+  },
+  authCardWrap: {
+    paddingHorizontal: spacing.lg,
+    marginTop: -spacing.xl,
+  },
+  authCard: {
+    borderRadius: radius.lg,
+    padding: spacing.lg,
   },
 })
