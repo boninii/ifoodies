@@ -40,9 +40,9 @@ typography:
     lineHeight: "21px"
   body:
     fontFamily: "Montserrat"
-    fontSize: "15px"
+    fontSize: "14px"
     fontWeight: 400
-    lineHeight: "22px"
+    lineHeight: "21px"
   label:
     fontFamily: "Montserrat"
     fontSize: "13px"
@@ -128,7 +128,6 @@ existe em exatamente dois elementos (CTA flutuante e modal).
 - Unbounded na voz da marca, Montserrat em todo o resto
 - Cards arredondados com traço cinza fino; nada de sombra espalhada
 - Tema claro é o padrão obrigatório; escuro é opt-in nas configurações
-- Tamanho de letra ajustável pelo usuário (controle fixo no cabeçalho)
 - O pingo verde-folha só aparece onde é assinatura
 
 ## Colors
@@ -184,15 +183,11 @@ usuário em Perfil → Aparência.
 por tela). A Montserrat faz todo o trabalho: rótulos, corpo, botões e
 números, com numerais tabulares para preço alinhar embaixo de preço.
 
-Os textos de interface nascem pequenos e **escalam por escolha do usuário**:
-um controle fixo no cabeçalho (A− · A · A+) aplica fatores 1 / 1,15 / 1,3 a
-tudo, exceto ao `display` — a voz da marca não escala.
-
 ### Hierarchy
 - **Display** (Unbounded 700, 24/30, -0.4): título da tela, uma vez por tela.
 - **Headline** (Montserrat 700, 17/22): nome de produto no popup, seções.
 - **Title** (Montserrat 600, 16/21): nome de produto no card, totais, links.
-- **Body** (Montserrat 400, 15/22): descrição e texto corrido.
+- **Body** (Montserrat 400, 14/21): descrição e texto corrido.
 - **Label** (Montserrat 700, 13/16): texto de botão e rótulos. Sentence case.
 - **Micro** (Montserrat 700, 11/14): selos, contadores, rótulos de campo.
 - **Numeral / NumeralLarge** (Montserrat 700, 16 e 20, tabular): preço,
@@ -208,11 +203,11 @@ Cards sobre papel: cada unidade de conteúdo é um card arredondado (20px) com
 traço cinza de 1px. Cabeçalho de seção com contador em pílula abre cada
 grupo.
 
-No cardápio, um **menu lateral de categorias** (rail de 96px, fixo à
-esquerda) filtra a lista — o aluno não precisa rolar o cardápio inteiro. O
-card de produto é enxuto (foto, nome, preço, contador); descrição completa e
-detalhes moram no popup que abre ao tocar no card, para o texto nunca ser
-cortado.
+No cardápio, o **filtro de categorias** abre pelo ícone no cabeçalho e o
+painel **sobrepõe os cards** (não rouba largura da lista) — o aluno filtra
+sem rolar o cardápio inteiro. O card de produto é enxuto (foto, nome, preço,
+contador); descrição completa e detalhes moram no popup que abre ao tocar no
+card, para o texto nunca ser cortado.
 
 Escala de espaçamento: 4 / 8 / 12 / 16 / 24 / 40. Em telas largas o conteúdo
 vive numa coluna central de **600px**. Alvo de toque mínimo de 48dp, safe
@@ -256,9 +251,11 @@ Modal central (máx. 440px): foto grande, nome, preço em destaque, descrição
 completa sem truncar, estoque e contador. Fecha por toque fora, botão ou
 gesto de voltar.
 
-### Category rail
-Menu lateral fixo de filtragem do cardápio: pílulas verticais ("Tudo" + uma
-por categoria); a ativa é campo floresta com texto branco.
+### Category panel
+Filtro de categorias do cardápio: abre pelo ícone de filtro no cabeçalho e
+sobrepõe os cards, com scrim para fechar ao toque fora. Itens com ícone +
+rótulo ("Tudo" + uma linha por categoria); o ativo é campo floresta com
+texto branco. O botão de filtro fica verde quando há filtro aplicado.
 
 ### Inputs / Fields
 Raio 14px, traço cinza 1px; foco troca para floresta 2px, erro para perda 2px
@@ -276,10 +273,6 @@ lavagem verde com ícone e texto floresta.
 Quatro segmentos-pílula que preenchem de verde conforme o pedido avança; a
 etapa atual carrega o pingo verde-folha. Cancelado vira pílula de perda.
 "Pronto!" ganha faixa verde-folha com texto escuro no card do pedido.
-
-### Font size control
-Fixo no cabeçalho de toda tela autenticada: A− · A · A+ (diminuir, padrão,
-aumentar), em pílula com traço cinza.
 
 ### CTA flutuante
 Pílula com degradê floresta e sombra `floating`: rótulo à esquerda, total

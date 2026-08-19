@@ -86,9 +86,7 @@ Regras que o código segue:
 - **A Regra da Voz Única.** Unbounded no máximo duas vezes por tela; o resto
   é Montserrat.
 
-O tamanho da letra é ajustável pelo usuário (controle fixo A− · A · A+ no
-cabeçalho, fatores 1/1,15/1,3), e a troca de aba é instantânea (sem animação,
-sem flash).
+A troca de aba é instantânea (sem animação, sem flash).
 
 **Tipografia** — display + sans geométrica:
 
@@ -134,11 +132,10 @@ components/ui/
 ├── Screen.tsx         # casca das telas (Screen autenticada + AuthScreen)
 ├── TabBar.tsx         # navegação inferior, 4 destinos com rótulo
 ├── StatusTrack.tsx    # trilha do pedido em pílulas, com o pingo verde-folha
-├── FontSizeControl.tsx # controle fixo A− · A · A+ do tamanho de letra
 └── primitives.tsx     # Rule, BandHeader, Button, Field, Stepper, Badge…
 theme/
-├── tokens.ts          # paletas clara/escura, escala, tipografia base
-├── preferences.tsx    # tema (claro por padrão) e escala de fonte persistidos
+├── tokens.ts          # paletas clara/escura, escala, tipografia
+├── preferences.tsx    # preferência de tema (claro por padrão), persistida
 └── useTheme.ts        # tema resolvido a partir da preferência do usuário
 services/
 ├── api.ts             # cliente HTTP único (host automático em dev, token, 401)

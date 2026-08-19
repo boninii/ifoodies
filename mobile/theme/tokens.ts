@@ -138,9 +138,8 @@ export const shadow: Record<'floating' | 'modal', ViewStyle> = {
 }
 
 /**
- * Tipografia base (escala 1). Os textos de interface são consumidos via
- * `useType()` (theme/preferences.tsx), que aplica o fator de tamanho de
- * fonte escolhido pelo usuário — `display` é voz de marca e não escala.
+ * Tipografia do sistema. Consumida nas telas via `useType()`
+ * (theme/preferences.tsx).
  */
 export const type = {
   /** Voz da marca: títulos de tela e wordmark. Unbounded, larga e jovem. */
@@ -163,8 +162,8 @@ export const type = {
   },
   body: {
     fontFamily: 'Montserrat',
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 21,
   },
   bodySmall: {
     fontFamily: 'Montserrat',

@@ -15,12 +15,10 @@ import { useType } from '@/theme/preferences'
 import { CONTENT_MAX_WIDTH, radius, spacing } from '@/theme/tokens'
 import { TabBar } from './TabBar'
 import { Wordmark } from './Logo'
-import { FontSizeControl } from './FontSizeControl'
 
 /**
  * Shell das telas autenticadas. Respeita safe area nos dois SOs e, em telas
  * largas (web/tablet), centraliza o conteúdo em uma coluna de 600px.
- * O controle de tamanho de letra fica fixo no cabeçalho de toda tela.
  */
 export function Screen({
   title,
@@ -35,7 +33,7 @@ export function Screen({
   children: React.ReactNode
   /** Ação fixa no rodapé, acima da navegação (ex.: enviar pedido). */
   footer?: React.ReactNode
-  /** Ação extra no cabeçalho, ao lado do controle de fonte (ex.: filtro). */
+  /** Ação extra no cabeçalho, à direita do título (ex.: filtro). */
   mastheadExtra?: React.ReactNode
   scroll?: boolean
 }) {
@@ -50,10 +48,7 @@ export function Screen({
           <Text style={[type.display, styles.mastheadTitle, { color: colors.ink }]}>
             {title}
           </Text>
-          <View style={styles.mastheadActions}>
-            {mastheadExtra}
-            <FontSizeControl />
-          </View>
+          {mastheadExtra ? <View style={styles.mastheadActions}>{mastheadExtra}</View> : null}
         </View>
         {subtitle ? (
           <Text style={[type.body, { color: colors.inkMuted, marginTop: spacing.xs }]}>
