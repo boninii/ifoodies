@@ -92,8 +92,9 @@ máxima selecionável por produto.
   verde VIVO com interface macia ("smooth") — superfícies tonais no lugar de
   bordas de 1px. Continua valendo: não copiar outras marcas, não parecer
   fast-food genérico nem sistema administrativo.
-- **Tema claro é o padrão obrigatório.** O escuro existe e é escolhido pelo
-  usuário nas configurações (Perfil → Aparência).
+- **Tema único: só o claro** (decidido em 2026-08-19). A opção de troca foi
+  removida a pedido do usuário; a paleta escura segue definida no código,
+  porém não é oferecida.
 - **Tom desejado:** jovem, moderno, divertido, tecnológico, gastronômico,
   universitário — sem ser infantil.
 - **Tipografia definida pelo usuário (2026-08-19):** Unbounded em TODOS os

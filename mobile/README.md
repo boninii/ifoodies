@@ -79,8 +79,8 @@ gesto-assinatura.
 
 Regras que o código segue:
 
-- **A Regra do Claro Primeiro.** O app abre SEMPRE no tema claro; o escuro é
-  opt-in em Perfil → Aparência.
+- **A Regra do Tema Único.** O app tem um tema só, o claro — sem troca e sem
+  seguir o sistema.
 - **A Regra do Pingo.** O pingo verde-folha só existe no wordmark, no símbolo
   e na etapa atual da trilha.
 - **A Regra do Voo Único.** Sombra só no que sobrepõe a tela (modal e

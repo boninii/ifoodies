@@ -5,7 +5,7 @@ import { useType } from '@/theme/preferences'
 import { radius, spacing } from '@/theme/tokens'
 
 /**
- * Trilha do pedido: quatro segmentos em pílula que preenchem de verde conforme
+ * Trilha do pedido: três segmentos em pílula que preenchem de verde conforme
  * o pedido avança. A etapa atual carrega o pingo — o mesmo pingo do "i" do
  * wordmark, ecoando a assinatura da marca onde o aluno mais olha.
  *
@@ -16,17 +16,23 @@ import { radius, spacing } from '@/theme/tokens'
 const STEPS = [
   { key: 'open', short: 'Aberto' },
   { key: 'approved', short: 'Aprovado' },
-  { key: 'in_preparation', short: 'Preparo' },
   { key: 'ready', short: 'Pronto' },
 ] as const
 
-/** Em qual degrau da trilha cada status do backend cai. */
+/**
+ * Em qual degrau da trilha cada status do backend cai.
+ *
+ * A trilha mostra 3 etapas, mas o backend continua tendo `in_preparation` —
+ * a cantina pode marcá-lo no painel. Ele cai em "Aprovado", a etapa cumprida
+ * mais avançada, e o texto completo ("Em preparação") segue no rótulo de
+ * acessibilidade.
+ */
 const STEP_INDEX: Record<string, number> = {
   open: 0,
   awaiting_payment: 0,
   approved: 1,
-  in_preparation: 2,
-  ready: 3,
+  in_preparation: 1,
+  ready: 2,
 }
 
 export const STATUS_LABEL: Record<string, string> = {

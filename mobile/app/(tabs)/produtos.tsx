@@ -1,5 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Animated,
+  Easing,
+  Image,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -33,6 +44,9 @@ const STORAGE_KEY = '@pedido'
 type Filter = 'all' | number
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name']
 
+/** Largura do painel de filtro — também é a distância que ele percorre. */
+const PANEL_WIDTH = 220
+
 /** Ícone por categoria, inferido do nome (as categorias vêm da API). */
 function categoryIcon(name: string): IconName {
   const n = name.toLowerCase()
@@ -49,11 +63,13 @@ function categoryIcon(name: string): IconName {
  * e rótulo; tocar filtra e fecha.
  */
 function CategoryPanel({
+  open,
   categories,
   selected,
   onSelect,
   onClose,
 }: {
+  open: boolean
   categories: Category[]
   selected: Filter
   onSelect: (f: Filter) => void
@@ -62,22 +78,65 @@ function CategoryPanel({
   const { colors } = useTheme()
   const type = useType()
 
+  // Uma progressão (0 fechado → 1 aberto) move e revela o painel junto: ele
+  // surge da esquerda ganhando opacidade e volta pelo mesmo caminho.
+  const progress = useRef(new Animated.Value(0)).current
+  const [mounted, setMounted] = useState(open)
+
+  // Montar e animar são passos separados: animar no mesmo ciclo em que o
+  // componente ainda devolve null deixaria a animação sem view para prender.
+  useEffect(() => {
+    if (open) setMounted(true)
+  }, [open])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    Animated.timing(progress, {
+      toValue: open ? 1 : 0,
+      duration: 400,
+      easing: Easing.inOut(Easing.ease),
+      // Driver nativo no aparelho; na web o RNW não o aplica ao DOM e o
+      // painel ficaria congelado, então lá a animação roda em JS.
+      useNativeDriver: Platform.OS !== 'web',
+    }).start(({ finished }) => {
+      // Só desmonta ao terminar de sair, senão a saída não seria vista.
+      if (finished && !open) setMounted(false)
+    })
+  }, [open, mounted, progress])
+
+  if (!mounted) return null
+
   const items: { key: Filter; label: string; icon: IconName }[] = [
     { key: 'all', label: 'Tudo', icon: 'silverware-variant' },
     ...categories.map((c) => ({ key: c.id as Filter, label: c.name, icon: categoryIcon(c.name) })),
   ]
 
-  return (
-    <View style={StyleSheet.absoluteFill}>
-      {/* Toque fora fecha. */}
-      <Pressable
-        style={[StyleSheet.absoluteFill, styles.scrim]}
-        onPress={onClose}
-        accessibilityLabel="Fechar filtro de categorias"
-      />
+  const slide = progress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-PANEL_WIDTH, 0],
+  })
 
-      <View
-        style={[styles.panel, { backgroundColor: colors.surface }, shadow.modal]}
+  return (
+    // Fechado, não intercepta toque nenhum — mesmo que ainda esteja saindo de
+    // cena ou que a animação não termine (app em segundo plano, por exemplo),
+    // um véu invisível jamais bloqueia a tela.
+    <View style={StyleSheet.absoluteFill} pointerEvents={open ? 'auto' : 'none'}>
+      {/* Toque fora fecha; o véu acompanha a mesma progressão. */}
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: progress }]}>
+        <Pressable
+          style={[StyleSheet.absoluteFill, styles.scrim]}
+          onPress={onClose}
+          accessibilityLabel="Fechar filtro de categorias"
+        />
+      </Animated.View>
+
+      <Animated.View
+        style={[
+          styles.panel,
+          { backgroundColor: colors.surface, opacity: progress, transform: [{ translateX: slide }] },
+          shadow.modal,
+        ]}
       >
         <Text style={[type.eyebrow, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
           Categorias
@@ -118,7 +177,7 @@ function CategoryPanel({
             )
           })}
         </ScrollView>
-      </View>
+      </Animated.View>
     </View>
   )
 }
@@ -425,15 +484,15 @@ export default function Produtos() {
           ))}
         </ScrollView>
 
-        {/* O painel de categorias sobrepõe os cards quando aberto. */}
-        {filterOpen ? (
-          <CategoryPanel
-            categories={categories}
-            selected={filter}
-            onSelect={setFilter}
-            onClose={() => setFilterOpen(false)}
-          />
-        ) : null}
+        {/* Sempre montado: o próprio painel controla entrada e saída, para a
+            animação de fechar ser vista. */}
+        <CategoryPanel
+          open={filterOpen}
+          categories={categories}
+          selected={filter}
+          onSelect={setFilter}
+          onClose={() => setFilterOpen(false)}
+        />
       </View>
     )
   }
@@ -517,8 +576,7 @@ const styles = StyleSheet.create({
     left: spacing.lg,
     top: spacing.sm,
     bottom: spacing.xl,
-    width: 220,
-    maxWidth: '80%',
+    width: PANEL_WIDTH,
     borderRadius: radius.lg,
     padding: spacing.md,
   },

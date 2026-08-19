@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Alert, StyleSheet, Text, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { usePreferences, useType, type ThemePreference } from '@/theme/preferences'
+import { useType } from '@/theme/preferences'
 import { radius, spacing } from '@/theme/tokens'
 import { Screen } from '@/components/ui/Screen'
 import { BandHeader, Button, Field } from '@/components/ui/primitives'
@@ -15,14 +15,7 @@ export default function Perfil() {
   const { logout, token, isAuthenticated, isLoading } = useAuth()
   const { colors } = useTheme()
   const type = useType()
-  const { themePreference, setThemePreference } = usePreferences()
   const router = useRouter()
-
-  const THEME_OPTIONS: { key: ThemePreference; label: string }[] = [
-    { key: 'light', label: 'Claro' },
-    { key: 'dark', label: 'Escuro' },
-    { key: 'system', label: 'Sistema' },
-  ]
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -201,39 +194,6 @@ export default function Perfil() {
         />
       </View>
 
-      <BandHeader label="Aparência" />
-
-      <View style={[styles.block, { backgroundColor: colors.surface }]}>
-        <Text style={[type.eyebrow, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
-          Tema
-        </Text>
-        <View style={styles.themeRow}>
-          {THEME_OPTIONS.map((opt) => {
-            const active = themePreference === opt.key
-            return (
-              <Pressable
-                key={opt.key}
-                onPress={() => setThemePreference(opt.key)}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: active }}
-                accessibilityLabel={`Tema ${opt.label}`}
-                style={[
-                  styles.themeOption,
-                  { backgroundColor: active ? colors.primary : colors.primarySoft },
-                ]}
-              >
-                <Text style={[type.label, { color: active ? colors.onPrimary : colors.primary }]}>
-                  {opt.label}
-                </Text>
-              </Pressable>
-            )
-          })}
-        </View>
-        <Text style={[type.bodySmall, { color: colors.inkMuted, marginTop: spacing.sm }]}>
-          O app abre no tema claro. "Sistema" segue a configuração do aparelho.
-        </Text>
-      </View>
-
       <View style={styles.exit}>
         <Button label="Sair da conta" variant="destructive" onPress={signOut} />
       </View>
@@ -251,17 +211,6 @@ const styles = StyleSheet.create({
   prontuario: {
     padding: spacing.lg,
     borderRadius: radius.md,
-  },
-  themeRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  themeOption: {
-    flex: 1,
-    minHeight: 48,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   exit: {
     paddingHorizontal: spacing.lg,

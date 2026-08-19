@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useFocusEffect, useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
@@ -26,6 +26,9 @@ interface Order {
   created_at: string
   products: OrderProduct[]
 }
+
+/** De quanto em quanto tempo a tela busca o status, com pedido em andamento. */
+const POLL_INTERVAL_MS = 15000
 
 function formatDate(iso: string): string {
   const d = new Date(iso)
@@ -117,29 +120,53 @@ export default function Pedidos() {
     if (!isLoading && !isAuthenticated) router.replace('/login')
   }, [isAuthenticated, isLoading, router])
 
-  const fetchOrders = useCallback(async () => {
-    if (!token) return
-    setLoadState('loading')
-    try {
-      const { ok, data } = await api<{ orders: Order[] }>('/orders/user')
-      if (ok && Array.isArray(data?.orders)) {
-        setOrders(data.orders)
-        setLoadState('ready')
-      } else {
-        setLoadState('error')
+  /**
+   * `silent` = recarga de fundo: não pisca o estado de carregando nem
+   * derruba a lista por uma falha momentânea de rede.
+   */
+  const fetchOrders = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (!token) return
+      if (!opts?.silent) setLoadState('loading')
+      try {
+        const { ok, data } = await api<{ orders: Order[] }>('/orders/user')
+        if (ok && Array.isArray(data?.orders)) {
+          setOrders(data.orders)
+          setLoadState('ready')
+        } else if (!opts?.silent) {
+          setLoadState('error')
+        }
+      } catch {
+        if (!opts?.silent) setLoadState('error')
       }
-    } catch {
-      setLoadState('error')
-    }
-  }, [token])
-
-  useEffect(() => {
-    fetchOrders()
-  }, [fetchOrders])
+    },
+    [token],
+  )
 
   const activeCount = orders.filter(
     (o) => o.status !== 'ready' && o.status !== 'canceled',
   ).length
+
+  // O intervalo é criado uma vez; o ref diz a ele se ainda há o que esperar.
+  const hasActive = useRef(false)
+  hasActive.current = activeCount > 0
+
+  /**
+   * A tela se atualiza sozinha: recarrega ao ganhar foco e, enquanto houver
+   * pedido em andamento, repete a cada 15s. Sem pedido ativo não há o que
+   * buscar, e fora de foco não gasta bateria nem dados do aluno.
+   */
+  useFocusEffect(
+    useCallback(() => {
+      fetchOrders()
+
+      const id = setInterval(() => {
+        if (hasActive.current) fetchOrders({ silent: true })
+      }, POLL_INTERVAL_MS)
+
+      return () => clearInterval(id)
+    }, [fetchOrders]),
+  )
 
   const body = () => {
     if (loadState === 'loading') {
@@ -180,13 +207,13 @@ export default function Pedidos() {
           <OrderBand key={order.id} order={order} />
         ))}
 
-        <View style={styles.foot}>
-          <Button label="Atualizar status" variant="quiet" onPress={fetchOrders} />
-          <Text style={[type.bodySmall, { color: colors.inkMuted, marginTop: spacing.md }]}>
-            O status é atualizado pela cantina. O app ainda não avisa sozinho quando o pedido
-            fica pronto, então confira aqui enquanto espera.
-          </Text>
-        </View>
+        {activeCount ? (
+          <View style={styles.foot}>
+            <Text style={[type.bodySmall, { color: colors.inkMuted }]}>
+              Esta tela se atualiza sozinha enquanto você espera.
+            </Text>
+          </View>
+        ) : null}
       </>
     )
   }

@@ -1,59 +1,18 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import React from 'react'
 import { type as baseType, type TypeScale } from './tokens'
 
 /**
- * Preferências de aparência do usuário, persistidas no aparelho.
+ * O app tem um tema só: o claro. Não há troca nem preferência persistida —
+ * decisão de produto, para a interface ser sempre a mesma no balcão.
  *
- * Tema: o app SEMPRE nasce no claro (decisão de produto) e o aluno pode
- * trocar para escuro — ou seguir o sistema — nas configurações do Perfil.
+ * Este provider segue existindo como ponto único de acesso à tipografia,
+ * o que mantém as telas desacopladas dos tokens.
  */
-
-export type ThemePreference = 'light' | 'dark' | 'system'
-
-const THEME_KEY = '@ifoodies/tema'
-
-type PreferencesValue = {
-  themePreference: ThemePreference
-  setThemePreference: (p: ThemePreference) => void
-}
-
-const PreferencesContext = createContext<PreferencesValue>({
-  themePreference: 'light',
-  setThemePreference: () => {},
-})
-
 export function PreferencesProvider({ children }: { children: React.ReactNode }) {
-  const [themePreference, setThemeState] = useState<ThemePreference>('light')
-
-  useEffect(() => {
-    AsyncStorage.getItem(THEME_KEY)
-      .then((theme) => {
-        if (theme === 'light' || theme === 'dark' || theme === 'system') {
-          setThemeState(theme)
-        }
-      })
-      .catch(() => {})
-  }, [])
-
-  const setThemePreference = (p: ThemePreference) => {
-    setThemeState(p)
-    AsyncStorage.setItem(THEME_KEY, p).catch(() => {})
-  }
-
-  const value = useMemo<PreferencesValue>(
-    () => ({ themePreference, setThemePreference }),
-    [themePreference],
-  )
-
-  return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>
+  return <>{children}</>
 }
 
-export function usePreferences(): PreferencesValue {
-  return useContext(PreferencesContext)
-}
-
-/** Tipografia do sistema (hook mantido como ponto único de consumo nas telas). */
+/** Tipografia do sistema. */
 export function useType(): TypeScale {
   return baseType
 }

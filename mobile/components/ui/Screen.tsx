@@ -37,7 +37,7 @@ export function Screen({
   mastheadExtra?: React.ReactNode
   scroll?: boolean
 }) {
-  const { colors, scheme } = useTheme()
+  const { colors } = useTheme()
   const type = useType()
   const insets = useSafeAreaInsets()
 
@@ -63,7 +63,7 @@ export function Screen({
   return (
     <View style={[styles.root, { backgroundColor: colors.ground, paddingTop: insets.top }]}>
       <StatusBar
-        barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
+        barStyle="dark-content"
         backgroundColor={colors.ground}
       />
 

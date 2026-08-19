@@ -127,7 +127,7 @@ tom; sombra existe só no que sobrepõe a tela (modal e painel de filtro).
 - Unbounded em TODOS os títulos (do display ao eyebrow), Figtree no resto
 - Cards sem contorno flutuando em fundo mint; nada de sombra espalhada
 - Tonal no lugar de outline: quiet, stepper e chips são preenchidos suaves
-- Tema claro é o padrão obrigatório; escuro é opt-in nas configurações
+- Tema único: só o claro, sem troca nem leitura da preferência do sistema
 - O pingo verde-folha só aparece onde é assinatura
 
 ## Colors
@@ -170,9 +170,9 @@ no marcador de etapa atual da trilha — e em nenhum outro lugar.
 **A Regra da Folha Legível.** Verde-folha nunca carrega texto branco; sobre
 folha, sempre tinta escura.
 
-**A Regra do Claro Primeiro.** O app abre SEMPRE no tema claro. O escuro
-existe, é escrito à mão (verde-noite, não inversão) e é escolhido pelo
-usuário em Perfil → Aparência.
+**A Regra do Tema Único.** O app tem um tema só, o claro. A paleta escura
+segue definida em `tokens.ts`, mas não é oferecida — nada de troca nem de
+seguir a configuração do aparelho.
 
 ## Typography
 
@@ -189,7 +189,7 @@ Unbounded — faz corpo, rótulos, botões e números, com numerais tabulares.
 - **Display** (Unbounded 700, 24/30, -0.4): título da tela, uma vez por tela.
 - **Headline** (Unbounded 600, 17/24): seções/categorias e nome no popup.
 - **Eyebrow** (Unbounded 600, 10/14, +0.4): títulos mínimos — "Categorias",
-  "Pedido", "Prontuário", "Tema".
+  "Pedido", "Prontuário".
 - **Title** (Figtree 700, 16/21): nome de produto no card, totais, links.
 - **Body** (Figtree 400, 14/21): descrição e texto corrido.
 - **Label** (Figtree 700, 13/17): texto de botão e rótulos. Sentence case.
@@ -277,7 +277,8 @@ Quatro destinos com ícone + rótulo visível. O ativo senta numa pílula de
 lavagem mint com ícone e texto kelly.
 
 ### Status track (assinatura)
-Quatro segmentos-pílula que preenchem de kelly conforme o pedido avança; a
+Três segmentos-pílula (Aberto · Aprovado · Pronto) que preenchem de kelly
+conforme o pedido avança; a
 etapa atual carrega o pingo verde-folha. Cancelado vira pílula de perda.
 "Pronto!" ganha faixa verde-folha com texto escuro no card do pedido.
 
@@ -290,7 +291,7 @@ direita. Aperto encolhe para 0.97.
 ### Do:
 - **Do** usar kelly como campo de ação e folha como energia rara.
 - **Do** separar card de fundo por TOM (mint × branco), nunca por borda.
-- **Do** abrir SEMPRE no tema claro; escuro só por escolha do usuário.
+- **Do** manter o tema claro como único; não reintroduzir troca de tema.
 - **Do** sentence case em botões e rótulos ("Enviar pedido", nunca "ENVIAR").
 - **Do** numerais tabulares alinhados à direita em todo preço e total.
 - **Do** manter o card de produto enxuto — descrição completa vive no popup.
