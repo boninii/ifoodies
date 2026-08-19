@@ -120,7 +120,7 @@ nenhum outro. A raridade é o que o mantém assinatura.
 
 A geometria é macia: cards arredondados (24px) SEM contorno sobre papel
 mint, ações em pílula, tonais no lugar de outlines. Profundidade é tom sobre
-tom; sombra existe em exatamente dois elementos (CTA flutuante e modal).
+tom; sombra existe só no que sobrepõe a tela (modal e painel de filtro).
 
 **Key Characteristics:**
 - Verde kelly como cor de ação, verde-folha como energia
@@ -224,11 +224,12 @@ entre telas.
 ## Elevation & Depth
 
 Tom sobre tom: papel → superfície branca → lavagem verde. Sombra existe em
-**exatamente dois** elementos: o CTA flutuante do cardápio (`shadow.floating`)
-e modais (`shadow.modal`). Card comum não tem sombra.
+um lugar: o que sobrepõe a tela — modal de detalhes e painel de filtro
+(`shadow.modal`). Card e CTA não têm sombra.
 
 ### Named Rules
-**A Regra dos Dois Voos.** Só o CTA e o modal flutuam.
+**A Regra do Voo Único.** Só o que sobrepõe a tela flutua (modal e painel
+de filtro). No plano da página, nada levita — nem card, nem o CTA.
 
 ## Shapes
 
@@ -280,9 +281,9 @@ Quatro segmentos-pílula que preenchem de kelly conforme o pedido avança; a
 etapa atual carrega o pingo verde-folha. Cancelado vira pílula de perda.
 "Pronto!" ganha faixa verde-folha com texto escuro no card do pedido.
 
-### CTA flutuante
-Pílula com degradê floresta e sombra `floating`: rótulo à esquerda, total
-tabular à direita.
+### CTA do cardápio
+Pílula com degradê kelly, sem sombra: rótulo à esquerda, total tabular à
+direita. Aperto encolhe para 0.97.
 
 ## Do's and Don'ts
 
@@ -296,7 +297,7 @@ tabular à direita.
 - **Do** limitar o conteúdo a 600px em telas largas.
 
 ### Don't:
-- **Don't** usar sombra fora do CTA flutuante e do modal.
+- **Don't** usar sombra fora do modal e do painel de filtro.
 - **Don't** contornar cards, chips ou botões com borda — borda é só de campo
   de formulário (e do aro verde-folha do pedido pronto).
 - **Don't** usar Unbounded fora de título, nem Figtree em título.

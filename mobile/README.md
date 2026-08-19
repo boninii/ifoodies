@@ -83,7 +83,8 @@ Regras que o código segue:
   opt-in em Perfil → Aparência.
 - **A Regra do Pingo.** O pingo verde-folha só existe no wordmark, no símbolo
   e na etapa atual da trilha.
-- **A Regra dos Dois Voos.** Sombra só no CTA flutuante e em modal.
+- **A Regra do Voo Único.** Sombra só no que sobrepõe a tela (modal e
+  painel de filtro); no plano da página nada levita.
 - **A Regra da Voz de Título.** Todo título é Unbounded (era <16px, desce
   1px — daí o eyebrow de 10px); o que não é título é Figtree.
 - **A Regra do Tom.** Card não tem borda — a separação é fundo mint × card

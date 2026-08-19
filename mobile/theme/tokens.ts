@@ -11,7 +11,7 @@
  * - `primary` carrega texto `onPrimary` em qualquer tamanho (5,1:1 no claro).
  * - `accent` nunca assume a cor do texto por cima: sempre `onAccent`.
  * - Tema CLARO é o padrão obrigatório; o escuro é opt-in nas configurações.
- * - Sombra existe só no CTA flutuante e em modal (`shadow.*`).
+ * - Sombra existe só no que sobrepõe a tela: modal e painel (`shadow.modal`).
  * - Unbounded é a voz de TODOS os títulos; Figtree faz o resto.
  */
 
@@ -50,7 +50,7 @@ export type Palette = {
   onPrimary: string
   /** Texto sobre campo `accent`. */
   onAccent: string
-  /** Degradê da marca (herói de auth e CTA flutuante). */
+  /** Degradê da marca (herói de auth e CTA do cardápio). */
   gradient: [string, string]
 }
 
@@ -122,17 +122,11 @@ export const TOUCH_TARGET = 48
 export const CONTENT_MAX_WIDTH = 600
 
 /**
- * As duas únicas sombras do sistema: o CTA flutuante e modais.
- * Card comum não tem sombra — profundidade é tom sobre tom.
+ * A única sombra do sistema: o que sobrepõe a tela (modal e painel de
+ * filtro). Nada mais levita — nem card, nem o CTA do cardápio; profundidade
+ * no plano da página é tom sobre tom.
  */
-export const shadow: Record<'floating' | 'modal', ViewStyle> = {
-  floating: {
-    shadowColor: '#1E5C18',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.28,
-    shadowRadius: 16,
-    elevation: 8,
-  },
+export const shadow: Record<'modal', ViewStyle> = {
   modal: {
     shadowColor: '#111A11',
     shadowOffset: { width: 0, height: 12 },

@@ -468,7 +468,7 @@ export default function Produtos() {
             onPress={goToCart}
             accessibilityRole="button"
             accessibilityLabel={`Revisar pedido, ${count} itens, total ${money(total)}`}
-            style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.97 : 1 }] }, shadow.floating]}
+            style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.97 : 1 }] }]}
           >
             <LinearGradient
               colors={colors.gradient}
