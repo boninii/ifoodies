@@ -77,13 +77,9 @@ function CategoryPanel({
       />
 
       <View
-        style={[
-          styles.panel,
-          { backgroundColor: colors.surface, borderColor: colors.rule },
-          shadow.modal,
-        ]}
+        style={[styles.panel, { backgroundColor: colors.surface }, shadow.modal]}
       >
-        <Text style={[type.micro, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
+        <Text style={[type.eyebrow, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
           Categorias
         </Text>
 
@@ -157,7 +153,7 @@ function ProductCard({
       accessibilityLabel={`Ver detalhes de ${item.name}`}
       style={({ pressed }) => [
         styles.card,
-        { backgroundColor: colors.surface, borderColor: colors.rule },
+        { backgroundColor: colors.surface },
         soldOut && { opacity: 0.72 },
         pressed && { backgroundColor: colors.primarySoft },
       ]}
@@ -449,16 +445,13 @@ export default function Produtos() {
           }
           style={[
             styles.filterButton,
-            {
-              backgroundColor: filtering ? colors.primary : colors.surface,
-              borderColor: filtering ? colors.primary : colors.rule,
-            },
+            { backgroundColor: filtering ? colors.primary : colors.primarySoft },
           ]}
         >
           <MaterialCommunityIcons
             name="filter-variant"
             size={20}
-            color={filtering ? colors.onPrimary : colors.ink}
+            color={filtering ? colors.onPrimary : colors.primary}
           />
         </Pressable>
       }
@@ -506,7 +499,6 @@ const styles = StyleSheet.create({
     width: TOUCH_TARGET - 8,
     height: TOUCH_TARGET - 8,
     borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth * 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -521,7 +513,6 @@ const styles = StyleSheet.create({
     width: 220,
     maxWidth: '80%',
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth * 2,
     padding: spacing.md,
   },
   panelItem: {
@@ -540,7 +531,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.md,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   thumb: {
     width: 60,

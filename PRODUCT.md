@@ -86,17 +86,20 @@ máxima selecionável por produto.
 
 - **Nome:** iFoodies (o projeto se chamava "Cantina" antes; o nome atual é o
   real e definitivo).
-- **Paleta verde (redefinido em 2026-08-19):** o produto é vendido PARA
-  Institutos Federais, e IF é verde — a paleta oficial parte dos verdes
-  (#FDFFFB, #EFFAE7, #D3F1B9, #86C55A, #2D5320) com o cinza #EAEAEA de
-  estrutura. Continua valendo: não copiar outras marcas, não parecer
+- **Paleta verde, viva e macia (refinado em 2026-08-19):** o produto é
+  vendido PARA Institutos Federais, e IF é verde. O usuário rejeitou a
+  primeira versão dos verdes por ser dura/sombria: a diretriz vigente é
+  verde VIVO com interface macia ("smooth") — superfícies tonais no lugar de
+  bordas de 1px. Continua valendo: não copiar outras marcas, não parecer
   fast-food genérico nem sistema administrativo.
 - **Tema claro é o padrão obrigatório.** O escuro existe e é escolhido pelo
   usuário nas configurações (Perfil → Aparência).
 - **Tom desejado:** jovem, moderno, divertido, tecnológico, gastronômico,
   universitário — sem ser infantil.
-- **Tipografia definida pelo usuário:** Unbounded nos títulos (aprovada
-  explicitamente) e Montserrat no resto (pedida em substituição à Sora).
+- **Tipografia definida pelo usuário (2026-08-19):** Unbounded em TODOS os
+  títulos, dos grandes aos mínimos — título que era <16px desce 1px ao virar
+  Unbounded. No resto, Figtree (o usuário vetou explicitamente Montserrat e
+  Sora).
 - **Identidade construída** (ver DESIGN.md): "Verde IF" — wordmark em
   Unbounded com o pingo do "i" em verde-folha como gesto-assinatura.
 - **Contexto institucional:** é a cantina de uma escola pública federal

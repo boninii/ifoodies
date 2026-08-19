@@ -144,7 +144,7 @@ export default function Carrinho() {
 
       {products.map((item) => (
         <View key={item.id}>
-          <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
+          <View style={[styles.row, { backgroundColor: colors.surface }]}>
             <View style={styles.rowTop}>
               <Text style={[type.headline, { color: colors.ink, flex: 1 }]} numberOfLines={2}>
                 {item.name}
@@ -190,7 +190,7 @@ export default function Carrinho() {
 
       <BandHeader label="Pagamento" />
 
-      <View style={[styles.payment, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
+      <View style={[styles.payment, { backgroundColor: colors.surface }]}>
         <View style={styles.methods}>
           {PAYMENT_METHODS.map((m) => (
             <View
@@ -222,7 +222,6 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.md,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   rowTop: {
     flexDirection: 'row',
@@ -254,7 +253,6 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.lg,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   methods: {
     flexDirection: 'row',

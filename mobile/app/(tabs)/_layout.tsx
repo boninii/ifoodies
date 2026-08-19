@@ -1,9 +1,5 @@
-import {
-  Montserrat_400Regular,
-  Montserrat_600SemiBold,
-  Montserrat_700Bold,
-} from '@expo-google-fonts/montserrat'
-import { Unbounded_700Bold } from '@expo-google-fonts/unbounded'
+import { Figtree_400Regular, Figtree_700Bold } from '@expo-google-fonts/figtree'
+import { Unbounded_600SemiBold, Unbounded_700Bold } from '@expo-google-fonts/unbounded'
 import * as Font from 'expo-font'
 import { Stack } from 'expo-router'
 import { useEffect, useState } from 'react'
@@ -45,11 +41,11 @@ export default function RootLayout() {
   useEffect(() => {
     async function loadFonts() {
       await Font.loadAsync({
-        // Corpo e interface
-        'Montserrat': Montserrat_400Regular,
-        'Montserrat-SemiBold': Montserrat_600SemiBold,
-        'Montserrat-Bold': Montserrat_700Bold,
-        // Voz da marca (wordmark e títulos de tela)
+        // Corpo e interface (Figtree: geométrica de terminais macios)
+        'Figtree': Figtree_400Regular,
+        'Figtree-Bold': Figtree_700Bold,
+        // Voz da marca — todos os títulos, do display ao eyebrow
+        'Unbounded-SemiBold': Unbounded_600SemiBold,
         'Unbounded-Bold': Unbounded_700Bold,
       })
       setFontsLoaded(true)

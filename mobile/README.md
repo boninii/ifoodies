@@ -54,27 +54,28 @@ modelo de autenticação.
 - **Expo Router** (navegação baseada em arquivos)
 - **TypeScript** (modo `strict`)
 - **AsyncStorage** para persistência local do token
-- **Unbounded** + **Montserrat** (tipografia) e **@expo/vector-icons**
+- **Unbounded** + **Figtree** (tipografia) e **@expo/vector-icons**
 - Backend: **API em Laravel** (repositório separado)
 
 ### Identidade visual
 
 O sistema completo está em **[DESIGN.md](../DESIGN.md)** — esta seção é só o
-resumo. A marca é "Verde IF" (o produto é vendido para Institutos Federais):
-verdes institucionais sobre papel quase-branco, cinza estrutural, e o
-**pingo do "i"** do wordmark em verde-folha como gesto-assinatura (ele
-reaparece só no símbolo e na etapa atual da trilha de pedido).
+resumo. A marca é "Verde Vivo" (o produto é vendido para Institutos
+Federais, e IF é verde — mas um verde vivo e macio, não militar): kelly para
+ação sobre superfícies mint tingidas, cards SEM contorno (a separação é
+tonal), e o **pingo do "i"** do wordmark em verde-folha como
+gesto-assinatura.
 
 | Token | Hex | Uso |
 |-------|-----|-----|
-| Verde floresta | `#2D5320` | Cor de ação: botões, foco, trilha (8,9:1 com branco) |
-| Floresta profunda | `#1F3A16` | Pressed e fim do degradê da marca |
-| Verde folha | `#86C55A` | O pingo do "i". Selos e "Pronto!" — sempre tinta por cima |
-| Lavagem / tinta verde | `#EFFAE7` / `#D3F1B9` | Superfícies tingidas: chips, total, pílula ativa |
-| Papel | `#FDFFFB` | Fundo geral |
-| Cinza traço | `#EAEAEA` | Bordas e traços estruturais |
-| Tinta | `#2E332C` | Texto primário (~13:1) |
-| Perda | `#C03A2F` | Exclusivo de perda: esgotado, cancelado, erro |
+| Verde kelly | `#2B7E23` | Cor de ação: botões, foco, trilha (5,1:1 com branco) |
+| Kelly profundo | `#1E5C18` | Pressed e fim do degradê da marca |
+| Verde folha | `#8BD264` | O pingo do "i". Selos e "Pronto!" — sempre tinta por cima |
+| Lavagem / tinta mint | `#EAF6E2` / `#D3EDC2` | Tonais que substituem contornos: quiet, stepper, chips |
+| Papel mint | `#F1F7EC` | Fundo geral tingido — faz o card flutuar sem borda |
+| Traço suave | `#DCE9D4` | Borda só onde é affordance (campos de formulário) |
+| Tinta | `#223021` | Texto primário (~14:1) |
+| Perda | `#C74A38` | Exclusivo de perda: esgotado, cancelado, erro |
 
 Regras que o código segue:
 
@@ -83,8 +84,10 @@ Regras que o código segue:
 - **A Regra do Pingo.** O pingo verde-folha só existe no wordmark, no símbolo
   e na etapa atual da trilha.
 - **A Regra dos Dois Voos.** Sombra só no CTA flutuante e em modal.
-- **A Regra da Voz Única.** Unbounded no máximo duas vezes por tela; o resto
-  é Montserrat.
+- **A Regra da Voz de Título.** Todo título é Unbounded (era <16px, desce
+  1px — daí o eyebrow de 10px); o que não é título é Figtree.
+- **A Regra do Tom.** Card não tem borda — a separação é fundo mint × card
+  branco. Borda só em campo de formulário e no aro do pedido pronto.
 
 A troca de aba é instantânea (sem animação, sem flash).
 
@@ -92,11 +95,12 @@ A troca de aba é instantânea (sem animação, sem flash).
 
 | Papel | Fonte | Tamanho |
 |-------|-------|---------|
-| Wordmark e título de tela | **Unbounded** (700) | 24–30 |
-| Corpo, labels, inputs, botões, preços | **Montserrat** (400/600/700) | 11–20 |
+| Todos os títulos (tela, seção, eyebrow) | **Unbounded** (600/700) | 10–30 |
+| Corpo, labels, inputs, botões, preços | **Figtree** (400/700) | 11–20 |
 
-A Unbounded é a voz da marca, usada com parcimônia; a Montserrat carrega toda
-a interface, com numerais tabulares para que preço alinhe embaixo de preço.
+A Unbounded é a voz de todos os títulos; a Figtree — geométrica de terminais
+macios — carrega a interface, com numerais tabulares para que preço alinhe
+embaixo de preço.
 
 ---
 

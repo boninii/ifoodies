@@ -125,10 +125,10 @@ export default function Perfil() {
     <Screen title="Perfil" subtitle="Seus dados na cantina.">
       <BandHeader label="Identificação" />
 
-      <View style={[styles.block, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
+      <View style={[styles.block, { backgroundColor: colors.surface }]}>
         {/* O prontuário identifica o aluno na retirada — é código, não campo. */}
         <View style={[styles.prontuario, { backgroundColor: colors.primarySoft }]}>
-          <Text style={[type.micro, { color: colors.primary }]}>Prontuário</Text>
+          <Text style={[type.eyebrow, { color: colors.primary }]}>Prontuário</Text>
           <Text style={[type.numeralLarge, { color: colors.ink, marginTop: spacing.xs }]}>
             {studentId || '—'}
           </Text>
@@ -140,7 +140,7 @@ export default function Perfil() {
 
       <BandHeader label="Dados" />
 
-      <View style={[styles.block, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
+      <View style={[styles.block, { backgroundColor: colors.surface }]}>
         <Field
           label="Nome"
           value={name}
@@ -167,7 +167,7 @@ export default function Perfil() {
 
       <BandHeader label="Senha" />
 
-      <View style={[styles.block, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
+      <View style={[styles.block, { backgroundColor: colors.surface }]}>
         <Field
           label="Senha atual"
           value={oldPassword}
@@ -203,8 +203,8 @@ export default function Perfil() {
 
       <BandHeader label="Aparência" />
 
-      <View style={[styles.block, { backgroundColor: colors.surface, borderColor: colors.rule }]}>
-        <Text style={[type.micro, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
+      <View style={[styles.block, { backgroundColor: colors.surface }]}>
+        <Text style={[type.eyebrow, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
           Tema
         </Text>
         <View style={styles.themeRow}>
@@ -219,13 +219,10 @@ export default function Perfil() {
                 accessibilityLabel={`Tema ${opt.label}`}
                 style={[
                   styles.themeOption,
-                  {
-                    backgroundColor: active ? colors.primary : colors.surface,
-                    borderColor: active ? colors.primary : colors.rule,
-                  },
+                  { backgroundColor: active ? colors.primary : colors.primarySoft },
                 ]}
               >
-                <Text style={[type.label, { color: active ? colors.onPrimary : colors.ink }]}>
+                <Text style={[type.label, { color: active ? colors.onPrimary : colors.primary }]}>
                   {opt.label}
                 </Text>
               </Pressable>
@@ -250,7 +247,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     padding: spacing.lg,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   prontuario: {
     padding: spacing.lg,
@@ -264,7 +260,6 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 48,
     borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth * 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

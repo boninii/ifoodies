@@ -53,12 +53,13 @@ function OrderBand({ order }: { order: Order }) {
     <View
       style={[
         styles.order,
-        { backgroundColor: colors.surface, borderColor: ready ? colors.accent : colors.rule },
+        { backgroundColor: colors.surface },
+        ready && { borderWidth: 2, borderColor: colors.accent },
       ]}
     >
       <View style={styles.orderTop}>
         <View>
-          <Text style={[type.micro, { color: colors.inkMuted }]}>Pedido</Text>
+          <Text style={[type.eyebrow, { color: colors.inkMuted }]}>Pedido</Text>
           <Text style={[type.numeralLarge, { color: colors.ink }]}>
             #{String(order.id).padStart(3, '0')}
           </Text>
@@ -210,7 +211,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.lg,
-    borderWidth: StyleSheet.hairlineWidth * 2,
   },
   orderTop: {
     flexDirection: 'row',

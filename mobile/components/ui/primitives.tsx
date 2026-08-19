@@ -80,9 +80,9 @@ export function Button({
       ? colors.primary
       : variant === 'destructive'
         ? colors.struck
-        : colors.surface
+        : colors.primarySoft
 
-  const fg = variant === 'quiet' ? colors.ink : colors.onPrimary
+  const fg = variant === 'quiet' ? colors.primary : colors.onPrimary
 
   return (
     <View>
@@ -95,11 +95,15 @@ export function Button({
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: isOff ? colors.rule : pressed && variant === 'primary' ? colors.primaryDeep : field,
-            borderColor: variant === 'quiet' ? colors.rule : 'transparent',
-            borderWidth: variant === 'quiet' ? StyleSheet.hairlineWidth * 2 : 0,
+            backgroundColor: isOff
+              ? colors.rule
+              : pressed && variant === 'primary'
+                ? colors.primaryDeep
+                : pressed && variant === 'quiet'
+                  ? colors.primaryTint
+                  : field,
             transform: [{ scale: pressed ? 0.97 : 1 }],
-            opacity: pressed && variant !== 'primary' ? 0.85 : 1,
+            opacity: pressed && variant === 'destructive' ? 0.85 : 1,
           },
         ]}
       >
@@ -199,7 +203,7 @@ export function Stepper({
     <View
       style={[
         styles.stepper,
-        { borderColor: colors.rule, backgroundColor: value > 0 ? colors.primarySoft : colors.surface },
+        { backgroundColor: value > 0 ? colors.primaryTint : colors.primarySoft },
       ]}
     >
       <Pressable
@@ -211,7 +215,7 @@ export function Stepper({
         style={styles.stepperButton}
       >
         <Text
-          style={[type.numeralLarge, { color: value === 0 ? colors.rule : colors.primary }]}
+          style={[type.numeralLarge, { color: value === 0 ? colors.inkMuted : colors.primary }]}
         >
           −
         </Text>
@@ -232,7 +236,7 @@ export function Stepper({
         accessibilityLabel={`Aumentar ${itemName}`}
         style={styles.stepperButton}
       >
-        <Text style={[type.numeralLarge, { color: atMax ? colors.rule : colors.primary }]}>
+        <Text style={[type.numeralLarge, { color: atMax ? colors.inkMuted : colors.primary }]}>
           +
         </Text>
       </Pressable>
@@ -368,7 +372,6 @@ const styles = StyleSheet.create({
   stepper: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: StyleSheet.hairlineWidth * 2,
     borderRadius: radius.pill,
   },
   stepperButton: {

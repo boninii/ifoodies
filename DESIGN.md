@@ -1,26 +1,26 @@
 ---
 name: iFoodies
-description: Marca de food service para Institutos Federais — verde IF, cinza e o pingo do "i".
+description: Marca de food service para Institutos Federais — verde vivo, superfícies mint e o pingo do "i".
 colors:
-  floresta: "#2D5320"
-  floresta-deep: "#1F3A16"
-  folha: "#86C55A"
-  lavagem: "#EFFAE7"
-  tinta-verde: "#D3F1B9"
-  papel: "#FDFFFB"
+  kelly: "#2B7E23"
+  kelly-deep: "#1E5C18"
+  folha: "#8BD264"
+  lavagem: "#EAF6E2"
+  tinta-mint: "#D3EDC2"
+  papel-mint: "#F1F7EC"
   surface: "#FFFFFF"
-  cinza-traco: "#EAEAEA"
-  ink: "#2E332C"
-  ink-muted: "#5F6A57"
-  perda: "#C03A2F"
-  pending: "#9A6108"
-  ground-dark: "#0F150D"
-  surface-dark: "#182014"
-  traco-dark: "#2C3527"
-  ink-dark: "#ECF2E6"
-  ink-muted-dark: "#A3B098"
-  folha-dark: "#86C55A"
-  lavagem-dark: "#1E2A18"
+  traco-suave: "#DCE9D4"
+  ink: "#223021"
+  ink-muted: "#5A6B53"
+  perda: "#C74A38"
+  pending: "#96650B"
+  ground-dark: "#111A11"
+  surface-dark: "#1B271B"
+  traco-dark: "#2E3D2C"
+  ink-dark: "#EAF2E5"
+  ink-muted-dark: "#A5B49C"
+  kelly-dark: "#7EC95B"
+  lavagem-dark: "#22331F"
 typography:
   display:
     fontFamily: "Unbounded"
@@ -29,35 +29,35 @@ typography:
     lineHeight: "30px"
     letterSpacing: "-0.4px"
   headline:
-    fontFamily: "Montserrat"
+    fontFamily: "Unbounded"
     fontSize: "17px"
-    fontWeight: 700
-    lineHeight: "22px"
-  title:
-    fontFamily: "Montserrat"
-    fontSize: "16px"
     fontWeight: 600
+    lineHeight: "24px"
+  title:
+    fontFamily: "Figtree"
+    fontSize: "16px"
+    fontWeight: 700
     lineHeight: "21px"
   body:
-    fontFamily: "Montserrat"
+    fontFamily: "Figtree"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: "21px"
   label:
-    fontFamily: "Montserrat"
+    fontFamily: "Figtree"
     fontSize: "13px"
     fontWeight: 700
     lineHeight: "16px"
   numeral:
-    fontFamily: "Montserrat"
+    fontFamily: "Figtree"
     fontSize: "16px"
     fontWeight: 700
     lineHeight: "20px"
     fontFeature: "tabular-nums"
 rounded:
-  sm: "10px"
-  md: "14px"
-  lg: "20px"
+  sm: "12px"
+  md: "16px"
+  lg: "24px"
   pill: "999px"
 spacing:
   xs: "4px"
@@ -68,19 +68,19 @@ spacing:
   xxl: "40px"
 components:
   button-primary:
-    backgroundColor: "{colors.floresta}"
+    backgroundColor: "{colors.kelly}"
     textColor: "{colors.surface}"
     rounded: "{rounded.pill}"
     padding: "16px 24px"
     height: "52px"
     typography: "{typography.label}"
   button-primary-pressed:
-    backgroundColor: "{colors.floresta-deep}"
+    backgroundColor: "{colors.kelly-deep}"
     textColor: "{colors.surface}"
     rounded: "{rounded.pill}"
   button-quiet:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.ink}"
+    backgroundColor: "{colors.lavagem}"
+    textColor: "{colors.kelly}"
     rounded: "{rounded.pill}"
     padding: "16px 24px"
     height: "52px"
@@ -105,45 +105,45 @@ components:
 
 ## Overview
 
-**Creative North Star: "Verde IF"**
+**Creative North Star: "Verde Vivo"**
 
-O iFoodies é vendido para Institutos Federais — e IF é verde. A paleta parte
-do verde institucional e o transforma em marca de produto: floresta escura
-para ação, folha vibrante para energia, lavagens claras para superfície e o
-cinza #EAEAEA como estrutura. Não é clone de app de delivery nem sistema
-administrativo: é uma marca jovem de food service que se senta confortável
-dentro de uma escola federal.
+O iFoodies é vendido para Institutos Federais — e IF é verde. Mas o verde
+daqui é vivo e macio, não militar: kelly (#2B7E23) para ação, folha para
+energia, e superfícies mint tingidas fazendo o trabalho estrutural. A
+separação entre card e fundo é TONAL — fundo mint, card branco, sem contorno
+— porque borda de 1px em tudo era o que deixava a interface dura.
 
 O gesto-assinatura segue sendo o **pingo do "i"**: no wordmark "iFoodies", o
 pingo é uma bola verde-folha. Ele reaparece exatamente em dois lugares — o
 símbolo da marca e o marcador de etapa atual na trilha do pedido — e em
 nenhum outro. A raridade é o que o mantém assinatura.
 
-A geometria é amigável: cards arredondados (20px) sobre papel quase-branco,
-ações em pílula, contornos de 1px. Profundidade é tom sobre tom; sombra
-existe em exatamente dois elementos (CTA flutuante e modal).
+A geometria é macia: cards arredondados (24px) SEM contorno sobre papel
+mint, ações em pílula, tonais no lugar de outlines. Profundidade é tom sobre
+tom; sombra existe em exatamente dois elementos (CTA flutuante e modal).
 
 **Key Characteristics:**
-- Verde floresta como cor de ação, verde-folha como energia
-- Unbounded na voz da marca, Montserrat em todo o resto
-- Cards arredondados com traço cinza fino; nada de sombra espalhada
+- Verde kelly como cor de ação, verde-folha como energia
+- Unbounded em TODOS os títulos (do display ao eyebrow), Figtree no resto
+- Cards sem contorno flutuando em fundo mint; nada de sombra espalhada
+- Tonal no lugar de outline: quiet, stepper e chips são preenchidos suaves
 - Tema claro é o padrão obrigatório; escuro é opt-in nas configurações
 - O pingo verde-folha só aparece onde é assinatura
 
 ## Colors
 
-Paleta institucional transformada em produto: verdes do IF sobre papel
-quase-branco, cinza estrutural e vermelho exclusivo para perda.
+Paleta institucional transformada em produto: verdes vivos do IF sobre
+superfícies mint, e vermelho exclusivo para perda.
 
 ### Primary
-- **Verde Floresta** (`{colors.floresta}`): a cor de ação. Botões primários,
-  foco, links, trilha de pedido, item ativo. Contraste com branco: 8,9:1 —
-  carrega texto branco em qualquer tamanho.
-- **Floresta Profunda** (`{colors.floresta-deep}`): estado pressionado e fim
-  do degradê da marca (`#3E7527 → #2D5320`, herói de auth e CTA).
-- **Lavagem Verde** (`{colors.lavagem}`) e **Tinta Verde**
-  (`{colors.tinta-verde}`): superfícies tingidas — chips, total, pílula ativa
-  da tab bar, stepper com valor.
+- **Verde Kelly** (`{colors.kelly}`): a cor de ação. Botões primários, foco,
+  links, trilha de pedido, item ativo. Contraste com branco: 5,1:1 — carrega
+  texto branco em qualquer tamanho.
+- **Kelly Profundo** (`{colors.kelly-deep}`): estado pressionado e fim do
+  degradê da marca (`#2B7E23 → #1B5716`, herói de auth e CTA).
+- **Lavagem Mint** (`{colors.lavagem}`) e **Tinta Mint**
+  (`{colors.tinta-mint}`): as superfícies tonais que substituem contornos —
+  quiet button, stepper, chips, pílula ativa, painel de filtro.
 
 ### Secondary
 - **Verde Folha** (`{colors.folha}`): o pingo do "i". Selo "Restam N", faixa
@@ -156,11 +156,12 @@ quase-branco, cinza estrutural e vermelho exclusivo para perda.
 - **Ocre de Espera** (`{colors.pending}`): estados que dependem de terceiros.
 
 ### Neutral
-- **Papel** (`{colors.papel}`): fundo geral, quase-branco esverdeado.
-- **Cinza Traço** (`{colors.cinza-traco}`): contorno de 1px de cards e campos
-  — o cinza estrutural da marca.
+- **Papel Mint** (`{colors.papel-mint}`): fundo geral tingido — é ele que faz
+  o card branco flutuar sem precisar de borda.
+- **Traço Suave** (`{colors.traco-suave}`): borda esverdeada usada SÓ onde
+  contorno é affordance (campos de formulário).
 - **Tinta** (`{colors.ink}`) e **Tinta Fraca** (`{colors.ink-muted}`): texto
-  primário (~13:1) e secundário (5,7:1) sobre superfície.
+  primário (~14:1) e secundário (5,6:1) sobre superfície.
 
 ### Named Rules
 **A Regra do Pingo.** O pingo verde-folha aparece no wordmark, no símbolo e
@@ -175,33 +176,36 @@ usuário em Perfil → Aparência.
 
 ## Typography
 
-**Display Font:** Unbounded (700)
-**Body Font:** Montserrat (400/600/700)
+**Display Font:** Unbounded (600/700) — todos os títulos
+**Body Font:** Figtree (400/700)
 
 **Character:** A Unbounded é larga, arredondada e inconfundivelmente jovem —
-é a voz da marca, usada com parcimônia (wordmark e título de tela, uma vez
-por tela). A Montserrat faz todo o trabalho: rótulos, corpo, botões e
-números, com numerais tabulares para preço alinhar embaixo de preço.
+e agora é a voz de TODOS os títulos, do display de 24 ao eyebrow de 10
+(regra do usuário: título que era <16px desce 1px ao virar Unbounded). A
+Figtree — geométrica de terminais macios que conversa com as curvas da
+Unbounded — faz corpo, rótulos, botões e números, com numerais tabulares.
 
 ### Hierarchy
 - **Display** (Unbounded 700, 24/30, -0.4): título da tela, uma vez por tela.
-- **Headline** (Montserrat 700, 17/22): nome de produto no popup, seções.
-- **Title** (Montserrat 600, 16/21): nome de produto no card, totais, links.
-- **Body** (Montserrat 400, 14/21): descrição e texto corrido.
-- **Label** (Montserrat 700, 13/16): texto de botão e rótulos. Sentence case.
-- **Micro** (Montserrat 700, 11/14): selos, contadores, rótulos de campo.
-- **Numeral / NumeralLarge** (Montserrat 700, 16 e 20, tabular): preço,
+- **Headline** (Unbounded 600, 17/24): seções/categorias e nome no popup.
+- **Eyebrow** (Unbounded 600, 10/14, +0.4): títulos mínimos — "Categorias",
+  "Pedido", "Prontuário", "Tema".
+- **Title** (Figtree 700, 16/21): nome de produto no card, totais, links.
+- **Body** (Figtree 400, 14/21): descrição e texto corrido.
+- **Label** (Figtree 700, 13/17): texto de botão e rótulos. Sentence case.
+- **Micro** (Figtree 700, 11/14): selos, contadores, rótulos de campo.
+- **Numeral / NumeralLarge** (Figtree 700, 16 e 20, tabular): preço,
   quantidade, total, número do pedido.
 
 ### Named Rules
-**A Regra da Voz Única.** Unbounded aparece no máximo duas vezes por tela
-(wordmark e título). Todo o resto é Montserrat.
+**A Regra da Voz de Título.** Se é título — de tela, de seção, de card de
+dado — é Unbounded; era <16px, desce 1px. Se não é título, é Figtree.
 
 ## Layout
 
-Cards sobre papel: cada unidade de conteúdo é um card arredondado (20px) com
-traço cinza de 1px. Cabeçalho de seção com contador em pílula abre cada
-grupo.
+Cards sobre papel mint: cada unidade de conteúdo é um card arredondado
+(24px) SEM contorno — o fundo tingido faz a separação. Cabeçalho de seção
+com contador em pílula abre cada grupo.
 
 No cardápio, o **filtro de categorias** abre pelo ícone no cabeçalho e o
 painel **sobrepõe os cards** (não rouba largura da lista) — o aluno filtra
@@ -236,15 +240,16 @@ canto reto não existe no sistema.
 
 ### Buttons
 - **Shape:** pílula, altura 52px.
-- **Primary:** campo floresta, texto branco Montserrat 700; pressionado
-  escurece e encolhe para 0.97 — sem sombra, sem glow.
-- **Quiet:** superfície com traço; **Destructive:** perda.
-- **Disabled:** campo cinza com o motivo dito por extenso ao lado.
+- **Primary:** campo kelly, texto branco Figtree 700; pressionado escurece
+  e encolhe para 0.97 — sem sombra, sem glow.
+- **Quiet (tonal):** lavagem mint com texto kelly, sem borda; pressionado
+  aprofunda para tinta mint. **Destructive:** perda.
+- **Disabled:** campo traço-suave com o motivo dito por extenso ao lado.
 
 ### Cards
-Superfície branca (verde-noite no escuro), raio 20px, traço cinza 1px. O card
-de produto é tocável e abre o popup de detalhes; o de pedido pronto troca o
-traço por verde-folha.
+Superfície branca (verde-noite no escuro), raio 24px, SEM contorno. O card
+de produto é tocável e abre o popup de detalhes; o de pedido pronto é o
+único com aro — 2px verde-folha, porque ali o aro é informação.
 
 ### Product detail (popup)
 Modal central (máx. 440px): foto grande, nome, preço em destaque, descrição
@@ -258,19 +263,20 @@ rótulo ("Tudo" + uma linha por categoria); o ativo é campo floresta com
 texto branco. O botão de filtro fica verde quando há filtro aplicado.
 
 ### Inputs / Fields
-Raio 14px, traço cinza 1px; foco troca para floresta 2px, erro para perda 2px
-com a mensagem abaixo nomeando problema e recuperação.
+Raio 16px, traço suave 1px (o único lugar onde borda é padrão — affordance
+de formulário); foco troca para kelly 2px, erro para perda 2px com a
+mensagem abaixo nomeando problema e recuperação.
 
 ### Badges
 Pílulas Micro: folha/tinta para escassez ("Restam 3") e celebração; perda/
-branco para "Esgotado"; lavagem/floresta para contagem neutra.
+branco para "Esgotado"; lavagem/kelly para contagem neutra.
 
 ### Navigation (TabBar)
 Quatro destinos com ícone + rótulo visível. O ativo senta numa pílula de
-lavagem verde com ícone e texto floresta.
+lavagem mint com ícone e texto kelly.
 
 ### Status track (assinatura)
-Quatro segmentos-pílula que preenchem de verde conforme o pedido avança; a
+Quatro segmentos-pílula que preenchem de kelly conforme o pedido avança; a
 etapa atual carrega o pingo verde-folha. Cancelado vira pílula de perda.
 "Pronto!" ganha faixa verde-folha com texto escuro no card do pedido.
 
@@ -281,7 +287,8 @@ tabular à direita.
 ## Do's and Don'ts
 
 ### Do:
-- **Do** usar floresta como campo de ação e folha como energia rara.
+- **Do** usar kelly como campo de ação e folha como energia rara.
+- **Do** separar card de fundo por TOM (mint × branco), nunca por borda.
 - **Do** abrir SEMPRE no tema claro; escuro só por escolha do usuário.
 - **Do** sentence case em botões e rótulos ("Enviar pedido", nunca "ENVIAR").
 - **Do** numerais tabulares alinhados à direita em todo preço e total.
@@ -290,6 +297,9 @@ tabular à direita.
 
 ### Don't:
 - **Don't** usar sombra fora do CTA flutuante e do modal.
+- **Don't** contornar cards, chips ou botões com borda — borda é só de campo
+  de formulário (e do aro verde-folha do pedido pronto).
+- **Don't** usar Unbounded fora de título, nem Figtree em título.
 - **Don't** colocar texto branco sobre verde-folha.
 - **Don't** usar o pingo fora do wordmark, do símbolo e da etapa atual.
 - **Don't** animar a troca de aba — a navegação é instantânea.
