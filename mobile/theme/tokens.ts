@@ -36,6 +36,8 @@ export type Palette = {
   surface: string
   /** Traço suave esverdeado — só onde borda é affordance (campos de form). */
   rule: string
+  /** Contorno do card de produto: verde de ação a 80%, definido no design. */
+  cardBorder: string
   /** Texto primário. */
   ink: string
   /** Texto secundário. */
@@ -61,6 +63,7 @@ const light: Palette = {
   ground: '#F1F7EC',
   surface: '#FFFFFF',
   rule: '#DCE9D4',
+  cardBorder: 'rgba(43, 126, 35, 0.8)',
   ink: '#223021',
   inkMuted: '#5A6B53',
   struck: '#C74A38',
@@ -79,6 +82,7 @@ const dark: Palette = {
   ground: '#111A11',
   surface: '#1B271B',
   rule: '#2E3D2C',
+  cardBorder: 'rgba(126, 201, 91, 0.4)',
   ink: '#EAF2E5',
   inkMuted: '#A5B49C',
   struck: '#E98474',
@@ -206,6 +210,19 @@ export const type = {
     fontFamily: 'Figtree-Bold',
     fontSize: 20,
     lineHeight: 25,
+    fontVariant: ['tabular-nums'],
+  },
+  /** Sinais − e + do contador. */
+  stepperSign: {
+    fontFamily: 'Figtree-Bold',
+    fontSize: 16,
+    lineHeight: 16,
+  },
+  /** Quantidade dentro do contador. */
+  stepperValue: {
+    fontFamily: 'Figtree-Bold',
+    fontSize: 14,
+    lineHeight: 15,
     fontVariant: ['tabular-nums'],
   },
 } satisfies Record<string, TextStyle>

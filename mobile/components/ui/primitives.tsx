@@ -215,14 +215,14 @@ export function Stepper({
         style={styles.stepperButton}
       >
         <Text
-          style={[type.numeralLarge, { color: value === 0 ? colors.inkMuted : colors.primary }]}
+          style={[type.stepperSign, { color: value === 0 ? colors.inkMuted : colors.primary }]}
         >
           −
         </Text>
       </Pressable>
 
       <Text
-        style={[type.numeral, styles.stepperValue, { color: colors.ink }]}
+        style={[type.stepperValue, styles.stepperValue, { color: colors.ink }]}
         accessibilityLabel={`${value} ${itemName}`}
       >
         {value}
@@ -236,7 +236,7 @@ export function Stepper({
         accessibilityLabel={`Aumentar ${itemName}`}
         style={styles.stepperButton}
       >
-        <Text style={[type.numeralLarge, { color: atMax ? colors.inkMuted : colors.primary }]}>
+        <Text style={[type.stepperSign, { color: atMax ? colors.inkMuted : colors.primary }]}>
           +
         </Text>
       </Pressable>
@@ -376,7 +376,8 @@ const styles = StyleSheet.create({
   },
   stepperButton: {
     width: TOUCH_TARGET - 8,
-    height: TOUCH_TARGET - 8,
+    // 32 de altura visual; o hitSlop de 8 devolve os 48dp de alvo de toque.
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -153,20 +153,34 @@ function ProductCard({
       accessibilityLabel={`Ver detalhes de ${item.name}`}
       style={({ pressed }) => [
         styles.card,
-        { backgroundColor: colors.surface },
+        { backgroundColor: colors.surface, borderColor: colors.cardBorder },
         soldOut && { opacity: 0.72 },
         pressed && { backgroundColor: colors.primarySoft },
       ]}
     >
-      {item.image ? (
-        <Image
-          source={{ uri: item.image }}
-          style={[styles.thumb, { opacity: soldOut ? 0.35 : 1 }]}
-          accessibilityIgnoresInvertColors
-        />
-      ) : (
-        <View style={[styles.thumb, { backgroundColor: colors.primarySoft }]} />
-      )}
+      <View style={styles.thumbWrap}>
+        {item.image ? (
+          <Image
+            source={{ uri: item.image }}
+            style={[styles.thumb, { opacity: soldOut ? 0.35 : 1 }]}
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <View style={[styles.thumb, { backgroundColor: colors.primarySoft }]} />
+        )}
+
+        {/* O selo mora sobre a foto: empilhado com o preço ele estouraria a
+            altura fixa do card. */}
+        {soldOut ? (
+          <View style={styles.badgeOverlay}>
+            <Badge label="Esgotado" tone="struck" />
+          </View>
+        ) : lowStock ? (
+          <View style={styles.badgeOverlay}>
+            <Badge label={`Restam ${item.quantity}`} tone="accent" />
+          </View>
+        ) : null}
+      </View>
 
       <View style={styles.cardBody}>
         <Text
@@ -177,14 +191,7 @@ function ProductCard({
         </Text>
 
         <View style={styles.cardBottom}>
-          <View style={styles.cardMeta}>
-            <Price value={item.price} muted={soldOut} />
-            {soldOut ? (
-              <Badge label="Esgotado" tone="struck" />
-            ) : lowStock ? (
-              <Badge label={`Restam ${item.quantity}`} tone="accent" />
-            ) : null}
-          </View>
+          <Price value={item.price} muted={soldOut} />
 
           {soldOut ? null : (
             <Stepper
@@ -526,31 +533,40 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
+    height: 100,
     marginHorizontal: spacing.lg,
-    marginBottom: spacing.md,
-    padding: spacing.md,
+    marginBottom: spacing.sm,
+    padding: 10,
     gap: spacing.md,
-    borderRadius: radius.lg,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+  },
+  /** Quadrada: ocupa a altura útil do card e o mesmo tanto de largura. */
+  thumbWrap: {
+    height: '100%',
+    aspectRatio: 1,
   },
   thumb: {
-    width: 60,
-    height: 60,
-    borderRadius: radius.md,
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+  },
+  badgeOverlay: {
+    position: 'absolute',
+    left: spacing.xs,
+    right: spacing.xs,
+    bottom: spacing.xs,
   },
   cardBody: {
     flex: 1,
     justifyContent: 'space-between',
-    gap: spacing.sm,
+    gap: spacing.xs,
   },
   cardBottom: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: spacing.md,
-  },
-  cardMeta: {
-    gap: spacing.xs,
-    alignItems: 'flex-start',
   },
   cta: {
     minHeight: 56,
