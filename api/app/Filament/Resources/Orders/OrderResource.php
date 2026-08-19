@@ -2,28 +2,30 @@
 
 namespace App\Filament\Resources\Orders;
 
+use App\Filament\Resources\Orders\Pages\CreateOrder;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
 use App\Filament\Resources\Orders\RelationManagers\ProductsRelationManager;
+use App\Filament\Resources\Orders\Schemas\OrderForm;
 use App\Filament\Resources\Orders\Schemas\OrderInfolist;
 use App\Filament\Resources\Orders\Tables\OrdersTable;
 use App\Models\Order;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * A fila da cantina. Pedido nasce no app do aluno — aqui a equipe acompanha
- * e move o status; não cria, não edita campos e não apaga (é histórico).
+ * A fila da cantina. O pedido nasce no app do aluno ou aqui no balcão (para
+ * quem chega sem celular); a equipe move o status pela tabela. Não se edita
+ * campos nem se apaga — é histórico.
  */
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
+    protected static string|BackedEnum|null $navigationIcon = null;
 
     public static function getNavigationLabel(): string
     {
@@ -45,11 +47,6 @@ class OrderResource extends Resource
         return 1;
     }
 
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
     public static function canEdit(Model $record): bool
     {
         return false;
@@ -58,6 +55,11 @@ class OrderResource extends Resource
     public static function canDelete(Model $record): bool
     {
         return false;
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return OrderForm::configure($schema);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -81,6 +83,7 @@ class OrderResource extends Resource
     {
         return [
             'index' => ListOrders::route('/'),
+            'create' => CreateOrder::route('/create'),
             'view' => ViewOrder::route('/{record}'),
         ];
     }

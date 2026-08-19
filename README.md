@@ -32,14 +32,18 @@ Ver [mobile/README.md](mobile/README.md) para detalhes e como rodar.
 Laravel 13 + Sanctum (auth por token) + Filament (painel administrativo do staff),
 banco SQLite para desenvolvimento. Expõe os endpoints consumidos pelo app
 (`/api/cantina/...`: login, registro, cardápio, pedidos, perfil, pagamento) e o
-**painel da cantina em `/admin`** (Filament v5, identidade Verde Vivo):
+**painel da cantina em `/admin`** (Filament v5, identidade Verde Vivo, navegação
+no topo):
 
 - **Painel de Controle** — fila agora, prontos para retirada, vendas de hoje e
   produtos esgotados, atualizando a cada 15s.
 - **Pedidos** — a fila do balcão: status trocado direto na tabela (o app do
-  aluno reflete sozinho em segundos), itens e detalhes; sem criar nem apagar.
+  aluno reflete sozinho em segundos), itens e detalhes, e **criação de pedido
+  no balcão** (mesma regra do app: preço congelado, estoque baixado); sem
+  editar nem apagar.
 - **Produtos e Categorias** — CRUD completo com preço em R$, estoque com
-  alerta de esgotado e imagem por URL.
+  alerta de esgotado e **upload de foto** (a API serve a imagem com o host da
+  própria requisição, então funciona no navegador e no celular).
 
 Só entra quem tem `is_staff` (o aluno do app é barrado no login do painel).
 Login de desenvolvimento: `admin@ifoodies.test` / `password`.

@@ -18,6 +18,7 @@ class ProductsTable
             ->columns([
                 ImageColumn::make('image')
                     ->label('')
+                    ->disk('public')
                     ->circular(),
                 TextColumn::make('name')
                     ->label('Produto')

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Products\Schemas;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -32,13 +33,18 @@ class ProductForm
                     ->numeric()
                     ->minValue(0)
                     ->prefix('R$'),
-                // O app consome a imagem por URL (CDN/host externo) — não há
-                // upload de arquivo neste projeto.
-                TextInput::make('image')
-                    ->label('URL da imagem')
-                    ->url()
-                    ->placeholder('https://…')
-                    ->helperText('Cole o endereço de uma foto quadrada do produto.'),
+                // Upload para storage/app/public/produtos; a API monta a URL
+                // completa para o app. Produtos antigos com URL externa
+                // continuam válidos (a API preserva http/https).
+                FileUpload::make('image')
+                    ->label('Foto do produto')
+                    ->image()
+                    ->disk('public')
+                    ->directory('produtos')
+                    ->visibility('public')
+                    ->maxSize(2048)
+                    ->imageEditor()
+                    ->helperText('Prefira foto quadrada; máximo de 2 MB.'),
                 TextInput::make('stock')
                     ->label('Estoque')
                     ->helperText('O app usa este número como quantidade máxima por pedido; zero aparece como esgotado.')

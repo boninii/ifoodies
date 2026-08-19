@@ -14,6 +14,7 @@ class OrdersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'products']))
             // A fila da cantina se atualiza sozinha — o app do aluno sonda o
             // status; a mudança feita aqui chega nele em segundos.
             ->poll('10s')
