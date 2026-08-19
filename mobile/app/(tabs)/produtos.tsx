@@ -173,11 +173,11 @@ function ProductCard({
             altura fixa do card. */}
         {soldOut ? (
           <View style={styles.badgeOverlay}>
-            <Badge label="Esgotado" tone="struck" />
+            <Badge label="Esgotado" tone="struck" block />
           </View>
         ) : lowStock ? (
           <View style={styles.badgeOverlay}>
-            <Badge label={`Restam ${item.quantity}`} tone="accent" />
+            <Badge label={`Restam ${item.quantity}`} tone="accent" block />
           </View>
         ) : null}
       </View>

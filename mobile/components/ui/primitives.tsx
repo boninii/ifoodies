@@ -263,9 +263,12 @@ export function Price({ value, muted }: { value: number | string; muted?: boolea
 export function Badge({
   label,
   tone = 'neutral',
+  block = false,
 }: {
   label: string
   tone?: 'accent' | 'struck' | 'neutral'
+  /** Ocupa toda a largura disponível, com o texto centralizado. */
+  block?: boolean
 }) {
   const { colors } = useTheme()
   const type = useType()
@@ -275,8 +278,10 @@ export function Badge({
     tone === 'accent' ? colors.onAccent : tone === 'struck' ? colors.onPrimary : colors.primary
 
   return (
-    <View style={[styles.badge, { backgroundColor: bg }]}>
-      <Text style={[type.micro, { color: fg }]}>{label}</Text>
+    <View style={[styles.badge, block && styles.badgeBlock, { backgroundColor: bg }]}>
+      <Text style={[type.micro, { color: fg }, block && styles.badgeBlockText]} numberOfLines={1}>
+        {label}
+      </Text>
     </View>
   )
 }
@@ -390,6 +395,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.pill,
     paddingHorizontal: spacing.sm + 2,
     paddingVertical: spacing.xs,
+  },
+  badgeBlock: {
+    alignSelf: 'stretch',
+    paddingHorizontal: spacing.xs,
+  },
+  badgeBlockText: {
+    width: '100%',
+    textAlign: 'center',
   },
   notice: {
     borderRadius: radius.md,
