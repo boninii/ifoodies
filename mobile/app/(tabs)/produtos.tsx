@@ -405,7 +405,7 @@ export default function Produtos() {
     return (
       <View style={styles.listArea}>
         <ScrollView
-          contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
+          contentContainerStyle={{ paddingBottom: 20 }}
           showsVerticalScrollIndicator={false}
         >
           {visible.map((category) => (

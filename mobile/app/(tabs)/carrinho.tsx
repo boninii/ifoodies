@@ -146,7 +146,7 @@ export default function Carrinho() {
         <View key={item.id}>
           <View style={[styles.row, { backgroundColor: colors.surface }]}>
             <View style={styles.rowTop}>
-              <Text style={[type.headline, { color: colors.ink, flex: 1 }]} numberOfLines={2}>
+              <Text style={[type.title, { color: colors.ink, flex: 1 }]} numberOfLines={2}>
                 {item.name}
               </Text>
               <Price value={Number(item.price) * item.quantity} />
@@ -161,6 +161,8 @@ export default function Carrinho() {
                 onDecrease={() => changeQuantity(item.id, -1)}
               />
 
+              {/* Só a lixeira: o rótulo vive no accessibilityLabel, então
+                  leitor de tela continua anunciando qual item é removido. */}
               <Pressable
                 onPress={() => remove(item.id)}
                 hitSlop={12}
@@ -169,7 +171,6 @@ export default function Carrinho() {
                 style={styles.remove}
               >
                 <MaterialCommunityIcons name="trash-can-outline" size={20} color={colors.struck} />
-                <Text style={[type.label, { color: colors.struck }]}>Remover</Text>
               </Pressable>
             </View>
 
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     padding: spacing.lg,
     gap: spacing.md,
-    borderRadius: radius.lg,
+    borderRadius: radius.sm,
   },
   rowTop: {
     flexDirection: 'row',
@@ -234,11 +235,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   remove: {
-    flexDirection: 'row',
+    // Alinha com a altura do contador; o hitSlop de 12 mantém o alvo de toque.
+    minHeight: 32,
+    minWidth: 32,
     alignItems: 'center',
-    gap: spacing.xs,
-    minHeight: 44,
-    paddingHorizontal: spacing.sm,
+    justifyContent: 'center',
   },
   sum: {
     flexDirection: 'row',
@@ -246,13 +247,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginHorizontal: spacing.lg,
     padding: spacing.lg,
-    borderRadius: radius.lg,
+    borderRadius: radius.sm,
   },
   payment: {
     marginHorizontal: spacing.lg,
     padding: spacing.lg,
     gap: spacing.lg,
-    borderRadius: radius.lg,
+    borderRadius: radius.sm,
   },
   methods: {
     flexDirection: 'row',
