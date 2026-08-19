@@ -94,7 +94,7 @@ function CategoryPanel({
 
     Animated.timing(progress, {
       toValue: open ? 1 : 0,
-      duration: 400,
+      duration: 300,
       easing: Easing.inOut(Easing.ease),
       // Driver nativo no aparelho; na web o RNW não o aplica ao DOM e o
       // painel ficaria congelado, então lá a animação roda em JS.
