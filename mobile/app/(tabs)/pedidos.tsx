@@ -4,7 +4,8 @@ import { useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { money, radius, spacing, type } from '@/theme/tokens'
+import { useType } from '@/theme/preferences'
+import { money, radius, spacing } from '@/theme/tokens'
 import { Screen } from '@/components/ui/Screen'
 import { BandHeader, Button, Empty } from '@/components/ui/primitives'
 import { StatusTrack } from '@/components/ui/StatusTrack'
@@ -39,12 +40,13 @@ function formatTime(iso: string): string {
 }
 
 /**
- * Card de pedido: código e total no topo, a trilha açaí abaixo e os itens
- * como sub-linhas. Quando fica pronto, o card ganha a faixa manga — o momento
- * de celebração da marca, com o texto em tinta.
+ * Card de pedido: código e total no topo, a trilha abaixo e os itens como
+ * sub-linhas. Quando fica pronto, o card ganha a faixa verde-folha — o
+ * momento de celebração, com o texto legível por cima.
  */
 function OrderBand({ order }: { order: Order }) {
   const { colors } = useTheme()
+  const type = useType()
   const ready = order.status === 'ready'
 
   return (
@@ -104,6 +106,7 @@ function OrderBand({ order }: { order: Order }) {
 export default function Pedidos() {
   const { token, isAuthenticated, isLoading } = useAuth()
   const { colors } = useTheme()
+  const type = useType()
   const router = useRouter()
 
   const [orders, setOrders] = useState<Order[]>([])

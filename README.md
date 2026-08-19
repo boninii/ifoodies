@@ -20,8 +20,9 @@ Separados, mas juntos: cada parte tem seu próprio ciclo, mas vivem no mesmo rep
 ## 📱 mobile — App do aluno
 
 React Native (Expo SDK 54) + TypeScript + Expo Router. Login, cardápio, carrinho,
-pedidos e perfil. Identidade própria "Açaí & Manga" (ver [DESIGN.md](DESIGN.md)):
-roxo açaí + manga, Unbounded + Sora, cards arredondados, tema claro e escuro.
+pedidos e perfil. Identidade "Verde IF" (ver [DESIGN.md](DESIGN.md)): verdes
+institucionais + cinza, Unbounded + Montserrat, cards arredondados, filtro
+de categorias sobreposto, tamanho de fonte ajustável, tema claro (padrão) e escuro.
 
 Ver [mobile/README.md](mobile/README.md) para detalhes e como rodar.
 

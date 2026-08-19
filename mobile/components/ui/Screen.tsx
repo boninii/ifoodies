@@ -11,20 +11,23 @@ import {
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme } from '@/theme/useTheme'
-import { brandGradient, CONTENT_MAX_WIDTH, radius, spacing, type } from '@/theme/tokens'
+import { useType } from '@/theme/preferences'
+import { CONTENT_MAX_WIDTH, radius, spacing } from '@/theme/tokens'
 import { TabBar } from './TabBar'
 import { Wordmark } from './Logo'
+import { FontSizeControl } from './FontSizeControl'
 
 /**
  * Shell das telas autenticadas. Respeita safe area nos dois SOs e, em telas
- * largas (web/tablet), centraliza o conteúdo em uma coluna de 600px — em vez
- * de esticar uma tela de celular.
+ * largas (web/tablet), centraliza o conteúdo em uma coluna de 600px.
+ * O controle de tamanho de letra fica fixo no cabeçalho de toda tela.
  */
 export function Screen({
   title,
   subtitle,
   children,
   footer,
+  mastheadExtra,
   scroll = true,
 }: {
   title: string
@@ -32,15 +35,26 @@ export function Screen({
   children: React.ReactNode
   /** Ação fixa no rodapé, acima da navegação (ex.: enviar pedido). */
   footer?: React.ReactNode
+  /** Ação extra no cabeçalho, ao lado do controle de fonte (ex.: filtro). */
+  mastheadExtra?: React.ReactNode
   scroll?: boolean
 }) {
   const { colors, scheme } = useTheme()
+  const type = useType()
   const insets = useSafeAreaInsets()
 
   const body = (
-    <View style={styles.column}>
+    <View style={[styles.column, !scroll && styles.flex]}>
       <View style={styles.masthead}>
-        <Text style={[type.display, { color: colors.ink }]}>{title}</Text>
+        <View style={styles.mastheadRow}>
+          <Text style={[type.display, styles.mastheadTitle, { color: colors.ink }]}>
+            {title}
+          </Text>
+          <View style={styles.mastheadActions}>
+            {mastheadExtra}
+            <FontSizeControl />
+          </View>
+        </View>
         {subtitle ? (
           <Text style={[type.body, { color: colors.inkMuted, marginTop: spacing.xs }]}>
             {subtitle}
@@ -84,7 +98,7 @@ export function Screen({
 }
 
 /**
- * Shell das telas de entrada (login e cadastro). O herói é o degradê açaí
+ * Shell das telas de entrada (login e cadastro). O herói é o degradê verde
  * com o wordmark — a marca ocupa a primeira dobra, e o formulário vem num
  * card que sobrepõe o herói.
  */
@@ -98,11 +112,12 @@ export function AuthScreen({
   children: React.ReactNode
 }) {
   const { colors } = useTheme()
+  const type = useType()
   const insets = useSafeAreaInsets()
 
   return (
     <View style={[styles.root, { backgroundColor: colors.ground }]}>
-      <StatusBar barStyle="light-content" backgroundColor={brandGradient[0]} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.gradient[0]} />
 
       <KeyboardAvoidingView
         style={styles.flex}
@@ -115,15 +130,24 @@ export function AuthScreen({
           showsVerticalScrollIndicator={false}
         >
           <LinearGradient
-            colors={brandGradient}
+            colors={colors.gradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.hero, { paddingTop: insets.top + spacing.xxl }]}
           >
             <View style={styles.column}>
-              <Wordmark size={30} color="#FFFFFF" />
-              <Text style={[type.headline, styles.heroTitle]}>{title}</Text>
-              <Text style={[type.body, styles.heroTagline]}>{tagline}</Text>
+              <Wordmark size={30} color={colors.onPrimary} />
+              <Text style={[type.headline, { color: colors.onPrimary, marginTop: spacing.xl }]}>
+                {title}
+              </Text>
+              <Text
+                style={[
+                  type.body,
+                  { color: colors.onPrimary, opacity: 0.85, marginTop: spacing.xs },
+                ]}
+              >
+                {tagline}
+              </Text>
             </View>
           </LinearGradient>
 
@@ -151,6 +175,20 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.sm,
   },
+  mastheadRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  mastheadTitle: {
+    flexShrink: 1,
+  },
+  mastheadActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   footerWrap: {
     width: '100%',
   },
@@ -161,15 +199,6 @@ const styles = StyleSheet.create({
   hero: {
     paddingBottom: spacing.xxl + spacing.lg,
     paddingHorizontal: spacing.lg,
-  },
-  heroTitle: {
-    color: '#FFFFFF',
-    marginTop: spacing.xl,
-  },
-  heroTagline: {
-    color: '#FFFFFF',
-    opacity: 0.85,
-    marginTop: spacing.xs,
   },
   authCardWrap: {
     paddingHorizontal: spacing.lg,

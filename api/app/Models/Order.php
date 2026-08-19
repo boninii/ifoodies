@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-#[Fillable(['user_id', 'status', 'total_value'])]
+#[Fillable(['user_id', 'status', 'total_value', 'payment_method', 'payment_id', 'paid_at'])]
 class Order extends Model
 {
     /**
@@ -27,6 +27,7 @@ class Order extends Model
     {
         return [
             'total_value' => 'decimal:2',
+            'paid_at' => 'datetime',
         ];
     }
 

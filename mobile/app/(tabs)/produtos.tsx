@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { brandGradient, money, radius, shadow, spacing, type } from '@/theme/tokens'
+import { useType } from '@/theme/preferences'
+import { money, radius, shadow, spacing, TOUCH_TARGET } from '@/theme/tokens'
 import { Screen } from '@/components/ui/Screen'
 import { Badge, BandHeader, Button, Empty, Price, Stepper } from '@/components/ui/primitives'
 
@@ -28,36 +30,137 @@ interface Category {
 
 const STORAGE_KEY = '@pedido'
 
+type Filter = 'all' | number
+type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name']
+
+/** Ícone por categoria, inferido do nome (as categorias vêm da API). */
+function categoryIcon(name: string): IconName {
+  const n = name.toLowerCase()
+  if (n.includes('salgad')) return 'food-croissant'
+  if (n.includes('lanche') || n.includes('burg') || n.includes('sanduíche')) return 'hamburger'
+  if (n.includes('bebida') || n.includes('suco') || n.includes('café')) return 'cup-outline'
+  if (n.includes('doce') || n.includes('sobremesa') || n.includes('bolo')) return 'cupcake'
+  return 'tag-outline'
+}
+
 /**
- * Card de produto: superfície arredondada sobre o papel lavanda, foto com
- * canto próprio, preço tabular e o contador em pílula. Esgotado rebaixa o
- * card e ganha selo — sem fingir disponibilidade.
+ * Painel de filtragem por categoria: abre pelo ícone de filtro no cabeçalho
+ * e SOBREPÕE os cards — não rouba largura da lista. Cada categoria tem ícone
+ * e rótulo; tocar filtra e fecha.
+ */
+function CategoryPanel({
+  categories,
+  selected,
+  onSelect,
+  onClose,
+}: {
+  categories: Category[]
+  selected: Filter
+  onSelect: (f: Filter) => void
+  onClose: () => void
+}) {
+  const { colors } = useTheme()
+  const type = useType()
+
+  const items: { key: Filter; label: string; icon: IconName }[] = [
+    { key: 'all', label: 'Tudo', icon: 'silverware-variant' },
+    ...categories.map((c) => ({ key: c.id as Filter, label: c.name, icon: categoryIcon(c.name) })),
+  ]
+
+  return (
+    <View style={StyleSheet.absoluteFill}>
+      {/* Toque fora fecha. */}
+      <Pressable
+        style={[StyleSheet.absoluteFill, styles.scrim]}
+        onPress={onClose}
+        accessibilityLabel="Fechar filtro de categorias"
+      />
+
+      <View
+        style={[
+          styles.panel,
+          { backgroundColor: colors.surface, borderColor: colors.rule },
+          shadow.modal,
+        ]}
+      >
+        <Text style={[type.micro, { color: colors.inkMuted, marginBottom: spacing.sm }]}>
+          Categorias
+        </Text>
+
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {items.map((item) => {
+            const active = selected === item.key
+            return (
+              <Pressable
+                key={String(item.key)}
+                onPress={() => {
+                  onSelect(item.key)
+                  onClose()
+                }}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: active }}
+                accessibilityLabel={`Categoria ${item.label}`}
+                style={[
+                  styles.panelItem,
+                  {
+                    backgroundColor: active ? colors.primary : 'transparent',
+                  },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name={item.icon}
+                  size={20}
+                  color={active ? colors.onPrimary : colors.primary}
+                />
+                <Text
+                  style={[type.label, { color: active ? colors.onPrimary : colors.ink, flex: 1 }]}
+                  numberOfLines={1}
+                >
+                  {item.label}
+                </Text>
+              </Pressable>
+            )
+          })}
+        </ScrollView>
+      </View>
+    </View>
+  )
+}
+
+/**
+ * Card enxuto: foto, nome, preço e o contador. Descrição e detalhes moram no
+ * popup — tocar no card abre. Assim o texto do produto nunca é cortado por
+ * falta de espaço.
  */
 function ProductCard({
   item,
   quantity,
   onIncrease,
   onDecrease,
+  onOpen,
 }: {
   item: Product
   quantity: number
   onIncrease: () => void
   onDecrease: () => void
+  onOpen: () => void
 }) {
   const { colors } = useTheme()
+  const type = useType()
   const soldOut = item.quantity <= 0
   const lowStock = !soldOut && item.quantity <= 5
 
   return (
-    <View
-      style={[
+    <Pressable
+      onPress={onOpen}
+      accessibilityRole="button"
+      accessibilityLabel={`Ver detalhes de ${item.name}`}
+      style={({ pressed }) => [
         styles.card,
         { backgroundColor: colors.surface, borderColor: colors.rule },
         soldOut && { opacity: 0.72 },
+        pressed && { backgroundColor: colors.primarySoft },
       ]}
-      accessibilityLabel={
-        soldOut ? `${item.name}, esgotado` : `${item.name}, ${money(item.price)}`
-      }
     >
       {item.image ? (
         <Image
@@ -70,35 +173,22 @@ function ProductCard({
       )}
 
       <View style={styles.cardBody}>
-        <View style={styles.cardTop}>
-          <View style={styles.cardNames}>
-            <Text
-              style={[type.headline, { color: soldOut ? colors.inkMuted : colors.ink }]}
-              numberOfLines={2}
-            >
-              {item.name}
-            </Text>
-            <Text
-              style={[type.bodySmall, { color: colors.inkMuted, marginTop: 2 }]}
-              numberOfLines={2}
-            >
-              {item.description}
-            </Text>
-          </View>
-
-          <Price value={item.price} muted={soldOut} />
-        </View>
+        <Text
+          style={[type.title, { color: soldOut ? colors.inkMuted : colors.ink }]}
+          numberOfLines={2}
+        >
+          {item.name}
+        </Text>
 
         <View style={styles.cardBottom}>
-          {soldOut ? (
-            <Badge label="Esgotado" tone="struck" />
-          ) : lowStock ? (
-            <Badge label={`Só restam ${item.quantity}`} tone="accent" />
-          ) : (
-            <Text style={[type.micro, { color: colors.inkMuted }]}>
-              {item.quantity} disponíveis
-            </Text>
-          )}
+          <View style={styles.cardMeta}>
+            <Price value={item.price} muted={soldOut} />
+            {soldOut ? (
+              <Badge label="Esgotado" tone="struck" />
+            ) : lowStock ? (
+              <Badge label={`Restam ${item.quantity}`} tone="accent" />
+            ) : null}
+          </View>
 
           {soldOut ? null : (
             <Stepper
@@ -111,18 +201,94 @@ function ProductCard({
           )}
         </View>
       </View>
-    </View>
+    </Pressable>
+  )
+}
+
+/** Popup de detalhes: foto grande, descrição inteira, estoque e contador. */
+function ProductDetail({
+  item,
+  quantity,
+  onIncrease,
+  onDecrease,
+  onClose,
+}: {
+  item: Product | null
+  quantity: number
+  onIncrease: () => void
+  onDecrease: () => void
+  onClose: () => void
+}) {
+  const { colors } = useTheme()
+  const type = useType()
+
+  if (!item) return null
+  const soldOut = item.quantity <= 0
+
+  return (
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={styles.modalBackdrop} onPress={onClose} accessibilityLabel="Fechar detalhes">
+        <Pressable
+          style={[styles.modalCard, { backgroundColor: colors.surface }, shadow.modal]}
+          onPress={() => {}}
+        >
+          {item.image ? (
+            <Image source={{ uri: item.image }} style={styles.modalImage} accessibilityIgnoresInvertColors />
+          ) : (
+            <View style={[styles.modalImage, { backgroundColor: colors.primarySoft }]} />
+          )}
+
+          <View style={styles.modalBody}>
+            <Text style={[type.headline, { color: colors.ink }]}>{item.name}</Text>
+
+            <Text style={[type.numeralLarge, { color: colors.primary, marginTop: spacing.xs }]}>
+              {money(item.price)}
+            </Text>
+
+            <Text style={[type.body, { color: colors.inkMuted, marginTop: spacing.md }]}>
+              {item.description}
+            </Text>
+
+            <View style={styles.modalMeta}>
+              {soldOut ? (
+                <Badge label="Esgotado" tone="struck" />
+              ) : (
+                <Text style={[type.micro, { color: colors.inkMuted }]}>
+                  {item.quantity} disponíveis
+                </Text>
+              )}
+
+              {soldOut ? null : (
+                <Stepper
+                  value={quantity}
+                  max={item.quantity}
+                  itemName={item.name}
+                  onIncrease={onIncrease}
+                  onDecrease={onDecrease}
+                />
+              )}
+            </View>
+
+            <Button label="Fechar" variant="quiet" onPress={onClose} />
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
   )
 }
 
 export default function Produtos() {
   const { token, isAuthenticated, isLoading } = useAuth()
   const { colors } = useTheme()
+  const type = useType()
   const router = useRouter()
 
   const [categories, setCategories] = useState<Category[]>([])
   const [quantities, setQuantities] = useState<Record<number, number>>({})
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [filter, setFilter] = useState<Filter>('all')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [detail, setDetail] = useState<Product | null>(null)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) router.replace('/login')
@@ -198,6 +364,13 @@ export default function Produtos() {
     router.push('/carrinho')
   }
 
+  const visible = useMemo(
+    () => (filter === 'all' ? categories : categories.filter((c) => c.id === filter)),
+    [categories, filter],
+  )
+
+  const filtering = filter !== 'all'
+
   const body = () => {
     if (loadState === 'loading') {
       return (
@@ -226,26 +399,69 @@ export default function Produtos() {
       )
     }
 
-    return categories.map((category) => (
-      <View key={category.id}>
-        <BandHeader label={category.name} trailing={`${category.products.length}`} />
-        {category.products.map((item) => (
-          <ProductCard
-            key={item.id}
-            item={item}
-            quantity={quantities[item.id] ?? 0}
-            onIncrease={() => increase(item)}
-            onDecrease={() => decrease(item.id)}
+    return (
+      <View style={styles.listArea}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: spacing.xxl * 2 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {visible.map((category) => (
+            <View key={category.id}>
+              <BandHeader label={category.name} trailing={`${category.products.length}`} />
+              {category.products.map((item) => (
+                <ProductCard
+                  key={item.id}
+                  item={item}
+                  quantity={quantities[item.id] ?? 0}
+                  onIncrease={() => increase(item)}
+                  onDecrease={() => decrease(item.id)}
+                  onOpen={() => setDetail(item)}
+                />
+              ))}
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* O painel de categorias sobrepõe os cards quando aberto. */}
+        {filterOpen ? (
+          <CategoryPanel
+            categories={categories}
+            selected={filter}
+            onSelect={setFilter}
+            onClose={() => setFilterOpen(false)}
           />
-        ))}
+        ) : null}
       </View>
-    ))
+    )
   }
 
   return (
     <Screen
       title="Cardápio"
       subtitle="Peça agora e retire pronto no balcão."
+      scroll={false}
+      mastheadExtra={
+        <Pressable
+          onPress={() => setFilterOpen((v) => !v)}
+          accessibilityRole="button"
+          accessibilityLabel={
+            filtering ? 'Filtro de categorias ativo. Abrir filtro' : 'Filtrar por categoria'
+          }
+          style={[
+            styles.filterButton,
+            {
+              backgroundColor: filtering ? colors.primary : colors.surface,
+              borderColor: filtering ? colors.primary : colors.rule,
+            },
+          ]}
+        >
+          <MaterialCommunityIcons
+            name="filter-variant"
+            size={20}
+            color={filtering ? colors.onPrimary : colors.ink}
+          />
+        </Pressable>
+      }
       footer={
         count > 0 ? (
           <Pressable
@@ -255,7 +471,7 @@ export default function Produtos() {
             style={({ pressed }) => [{ transform: [{ scale: pressed ? 0.97 : 1 }] }, shadow.floating]}
           >
             <LinearGradient
-              colors={brandGradient}
+              colors={colors.gradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.cta}
@@ -270,11 +486,53 @@ export default function Produtos() {
       }
     >
       {body()}
+
+      <ProductDetail
+        item={detail}
+        quantity={detail ? (quantities[detail.id] ?? 0) : 0}
+        onIncrease={() => detail && increase(detail)}
+        onDecrease={() => detail && decrease(detail.id)}
+        onClose={() => setDetail(null)}
+      />
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
+  listArea: {
+    flex: 1,
+  },
+  filterButton: {
+    width: TOUCH_TARGET - 8,
+    height: TOUCH_TARGET - 8,
+    borderRadius: radius.pill,
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrim: {
+    backgroundColor: 'rgba(15, 21, 13, 0.35)',
+  },
+  panel: {
+    position: 'absolute',
+    left: spacing.lg,
+    top: spacing.sm,
+    bottom: spacing.xl,
+    width: 220,
+    maxWidth: '80%',
+    borderRadius: radius.lg,
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    padding: spacing.md,
+  },
+  panelItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    minHeight: TOUCH_TARGET,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    marginBottom: spacing.xs,
+  },
   card: {
     flexDirection: 'row',
     marginHorizontal: spacing.lg,
@@ -285,8 +543,8 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth * 2,
   },
   thumb: {
-    width: 76,
-    height: 76,
+    width: 60,
+    height: 60,
     borderRadius: radius.md,
   },
   cardBody: {
@@ -294,19 +552,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.sm,
   },
-  cardTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: spacing.md,
-  },
-  cardNames: {
-    flex: 1,
-  },
   cardBottom: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     gap: spacing.md,
+  },
+  cardMeta: {
+    gap: spacing.xs,
+    alignItems: 'flex-start',
   },
   cta: {
     minHeight: 56,
@@ -318,5 +572,34 @@ const styles = StyleSheet.create({
   },
   state: {
     padding: spacing.xl,
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 21, 13, 0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.lg,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 440,
+    maxHeight: '86%',
+    borderRadius: radius.lg,
+    overflow: 'hidden',
+  },
+  modalImage: {
+    width: '100%',
+    height: 180,
+  },
+  modalBody: {
+    padding: spacing.lg,
+  },
+  modalMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.lg,
+    marginBottom: spacing.lg,
+    gap: spacing.md,
   },
 })

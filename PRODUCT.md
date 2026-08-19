@@ -69,9 +69,11 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
 
 **Explicitamente NÃO implementado (não fabricar como pronto):**
 
-- **Pagamento no app.** É a intenção declarada do produto ("já pagar pelo app e
-  só retirar no balcão"), mas não existe integração alguma. Os ícones de cartão
-  e Pix na tela de carrinho são hoje decorativos e não fazem nada.
+- **Pagamento no app.** É a intenção declarada do produto. A integração com a
+  **AbacatePay (Pix)** está PREPARADA no backend (endpoints, webhook, campos
+  de pagamento no pedido) mas DESLIGADA aguardando credenciais do usuário —
+  os endpoints respondem 503 e o app mostra "em breve". Não apresentar como
+  funcional até ABACATEPAY_ENABLED=true.
 - **Aviso de pedido pronto.** Não há push notification nem polling; o aluno não
   é avisado quando o status vira `ready`.
 - Não há histórico de favoritos, repetição de pedido, cupons nem avaliação.
@@ -84,17 +86,19 @@ máxima selecionável por produto.
 
 - **Nome:** iFoodies (o projeto se chamava "Cantina" antes; o nome atual é o
   real e definitivo).
-- **Identidade própria** (redefinido pelo usuário em 2026-08-13, substituindo
-  a diretriz anterior de usar as cores institucionais do IF): o iFoodies deve
-  parecer uma marca real de food service, com paleta própria — explicitamente
-  **não** copiar as cores institucionais do Instituto Federal, não copiar
-  outras marcas (iFood etc.), não parecer fast-food genérico nem sistema
-  administrativo.
+- **Paleta verde (redefinido em 2026-08-19):** o produto é vendido PARA
+  Institutos Federais, e IF é verde — a paleta oficial parte dos verdes
+  (#FDFFFB, #EFFAE7, #D3F1B9, #86C55A, #2D5320) com o cinza #EAEAEA de
+  estrutura. Continua valendo: não copiar outras marcas, não parecer
+  fast-food genérico nem sistema administrativo.
+- **Tema claro é o padrão obrigatório.** O escuro existe e é escolhido pelo
+  usuário nas configurações (Perfil → Aparência).
 - **Tom desejado:** jovem, moderno, divertido, tecnológico, gastronômico,
   universitário — sem ser infantil.
-- **Identidade construída** (ver DESIGN.md): "Açaí & Manga" — roxo açaí como
-  cor de marca, manga como acento, wordmark em Unbounded com o pingo do "i"
-  em manga como gesto-assinatura.
+- **Tipografia definida pelo usuário:** Unbounded nos títulos (aprovada
+  explicitamente) e Montserrat no resto (pedida em substituição à Sora).
+- **Identidade construída** (ver DESIGN.md): "Verde IF" — wordmark em
+  Unbounded com o pingo do "i" em verde-folha como gesto-assinatura.
 - **Contexto institucional:** é a cantina de uma escola pública federal
   (IFSP), mas a marca do app é própria, não a do instituto.
 

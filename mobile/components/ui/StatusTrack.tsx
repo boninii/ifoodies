@@ -1,12 +1,13 @@
 import React from 'react'
 import { AccessibilityInfo, Animated, StyleSheet, Text, View } from 'react-native'
 import { useTheme } from '@/theme/useTheme'
-import { radius, spacing, type } from '@/theme/tokens'
+import { useType } from '@/theme/preferences'
+import { radius, spacing } from '@/theme/tokens'
 
 /**
- * Trilha do pedido: quatro segmentos em pílula que preenchem de açaí conforme
- * o pedido avança. A etapa atual carrega o pingo manga — o mesmo pingo do "i"
- * do wordmark, ecoando a assinatura da marca onde o aluno mais olha.
+ * Trilha do pedido: quatro segmentos em pílula que preenchem de verde conforme
+ * o pedido avança. A etapa atual carrega o pingo — o mesmo pingo do "i" do
+ * wordmark, ecoando a assinatura da marca onde o aluno mais olha.
  *
  * Os estados vêm do backend e não podem ser inventados aqui:
  * open · awaiting_payment · approved · in_preparation · ready · canceled
@@ -39,6 +40,7 @@ export const STATUS_LABEL: Record<string, string> = {
 
 export function StatusTrack({ status }: { status: string }) {
   const { colors } = useTheme()
+  const type = useType()
   const canceled = status === 'canceled'
   const reached = STEP_INDEX[status] ?? 0
 
@@ -108,7 +110,7 @@ export function StatusTrack({ status }: { status: string }) {
                   />
                 ) : null}
                 {current ? (
-                  // O pingo manga: a etapa em que o pedido está agora.
+                  // O pingo: a etapa em que o pedido está agora.
                   <View style={[styles.dot, { backgroundColor: colors.accent }]} />
                 ) : null}
               </View>
@@ -138,7 +140,7 @@ export function StatusTrack({ status }: { status: string }) {
 
       {status === 'awaiting_payment' ? (
         <Text style={[type.bodySmall, { color: colors.pending, marginTop: spacing.sm }]}>
-          Aguardando pagamento no balcão.
+          Aguardando a confirmação do pagamento.
         </Text>
       ) : null}
     </View>

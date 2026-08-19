@@ -10,13 +10,15 @@ import {
   type ViewStyle,
 } from 'react-native'
 import { useTheme } from '@/theme/useTheme'
-import { money, radius, spacing, TOUCH_TARGET, type } from '@/theme/tokens'
+import { useType } from '@/theme/preferences'
+import { money, radius, spacing, TOUCH_TARGET } from '@/theme/tokens'
 
 /* ------------------------------------------------------------------ *
  * Traço separador. 1px; profundidade no iFoodies é tom, não sombra.
  * ------------------------------------------------------------------ */
 export function Rule({ inset = 0 }: { inset?: number }) {
   const { colors } = useTheme()
+  const type = useType()
   return (
     <View
       style={{
@@ -33,6 +35,7 @@ export function Rule({ inset = 0 }: { inset?: number }) {
  * ------------------------------------------------------------------ */
 export function BandHeader({ label, trailing }: { label: string; trailing?: string }) {
   const { colors } = useTheme()
+  const type = useType()
   return (
     <View style={styles.bandHeader}>
       <Text style={[type.headline, { color: colors.ink }]} numberOfLines={1}>
@@ -69,6 +72,7 @@ export function Button({
   accessibilityLabel?: string
 }) {
   const { colors } = useTheme()
+  const type = useType()
   const isOff = disabled || loading
 
   const field =
@@ -126,6 +130,7 @@ export function Field({
   ...inputProps
 }: TextInputProps & { label: string; error?: string }) {
   const { colors } = useTheme()
+  const type = useType()
   const [focused, setFocused] = React.useState(false)
 
   const border = error ? colors.struck : focused ? colors.primary : colors.rule
@@ -187,6 +192,7 @@ export function Stepper({
   itemName: string
 }) {
   const { colors } = useTheme()
+  const type = useType()
   const atMax = typeof max === 'number' && value >= max
 
   return (
@@ -239,6 +245,7 @@ export function Stepper({
  * ------------------------------------------------------------------ */
 export function Price({ value, muted }: { value: number | string; muted?: boolean }) {
   const { colors } = useTheme()
+  const type = useType()
   return (
     <Text style={[type.numeral, { color: muted ? colors.inkMuted : colors.ink, textAlign: 'right' }]}>
       {money(value)}
@@ -257,6 +264,7 @@ export function Badge({
   tone?: 'accent' | 'struck' | 'neutral'
 }) {
   const { colors } = useTheme()
+  const type = useType()
   const bg =
     tone === 'accent' ? colors.accent : tone === 'struck' ? colors.struck : colors.primarySoft
   const fg =
@@ -283,6 +291,7 @@ export function Notice({
   tone?: 'pending' | 'struck' | 'neutral'
 }) {
   const { colors } = useTheme()
+  const type = useType()
   const accentColor =
     tone === 'pending' ? colors.pending : tone === 'struck' ? colors.struck : colors.inkMuted
 
@@ -307,6 +316,7 @@ export function Empty({
   action?: React.ReactNode
 }) {
   const { colors } = useTheme()
+  const type = useType()
   return (
     <View style={styles.empty}>
       <Text style={[type.headline, { color: colors.ink, marginBottom: spacing.sm, textAlign: 'center' }]}>

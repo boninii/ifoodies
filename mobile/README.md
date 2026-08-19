@@ -54,47 +54,51 @@ modelo de autenticação.
 - **Expo Router** (navegação baseada em arquivos)
 - **TypeScript** (modo `strict`)
 - **AsyncStorage** para persistência local do token
-- **Unbounded** + **Sora** (tipografia) e **@expo/vector-icons**
+- **Unbounded** + **Montserrat** (tipografia) e **@expo/vector-icons**
 - Backend: **API em Laravel** (repositório separado)
 
 ### Identidade visual
 
 O sistema completo está em **[DESIGN.md](../DESIGN.md)** — esta seção é só o
-resumo. A marca é própria ("Açaí & Manga"): roxo açaí como cor principal,
-manga como acento raro, e o **pingo do "i"** do wordmark em manga como
-gesto-assinatura (ele reaparece só no símbolo e na etapa atual da trilha de
-pedido).
+resumo. A marca é "Verde IF" (o produto é vendido para Institutos Federais):
+verdes institucionais sobre papel quase-branco, cinza estrutural, e o
+**pingo do "i"** do wordmark em verde-folha como gesto-assinatura (ele
+reaparece só no símbolo e na etapa atual da trilha de pedido).
 
 | Token | Hex | Uso |
 |-------|-----|-----|
-| Açaí | `#6C2BD9` | Cor da marca: botões, foco, trilha, item ativo (7,0:1 com branco) |
-| Açaí profundo | `#4A1FA3` | Pressed e fim do degradê da marca |
-| Névoa de açaí | `#F1EAFE` | Superfícies tingidas: chips, total, pílula ativa |
-| Manga | `#FFB300` | O pingo do "i". Selos e "Pronto!" — sempre com tinta por cima |
-| Papel lavanda | `#F7F5FC` | Fundo geral |
-| Tinta ameixa | `#191331` | Texto primário (16,5:1) |
-| Morango | `#D6284A` | Exclusivo de perda: esgotado, cancelado, erro |
+| Verde floresta | `#2D5320` | Cor de ação: botões, foco, trilha (8,9:1 com branco) |
+| Floresta profunda | `#1F3A16` | Pressed e fim do degradê da marca |
+| Verde folha | `#86C55A` | O pingo do "i". Selos e "Pronto!" — sempre tinta por cima |
+| Lavagem / tinta verde | `#EFFAE7` / `#D3F1B9` | Superfícies tingidas: chips, total, pílula ativa |
+| Papel | `#FDFFFB` | Fundo geral |
+| Cinza traço | `#EAEAEA` | Bordas e traços estruturais |
+| Tinta | `#2E332C` | Texto primário (~13:1) |
+| Perda | `#C03A2F` | Exclusivo de perda: esgotado, cancelado, erro |
 
-Três regras que o código segue:
+Regras que o código segue:
 
-- **A Regra do Pingo.** O pingo manga só existe no wordmark, no símbolo e na
-  etapa atual da trilha.
+- **A Regra do Claro Primeiro.** O app abre SEMPRE no tema claro; o escuro é
+  opt-in em Perfil → Aparência.
+- **A Regra do Pingo.** O pingo verde-folha só existe no wordmark, no símbolo
+  e na etapa atual da trilha.
 - **A Regra dos Dois Voos.** Sombra só no CTA flutuante e em modal.
 - **A Regra da Voz Única.** Unbounded no máximo duas vezes por tela; o resto
-  é Sora.
+  é Montserrat.
 
-Tema claro e escuro são escritos separadamente (o escuro é berinjela tingida,
-não inversão) e seguem a preferência do sistema.
+O tamanho da letra é ajustável pelo usuário (controle fixo A− · A · A+ no
+cabeçalho, fatores 1/1,15/1,3), e a troca de aba é instantânea (sem animação,
+sem flash).
 
 **Tipografia** — display + sans geométrica:
 
 | Papel | Fonte | Tamanho |
 |-------|-------|---------|
 | Wordmark e título de tela | **Unbounded** (700) | 24–30 |
-| Corpo, labels, inputs, botões, preços | **Sora** (400/600/700) | 11–20 |
+| Corpo, labels, inputs, botões, preços | **Montserrat** (400/600/700) | 11–20 |
 
-A Unbounded é a voz da marca, usada com parcimônia; a Sora carrega toda a
-interface, com numerais tabulares para que preço alinhe embaixo de preço.
+A Unbounded é a voz da marca, usada com parcimônia; a Montserrat carrega toda
+a interface, com numerais tabulares para que preço alinhe embaixo de preço.
 
 ---
 
@@ -129,13 +133,16 @@ app/
 components/ui/
 ├── Screen.tsx         # casca das telas (Screen autenticada + AuthScreen)
 ├── TabBar.tsx         # navegação inferior, 4 destinos com rótulo
-├── StatusTrack.tsx    # trilha do pedido em pílulas, com o pingo manga
-└── primitives.tsx     # Rule, BandHeader, Button, Field, Stepper, Price…
+├── StatusTrack.tsx    # trilha do pedido em pílulas, com o pingo verde-folha
+├── FontSizeControl.tsx # controle fixo A− · A · A+ do tamanho de letra
+└── primitives.tsx     # Rule, BandHeader, Button, Field, Stepper, Badge…
 theme/
-├── tokens.ts          # paletas clara/escura, escala, tipografia
-└── useTheme.ts        # tema conforme preferência do sistema
+├── tokens.ts          # paletas clara/escura, escala, tipografia base
+├── preferences.tsx    # tema (claro por padrão) e escala de fonte persistidos
+└── useTheme.ts        # tema resolvido a partir da preferência do usuário
 services/
-└── api.ts             # cliente HTTP único (base URL, token, tratamento de 401)
+├── api.ts             # cliente HTTP único (host automático em dev, token, 401)
+└── payments.ts        # Pix via AbacatePay (preparado; desligado por flag)
 assets/                # imagens (as fontes vêm por pacote)
 ```
 
@@ -144,7 +151,10 @@ assets/                # imagens (as fontes vêm por pacote)
 ## 🗺️ Próximos passos
 
 - [ ] Migrar o token de `AsyncStorage` para `expo-secure-store`.
-- [ ] Pagamento no app (hoje a tela existe marcada como "em breve").
+- [ ] Ligar o pagamento Pix via AbacatePay (backend PREPARADO e desligado:
+      falta `ABACATEPAY_API_KEY` + `ABACATEPAY_WEBHOOK_SECRET` no `.env` da
+      API e virar `ABACATEPAY_ENABLED=true`; no app, `PAYMENTS_ENABLED` em
+      `services/payments.ts`).
 - [ ] Avisar o aluno quando o pedido fica `ready` (push ou polling).
 - [ ] Skeleton nos carregamentos, no lugar do texto "Carregando…".
 - [ ] Testes automatizados.

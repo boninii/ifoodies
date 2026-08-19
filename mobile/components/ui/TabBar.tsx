@@ -3,7 +3,8 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { usePathname, useRouter } from 'expo-router'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useTheme } from '@/theme/useTheme'
-import { CONTENT_MAX_WIDTH, radius, spacing, TOUCH_TARGET, type } from '@/theme/tokens'
+import { useType } from '@/theme/preferences'
+import { CONTENT_MAX_WIDTH, radius, spacing, TOUCH_TARGET } from '@/theme/tokens'
 import { Rule } from './primitives'
 
 type Destination = {
@@ -27,6 +28,7 @@ const DESTINATIONS: Destination[] = [
  */
 export function TabBar() {
   const { colors } = useTheme()
+  const type = useType()
   const router = useRouter()
   const pathname = usePathname()
 

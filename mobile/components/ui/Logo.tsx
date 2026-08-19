@@ -2,11 +2,11 @@ import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useTheme } from '@/theme/useTheme'
-import { brandGradient, radius } from '@/theme/tokens'
+import { radius } from '@/theme/tokens'
 
 /**
- * Marca iFoodies. O gesto-assinatura é o pingo do "i" em manga — presente no
- * wordmark e no símbolo, e ecoado pela trilha de pedido como marcador de
+ * Marca iFoodies. O gesto-assinatura é o pingo do "i" em verde-folha — presente
+ * no wordmark e no símbolo, e ecoado pela trilha de pedido como marcador de
  * etapa atual.
  *
  * `Wordmark` — "iFoodies" por extenso, para heróis e cabeçalhos.
@@ -28,7 +28,7 @@ export function Wordmark({
   return (
     <View style={styles.row} accessibilityRole="image" accessibilityLabel="iFoodies">
       <View>
-        {/* O "i" sem pingo (glifo ı) recebe um pingo desenhado, em manga. */}
+        {/* O "i" sem pingo (glifo ı) recebe um pingo desenhado, em verde-folha. */}
         <Text
           style={{
             fontFamily: 'Unbounded-Bold',
@@ -73,7 +73,7 @@ export function Mark({ size = 44 }: { size?: number }) {
 
   return (
     <LinearGradient
-      colors={brandGradient}
+      colors={colors.gradient}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{
@@ -93,7 +93,7 @@ export function Mark({ size = 44 }: { size?: number }) {
               fontFamily: 'Unbounded-Bold',
               fontSize,
               lineHeight: Math.round(fontSize * 1.3),
-              color: '#FFFFFF',
+              color: colors.onPrimary,
             }}
           >
             ı
@@ -116,7 +116,7 @@ export function Mark({ size = 44 }: { size?: number }) {
             fontFamily: 'Unbounded-Bold',
             fontSize,
             lineHeight: Math.round(fontSize * 1.3),
-            color: '#FFFFFF',
+            color: colors.onPrimary,
           }}
         >
           F

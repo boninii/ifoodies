@@ -4,7 +4,8 @@ import { Link, useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { spacing, type } from '@/theme/tokens'
+import { useType } from '@/theme/preferences'
+import { spacing } from '@/theme/tokens'
 import { AuthScreen } from '@/components/ui/Screen'
 import { Button, Field } from '@/components/ui/primitives'
 
@@ -27,6 +28,7 @@ export default function Register() {
 
   const { login, isAuthenticated, isLoading } = useAuth()
   const { colors } = useTheme()
+  const type = useType()
   const router = useRouter()
 
   useEffect(() => {

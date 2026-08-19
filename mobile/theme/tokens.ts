@@ -1,17 +1,17 @@
 /**
- * Tokens da identidade iFoodies — "Açaí & Manga".
+ * Tokens da identidade iFoodies — "Verde IF".
  *
- * A marca é própria, não institucional: o roxo vem do açaí (comida real de
- * estudante brasileiro) e o amarelo vem da manga. O pingo do "i" de iFoodies
- * é sempre manga — é o gesto-assinatura da marca, e reaparece como marcador
- * de etapa atual na trilha de pedido.
+ * O produto é vendido para Institutos Federais, e IF é verde: a paleta parte
+ * do verde institucional (floresta #2D5320 → folha #86C55A) sobre papel
+ * quase-branco, com o cinza #EAEAEA como traço estrutural. O gesto-assinatura
+ * segue sendo o pingo do "i" do wordmark — agora em verde-folha — ecoado no
+ * símbolo e no marcador de etapa atual da trilha de pedido.
  *
  * Regras que este arquivo carrega (ver DESIGN.md):
- * - `primary` (#6C2BD9, 7,0:1 com branco) carrega texto branco em qualquer
- *   tamanho; `primaryDeep` é o estado pressionado e o fim dos degradês.
- * - `accent` (manga) nunca carrega texto branco — sempre `ink` por cima.
- * - Profundidade é tom sobre tom; sombra existe só no CTA flutuante e em
- *   modal (tokens `shadow.*`), nunca espalhada em card.
+ * - `primary` carrega texto `onPrimary` em qualquer tamanho (8,9:1 no claro).
+ * - `accent` nunca assume a cor do texto por cima: sempre `onAccent`.
+ * - Tema CLARO é o padrão obrigatório; o escuro é opt-in nas configurações.
+ * - Sombra existe só no CTA flutuante e em modal (`shadow.*`).
  */
 
 import type { TextStyle, ViewStyle } from 'react-native'
@@ -19,70 +19,75 @@ import type { TextStyle, ViewStyle } from 'react-native'
 export type ColorScheme = 'light' | 'dark'
 
 export type Palette = {
-  /** Roxo açaí — cor principal da marca. Botões, foco, indicadores, trilha. */
+  /** Verde floresta — cor de ação. Botões, foco, links, trilha. */
   primary: string
-  /** Açaí escuro — pressed, degradê, campos de ênfase máxima. */
+  /** Estado pressionado do primário e fim de degradê. */
   primaryDeep: string
-  /** Névoa de açaí — superfícies tingidas: chips, linha de soma, seleção. */
+  /** Lavagem verde bem clara — superfícies tingidas. */
   primarySoft: string
-  /** Manga — o pingo do "i". Destaques, "pronto para retirar", selos. */
+  /** Tinta verde média — seleção e contadores com mais presença. */
+  primaryTint: string
+  /** Verde folha — o pingo do "i". Selos, marcador de etapa, "Pronto!". */
   accent: string
-  /** Papel lavanda — fundo geral, levemente tingido de roxo. Nunca creme. */
+  /** Papel quase-branco esverdeado — fundo geral. */
   ground: string
-  /** Superfície de card, um degrau acima do fundo. */
+  /** Superfície de card. */
   surface: string
-  /** Traço de contorno de cards e campos. */
+  /** Cinza estrutural de traços e bordas. */
   rule: string
-  /** Texto primário (tinta ameixa). */
+  /** Texto primário (cinza-verde escuro). */
   ink: string
   /** Texto secundário. */
   inkMuted: string
-  /** Morango — exclusivo de perda: esgotado, cancelado, erro, sair. */
+  /** Exclusivo de perda: esgotado, cancelado, erro, sair. */
   struck: string
-  /** Espera que depende de terceiros (aguardando pagamento, em preparo). */
+  /** Espera que depende de terceiros (pagamento, preparo). */
   pending: string
-  /** Texto sobre campo roxo. */
+  /** Texto sobre campo `primary` e sobre o degradê. */
   onPrimary: string
-  /** Texto sobre campo manga. */
+  /** Texto sobre campo `accent`. */
   onAccent: string
+  /** Degradê da marca (herói de auth e CTA flutuante). */
+  gradient: [string, string]
 }
 
 const light: Palette = {
-  primary: '#6C2BD9',
-  primaryDeep: '#4A1FA3',
-  primarySoft: '#F1EAFE',
-  accent: '#FFB300',
-  ground: '#F7F5FC',
+  primary: '#2D5320',
+  primaryDeep: '#1F3A16',
+  primarySoft: '#EFFAE7',
+  primaryTint: '#D3F1B9',
+  accent: '#86C55A',
+  ground: '#FDFFFB',
   surface: '#FFFFFF',
-  rule: '#E6E1F2',
-  ink: '#191331',
-  inkMuted: '#5C5478',
-  struck: '#D6284A',
+  rule: '#EAEAEA',
+  ink: '#2E332C',
+  inkMuted: '#5F6A57',
+  struck: '#C03A2F',
   pending: '#9A6108',
   onPrimary: '#FFFFFF',
-  onAccent: '#191331',
+  onAccent: '#1C2418',
+  gradient: ['#3E7527', '#2D5320'],
 }
 
 const dark: Palette = {
-  primary: '#7C3AED',
-  primaryDeep: '#5B21C7',
-  primarySoft: '#2A1D49',
-  accent: '#FFC53D',
-  ground: '#120C1E',
-  surface: '#1C1430',
-  rule: '#332A4E',
-  ink: '#F2EDFB',
-  inkMuted: '#A79BC8',
-  struck: '#FF7B93',
-  pending: '#E8B04B',
-  onPrimary: '#FFFFFF',
-  onAccent: '#191331',
+  primary: '#86C55A',
+  primaryDeep: '#6FAE45',
+  primarySoft: '#1E2A18',
+  primaryTint: '#2A3B20',
+  accent: '#2D5320',
+  ground: '#0F150D',
+  surface: '#182014',
+  rule: '#2C3527',
+  ink: '#ECF2E6',
+  inkMuted: '#A3B098',
+  struck: '#EF7B70',
+  pending: '#D9A62A',
+  onPrimary: '#12190E',
+  onAccent: '#ECF2E6',
+  gradient: ['#8FCB63', '#65A63F'],
 }
 
 export const palettes: Record<ColorScheme, Palette> = { light, dark }
-
-/** Degradê da marca (heróis de auth e CTA flutuante). Início → fim. */
-export const brandGradient: [string, string] = ['#7C3AED', '#4A1FA3']
 
 /** Escala 4/8/12/16/24/40. Grupos apertados por dentro, separação por fora. */
 export const spacing = {
@@ -117,14 +122,14 @@ export const CONTENT_MAX_WIDTH = 600
  */
 export const shadow: Record<'floating' | 'modal', ViewStyle> = {
   floating: {
-    shadowColor: '#2A1D49',
+    shadowColor: '#1F3A16',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.28,
     shadowRadius: 16,
     elevation: 8,
   },
   modal: {
-    shadowColor: '#120C1E',
+    shadowColor: '#0F150D',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.32,
     shadowRadius: 28,
@@ -132,6 +137,11 @@ export const shadow: Record<'floating' | 'modal', ViewStyle> = {
   },
 }
 
+/**
+ * Tipografia base (escala 1). Os textos de interface são consumidos via
+ * `useType()` (theme/preferences.tsx), que aplica o fator de tamanho de
+ * fonte escolhido pelo usuário — `display` é voz de marca e não escala.
+ */
 export const type = {
   /** Voz da marca: títulos de tela e wordmark. Unbounded, larga e jovem. */
   display: {
@@ -142,53 +152,55 @@ export const type = {
   },
   /** Nome de produto e título de seção grande. */
   headline: {
-    fontFamily: 'Sora-Bold',
+    fontFamily: 'Montserrat-Bold',
     fontSize: 17,
     lineHeight: 22,
   },
   title: {
-    fontFamily: 'Sora-SemiBold',
+    fontFamily: 'Montserrat-SemiBold',
     fontSize: 16,
     lineHeight: 21,
   },
   body: {
-    fontFamily: 'Sora',
+    fontFamily: 'Montserrat',
     fontSize: 15,
     lineHeight: 22,
   },
   bodySmall: {
-    fontFamily: 'Sora',
+    fontFamily: 'Montserrat',
     fontSize: 13,
     lineHeight: 19,
   },
   /** Rótulos de botão, selo e campo. Sentence case — sem gritar em caixa alta. */
   label: {
-    fontFamily: 'Sora-Bold',
+    fontFamily: 'Montserrat-Bold',
     fontSize: 13,
     lineHeight: 16,
     letterSpacing: 0.1,
   },
   /** Selos e contadores minúsculos. */
   micro: {
-    fontFamily: 'Sora-Bold',
+    fontFamily: 'Montserrat-Bold',
     fontSize: 11,
     lineHeight: 14,
     letterSpacing: 0.2,
   },
   // Numerais tabulares: preço embaixo de preço alinha (Regra do Numeral).
   numeral: {
-    fontFamily: 'Sora-Bold',
+    fontFamily: 'Montserrat-Bold',
     fontSize: 16,
     lineHeight: 20,
     fontVariant: ['tabular-nums'],
   },
   numeralLarge: {
-    fontFamily: 'Sora-Bold',
+    fontFamily: 'Montserrat-Bold',
     fontSize: 20,
     lineHeight: 25,
     fontVariant: ['tabular-nums'],
   },
 } satisfies Record<string, TextStyle>
+
+export type TypeScale = typeof type
 
 /** Formata em Real, sempre com dois dígitos, para alinhar tabular. */
 export function money(value: number | string): string {

@@ -6,7 +6,8 @@ import { useFocusEffect, useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
 import { useTheme } from '@/theme/useTheme'
-import { money, radius, spacing, type } from '@/theme/tokens'
+import { useType } from '@/theme/preferences'
+import { money, radius, spacing } from '@/theme/tokens'
 import { Screen } from '@/components/ui/Screen'
 import { BandHeader, Button, Empty, Notice, Price, Stepper } from '@/components/ui/primitives'
 
@@ -32,6 +33,7 @@ const PAYMENT_METHODS = [
 export default function Carrinho() {
   const { isAuthenticated, isLoading } = useAuth()
   const { colors } = useTheme()
+  const type = useType()
   const router = useRouter()
 
   const [products, setProducts] = useState<CartProduct[]>([])
@@ -205,8 +207,8 @@ export default function Carrinho() {
         </View>
 
         <Notice label="Em breve">
-          Pagar pelo app ainda não está disponível. Por enquanto, envie o pedido e pague no
-          balcão ao retirar.
+          O pagamento por Pix dentro do app está chegando. Por enquanto, envie o pedido e
+          pague no balcão ao retirar.
         </Notice>
       </View>
     </Screen>

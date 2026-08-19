@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Símbolo iFoodies — fonte vetorial para exportar app icon, favicon e avatar.
-  Gradiente açaí (#7C3AED → #4A1FA3), monograma "iF" e o pingo manga (#FFB300),
-  o gesto-assinatura da marca.
+  Gradiente verde IF (#3E7527 → #2D5320), monograma "iF" e o pingo verde-folha
+  (#86C55A), o gesto-assinatura da marca.
   Exportar em 1024×1024 (app icon), 512, 192, 48 e 32 (favicon).
 -->
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="acai" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7C3AED"/>
-      <stop offset="1" stop-color="#4A1FA3"/>
+    <linearGradient id="verde" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3E7527"/>
+      <stop offset="1" stop-color="#2D5320"/>
     </linearGradient>
   </defs>
 
   <!-- Tile arredondado (squircle aproximado) -->
-  <rect x="0" y="0" width="1024" height="1024" rx="307" fill="url(#acai)"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="307" fill="url(#verde)"/>
 
   <!-- Monograma "iF" em traço geométrico largo (ecoa a Unbounded) -->
   <!-- Haste do i (sem pingo) -->
   <rect x="308" y="430" width="112" height="340" rx="56" fill="#FFFFFF"/>
-  <!-- Pingo manga -->
-  <circle cx="364" cy="318" r="64" fill="#FFB300"/>
+  <!-- Pingo verde-folha -->
+  <circle cx="364" cy="318" r="64" fill="#86C55A"/>
 
   <!-- F -->
   <path fill="#FFFFFF" d="
