@@ -21,8 +21,8 @@ próprio celular, em pé, muitas vezes andando ou conversando, com pressa e sob
 ruído. Se identifica no sistema pelo **prontuário**.
 
 **Equipe da cantina** — usuário secundário. Cadastra produtos, controla estoque
-e acompanha os pedidos pelo painel administrativo (web, Filament em `/admin`),
-não pelo app.
+e move os pedidos da fila pelo painel web (Filament em `/admin`, identidade
+Verde Vivo, restrito a contas `is_staff`), não pelo app.
 
 ## Product Purpose
 
@@ -63,6 +63,9 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
 - Listagem dos pedidos do aluno com status e itens.
 - Perfil: ver dados, editar nome/e-mail, trocar senha. O prontuário não é
   editável pelo app.
+- Painel da equipe em `/admin` (Filament): fila de pedidos com troca de
+  status inline, CRUD de produtos/categorias e visão geral do dia. O app do
+  aluno reflete mudanças de status sozinho (sonda a cada 15s).
 
 **Estados de pedido (contrato fixo com o backend):** `open`,
 `awaiting_payment`, `approved`, `in_preparation`, `ready`, `canceled`.
@@ -74,8 +77,9 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
   de pagamento no pedido) mas DESLIGADA aguardando credenciais do usuário —
   os endpoints respondem 503 e o app mostra "em breve". Não apresentar como
   funcional até ABACATEPAY_ENABLED=true.
-- **Aviso de pedido pronto.** Não há push notification nem polling; o aluno não
-  é avisado quando o status vira `ready`.
+- **Aviso ativo de pedido pronto.** Não há push notification; com o app aberto
+  na tela de pedidos, o status atualiza sozinho (sondagem a cada 15s), mas com
+  o app fechado o aluno não é avisado quando vira `ready`.
 - Não há histórico de favoritos, repetição de pedido, cupons nem avaliação.
 
 **Restrições técnicas:** o contrato REST já existe e é consumido pelo app

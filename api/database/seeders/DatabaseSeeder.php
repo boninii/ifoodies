@@ -17,14 +17,19 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Conta de staff/admin (acessa o painel Filament em /admin). Sem
-        // prontuário, pois não é aluno.
-        User::firstOrCreate(
+        // prontuário, pois não é aluno. is_staff via forceFill — o campo não
+        // é atribuível em massa de propósito.
+        $admin = User::firstOrCreate(
             ['email' => 'admin@ifoodies.test'],
             [
                 'name' => 'Admin iFoodies',
                 'password' => Hash::make('password'),
             ],
         );
+
+        if (! $admin->is_staff) {
+            $admin->forceFill(['is_staff' => true])->save();
+        }
 
         // Aluno de teste, para logar no app mobile.
         User::firstOrCreate(
