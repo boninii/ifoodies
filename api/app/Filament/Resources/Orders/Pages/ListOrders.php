@@ -43,7 +43,11 @@ class ListOrders extends ListRecords
                 TextInput::make('code')
                     ->label('Código do aluno')
                     ->required()
-                    ->length(6)
+                    // Sem regra de tamanho aqui de propósito: ela rodaria
+                    // ANTES do trim e recusaria um código colado com espaço.
+                    // Quem julga o código é ConfirmOrderPickup, que aceita
+                    // maiúscula/minúscula e responde em português.
+                    ->maxLength(20)
                     ->autofocus()
                     ->placeholder('Ex.: K7QF2M')
                     ->extraInputAttributes([
