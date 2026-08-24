@@ -38,15 +38,53 @@ no topo):
 - **Painel de Controle** — fila agora, prontos para retirada, vendas de hoje e
   produtos esgotados, atualizando a cada 15s.
 - **Pedidos** — a fila do balcão: status trocado direto na tabela (o app do
-  aluno reflete sozinho em segundos), itens e detalhes, e **criação de pedido
-  no balcão** (mesma regra do app: preço congelado, estoque baixado); sem
-  editar nem apagar.
+  aluno recebe a mudança na hora, pelo WebSocket), itens e detalhes, e
+  **criação de pedido no balcão** (mesma regra do app: preço congelado,
+  estoque baixado); sem editar nem apagar.
+- **Registrar retirada** — o aluno mostra um código de 6 caracteres, o balcão
+  digita e o pedido é encerrado. O código é de uso único e só vale com o
+  pedido pronto. (O prontuário não serve como prova: é público entre os
+  alunos.) Há uma saída manual, com confirmação, para celular descarregado.
 - **Produtos e Categorias** — CRUD completo com preço em R$, estoque com
   alerta de esgotado e **upload de foto** (a API serve a imagem com o host da
   própria requisição, então funciona no navegador e no celular).
 
 Só entra quem tem `is_staff` (o aluno do app é barrado no login do painel).
 Login de desenvolvimento: `admin@ifoodies.test` / `password`.
+
+## Rodando
+
+São dois processos no backend (o WebSocket é separado, e sem ele o app cai
+na recarga periódica em vez de receber os avisos na hora):
+
+```bash
+php artisan serve --host=0.0.0.0 --port=8000   # API + painel
+php artisan reverb:start --host=0.0.0.0 --port=8080   # WebSocket
+```
+
+E o app:
+
+```bash
+cd mobile && npx expo start
+```
+
+## Antes de subir para produção
+
+O `.env.example` marca cada um destes, mas eles são fáceis de esquecer:
+
+- `APP_DEBUG=false` e `APP_ENV=production` — com debug ligado, qualquer erro
+  devolve stack trace e configuração para quem fez a requisição.
+- `SESSION_SECURE_COOKIE=true` — sem isso o cookie do painel vai sem a flag
+  `Secure` mesmo em HTTPS.
+- `CORS_ALLOWED_ORIGINS` — troque o `*` pelos domínios reais.
+- `EXPO_PUBLIC_API_URL` no build do app — **obrigatória**. O app falha ao
+  subir sem ela, de propósito: antes existia um domínio fixo como reserva, e
+  um build sem a variável mandaria e-mail e senha dos alunos para um endereço
+  herdado de outro projeto.
+- `REVERB_APP_KEY` igual nos dois lados (`api/.env` e `mobile/.env`), e o
+  proxy encaminhando o WebSocket para a porta do Reverb.
+- Agendador ativo (`php artisan schedule:work` ou cron), que é quem limpa os
+  tokens vencidos.
 
 ## Arquitetura
 

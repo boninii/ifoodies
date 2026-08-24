@@ -63,12 +63,26 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
 - Listagem dos pedidos do aluno com status e itens.
 - Perfil: ver dados, editar nome/e-mail, trocar senha. O prontuário não é
   editável pelo app.
+- Recuperação de senha por código de 6 dígitos enviado por e-mail (válido por
+  15 minutos, uso único, derruba todas as sessões antigas).
 - Painel da equipe em `/admin` (Filament): fila de pedidos com troca de
-  status inline, CRUD de produtos/categorias e visão geral do dia. O app do
-  aluno reflete mudanças de status sozinho (sonda a cada 15s).
+  status inline, criação de pedido no balcão, CRUD de produtos/categorias e
+  visão geral do dia.
+- **Tempo real (Laravel Reverb):** o servidor empurra a mudança de status
+  pelo WebSocket, em canal privado por aluno (`orders.{id}`), no instante em
+  que ela acontece. A sondagem periódica sobrou apenas como reserva, num
+  intervalo longo, para quando o socket cai.
+- **Retirada validada por código.** Cada pedido nasce com um código aleatório
+  de 6 caracteres. O aluno mostra o código no balcão; o atendente digita no
+  painel e o pedido é encerrado (`delivered` + `delivered_at`). O código é de
+  uso único e só vale com o pedido em `ready`.
+  **O prontuário NÃO serve para isso** — é público entre os alunos, e o
+  cadastro aceita qualquer prontuário ainda não usado, então qualquer um
+  poderia reivindicar o do colega.
 
 **Estados de pedido (contrato fixo com o backend):** `open`,
-`awaiting_payment`, `approved`, `in_preparation`, `ready`, `canceled`.
+`awaiting_payment`, `approved`, `in_preparation`, `ready`, `delivered`,
+`canceled`.
 
 **Explicitamente NÃO implementado (não fabricar como pronto):**
 
@@ -77,9 +91,10 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
   de pagamento no pedido) mas DESLIGADA aguardando credenciais do usuário —
   os endpoints respondem 503 e o app mostra "em breve". Não apresentar como
   funcional até ABACATEPAY_ENABLED=true.
-- **Aviso ativo de pedido pronto.** Não há push notification; com o app aberto
-  na tela de pedidos, o status atualiza sozinho (sondagem a cada 15s), mas com
-  o app fechado o aluno não é avisado quando vira `ready`.
+- **Aviso com o app fechado.** Com o app aberto na tela de pedidos, o status
+  chega na hora pelo WebSocket. Mas não há push notification: com o app
+  fechado, o aluno só descobre que ficou `ready` quando abrir o app. Push
+  exigiria build próprio (Expo Go não serve) e tokens de dispositivo.
 - Não há histórico de favoritos, repetição de pedido, cupons nem avaliação.
 
 **Restrições técnicas:** o contrato REST já existe e é consumido pelo app

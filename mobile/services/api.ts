@@ -11,7 +11,10 @@ import { getToken } from '@/services/auth'
  * - nativo (Expo Go): o host do Metro (Constants.expoConfig.hostUri), que é
  *   sempre o IP atual da máquina de desenvolvimento.
  *
- * Em build de produção vale `EXPO_PUBLIC_API_URL` (ou o default remoto).
+ * Em build de produção vale `EXPO_PUBLIC_API_URL`, e só ela. Antes havia um
+ * domínio fixo como reserva; um build sem a variável mandava e-mail e senha
+ * dos alunos para um endereço herdado de outro projeto. Falhar alto é o
+ * comportamento certo aqui.
  */
 const API_PORT = 8000
 const API_PATH = '/api/cantina'
@@ -27,9 +30,28 @@ function resolveDevHost(): string | null {
 
 const devHost = __DEV__ ? resolveDevHost() : null
 
-const BASE_URL = devHost
-  ? `http://${devHost}:${API_PORT}${API_PATH}`
-  : (process.env.EXPO_PUBLIC_API_URL ?? 'https://cantinaapi.dingols.com.br/api/cantina')
+function productionOrigin(): string {
+  const url = process.env.EXPO_PUBLIC_API_URL
+
+  if (!url) {
+    throw new Error(
+      'EXPO_PUBLIC_API_URL não foi definida neste build. Configure a URL da API antes de publicar.',
+    )
+  }
+
+  return url.replace(/\/api\/cantina\/?$/, '').replace(/\/$/, '')
+}
+
+/** Esquema + host + porta da API, sem caminho. O WebSocket parte daqui. */
+export const API_ORIGIN = devHost ? `http://${devHost}:${API_PORT}` : productionOrigin()
+
+/** Host puro da API — o Reverb precisa dele sem esquema nem porta. */
+export const API_HOST = API_ORIGIN.replace(/^https?:\/\//, '').split(':')[0]
+
+/** True quando a API é servida por HTTPS (define ws x wss no Reverb). */
+export const API_SECURE = API_ORIGIN.startsWith('https://')
+
+const BASE_URL = `${API_ORIGIN}${API_PATH}`
 
 /**
  * Handler chamado quando a API responde 401. O AuthProvider registra aqui o

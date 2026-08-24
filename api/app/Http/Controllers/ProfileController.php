@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
@@ -18,6 +19,9 @@ class ProfileController extends Controller
         $user = $request->user();
 
         return response()->json([
+            // O id identifica o canal privado que o app assina para receber
+            // as mudanças de status em tempo real (orders.{id}).
+            'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'student_id' => $user->student_id,
@@ -42,13 +46,17 @@ class ProfileController extends Controller
     }
 
     /**
-     * Troca a senha, exigindo a senha atual correta.
+     * Troca a senha, exigindo a senha atual correta, e derruba as outras
+     * sessões.
+     *
+     * Sem a revogação, trocar a senha não adiantava nada contra quem já
+     * tivesse um token roubado: o token antigo continuava valendo.
      */
     public function changePassword(Request $request): JsonResponse
     {
         $data = $request->validate([
             'old_password' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['required', 'string', Password::min(8), 'confirmed'],
         ]);
 
         $user = $request->user();
@@ -60,6 +68,11 @@ class ProfileController extends Controller
         }
 
         $user->update(['password' => $data['password']]);
+
+        // Todos os tokens menos o deste aparelho, que acabou de se provar.
+        $user->tokens()
+            ->whereKeyNot($request->user()->currentAccessToken()->getKey())
+            ->delete();
 
         return response()->json(['success' => 'Senha atualizada com sucesso!']);
     }

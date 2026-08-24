@@ -79,18 +79,26 @@ export default function Login() {
         error={error}
       />
 
-      <Pressable
-        onPress={() => setShowPassword((v) => !v)}
-        hitSlop={8}
-        accessibilityRole="switch"
-        accessibilityState={{ checked: showPassword }}
-        accessibilityLabel="Mostrar senha"
-        style={styles.toggle}
-      >
-        <Text style={[type.label, { color: colors.primary }]}>
-          {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-        </Text>
-      </Pressable>
+      <View style={styles.senhaLinha}>
+        <Pressable
+          onPress={() => setShowPassword((v) => !v)}
+          hitSlop={8}
+          accessibilityRole="switch"
+          accessibilityState={{ checked: showPassword }}
+          accessibilityLabel="Mostrar senha"
+          style={styles.toggle}
+        >
+          <Text style={[type.label, { color: colors.primary }]}>
+            {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+          </Text>
+        </Pressable>
+
+        <Link href="/esqueci-senha" asChild>
+          <Pressable hitSlop={8} accessibilityRole="link" style={styles.toggle}>
+            <Text style={[type.label, { color: colors.inkMuted }]}>Esqueci minha senha</Text>
+          </Pressable>
+        </Link>
+      </View>
 
       <Button
         label={submitting ? 'Entrando…' : 'Entrar'}
@@ -111,11 +119,16 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
+  senhaLinha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginBottom: spacing.md,
+  },
   toggle: {
-    alignSelf: 'flex-start',
     minHeight: 44,
     justifyContent: 'center',
-    marginBottom: spacing.md,
   },
   footer: {
     flexDirection: 'row',

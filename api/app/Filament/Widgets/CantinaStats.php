@@ -20,8 +20,9 @@ class CantinaStats extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $inQueue = Order::whereNotIn('status', ['ready', 'canceled'])->count();
+        $inQueue = Order::whereNotIn('status', ['ready', 'delivered', 'canceled'])->count();
         $readyNow = Order::where('status', 'ready')->count();
+        $deliveredToday = Order::whereDate('delivered_at', today())->count();
         $todayTotal = Order::whereDate('created_at', today())
             ->where('status', '!=', 'canceled')
             ->sum('total_value');
@@ -32,7 +33,7 @@ class CantinaStats extends StatsOverviewWidget
                 ->description('Pedidos aguardando preparo')
                 ->color($inQueue > 0 ? 'warning' : 'success'),
             Stat::make('Prontos para retirada', (string) $readyNow)
-                ->description('Aguardando o aluno no balcão')
+                ->description($deliveredToday > 0 ? "{$deliveredToday} já retirados hoje" : 'Aguardando o aluno no balcão')
                 ->color($readyNow > 0 ? 'primary' : 'gray'),
             Stat::make('Vendas de hoje', 'R$ '.number_format((float) $todayTotal, 2, ',', '.'))
                 ->description('Pedidos de hoje, exceto cancelados')

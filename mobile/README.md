@@ -144,6 +144,8 @@ theme/
 └── useTheme.ts        # tema resolvido a partir da preferência do usuário
 services/
 ├── api.ts             # cliente HTTP único (host automático em dev, token, 401)
+├── auth.ts            # token no armazenamento seguro do sistema
+├── realtime.ts        # WebSocket (Reverb): status do pedido em tempo real
 └── payments.ts        # Pix via AbacatePay (preparado; desligado por flag)
 assets/                # imagens (as fontes vêm por pacote)
 ```
@@ -152,11 +154,12 @@ assets/                # imagens (as fontes vêm por pacote)
 
 ## 🗺️ Próximos passos
 
-- [ ] Migrar o token de `AsyncStorage` para `expo-secure-store`.
 - [ ] Ligar o pagamento Pix via AbacatePay (backend PREPARADO e desligado:
       falta `ABACATEPAY_API_KEY` + `ABACATEPAY_WEBHOOK_SECRET` no `.env` da
       API e virar `ABACATEPAY_ENABLED=true`; no app, `PAYMENTS_ENABLED` em
       `services/payments.ts`).
-- [ ] Avisar o aluno quando o pedido fica `ready` (push ou polling).
+- [ ] Avisar o aluno com o app FECHADO. Com o app aberto o status já chega na
+      hora pelo WebSocket; push notification exigiria build próprio (Expo Go
+      não serve) e tokens de dispositivo.
 - [ ] Skeleton nos carregamentos, no lugar do texto "Carregando…".
 - [ ] Testes automatizados.

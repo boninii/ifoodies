@@ -12,8 +12,17 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    // Canais de broadcast (Reverb). Quem autoriza é o mesmo Bearer token do
+    // app, e não a sessão web — por isso a rota vai para
+    // /api/broadcasting/auth com o guard do Sanctum.
+    ->withBroadcasting(
+        __DIR__.'/../routes/channels.php',
+        ['prefix' => 'api', 'middleware' => ['auth:sanctum']],
+    )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Sem isto a API aceita tentativas de login infinitas. Os limites
+        // estão definidos em AppServiceProvider.
+        $middleware->throttleApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

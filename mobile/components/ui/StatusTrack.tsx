@@ -33,6 +33,8 @@ const STEP_INDEX: Record<string, number> = {
   approved: 1,
   in_preparation: 1,
   ready: 2,
+  // Retirado é o fim da linha: a trilha aparece cheia, sem pingo pulsando.
+  delivered: 2,
 }
 
 export const STATUS_LABEL: Record<string, string> = {
@@ -41,6 +43,7 @@ export const STATUS_LABEL: Record<string, string> = {
   approved: 'Aprovado',
   in_preparation: 'Em preparação',
   ready: 'Pronto para retirada',
+  delivered: 'Retirado',
   canceled: 'Cancelado',
 }
 
@@ -48,6 +51,7 @@ export function StatusTrack({ status }: { status: string }) {
   const { colors } = useTheme()
   const type = useType()
   const canceled = status === 'canceled'
+  const done = status === 'delivered'
   const reached = STEP_INDEX[status] ?? 0
 
   const [reduceMotion, setReduceMotion] = React.useState(true)
@@ -115,8 +119,9 @@ export function StatusTrack({ status }: { status: string }) {
                     ]}
                   />
                 ) : null}
-                {current ? (
-                  // O pingo: a etapa em que o pedido está agora.
+                {current && !done ? (
+                  // O pingo: a etapa em que o pedido está agora. Pedido já
+                  // retirado não está "em" etapa nenhuma — só terminou.
                   <View style={[styles.dot, { backgroundColor: colors.accent }]} />
                 ) : null}
               </View>

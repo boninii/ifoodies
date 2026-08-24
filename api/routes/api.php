@@ -11,9 +11,14 @@ use Illuminate\Support\Facades\Route;
 // Todas as rotas do app vivem sob /api/cantina (a base URL configurada no
 // mobile em EXPO_PUBLIC_API_URL).
 Route::prefix('cantina')->group(function () {
-    // Públicas
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    // Públicas. O throttle:auth é apertado (5/min por e-mail+IP) porque são
+    // as únicas portas onde se adivinha senha ou se cria conta em massa.
+    Route::middleware('throttle:auth')->group(function () {
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    });
 
     // Autenticadas (Bearer token via Sanctum)
     Route::middleware('auth:sanctum')->group(function () {

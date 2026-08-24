@@ -26,6 +26,7 @@ function ThemedStack() {
     >
       <Stack.Screen name="index" options={{ title: 'Início' }} />
       <Stack.Screen name="login" options={{ title: 'Entrar' }} />
+      <Stack.Screen name="esqueci-senha" options={{ title: 'Recuperar acesso' }} />
       <Stack.Screen name="produtos" options={{ title: 'Cardápio' }} />
       <Stack.Screen name="register" options={{ title: 'Criar conta' }} />
       <Stack.Screen name="perfil" options={{ title: 'Perfil' }} />

@@ -50,7 +50,10 @@ return [
     |
     */
 
-    'expiration' => null,
+    // 30 dias. Antes era null (token eterno): quem perdesse o celular
+    // deixava para trás um acesso que nunca caducava. O comando
+    // `sanctum:prune-expired` limpa os vencidos (ver routes/console.php).
+    'expiration' => env('SANCTUM_EXPIRATION', 60 * 24 * 30),
 
     /*
     |--------------------------------------------------------------------------
