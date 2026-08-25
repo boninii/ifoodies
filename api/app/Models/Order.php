@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 // `pickup_code` fica de fora de propósito: quem o define é o hook de criação
 // do próprio model, e ninguém deve poder escolher o código de um pedido.
-#[Fillable(['user_id', 'status', 'total_value', 'payment_method', 'payment_id', 'paid_at', 'delivered_at'])]
+#[Fillable(['user_id', 'status', 'total_value', 'payment_method', 'payment_id', 'paid_at', 'delivered_at', 'stock_returned_at'])]
 class Order extends Model
 {
     /**
@@ -39,6 +40,7 @@ class Order extends Model
             'total_value' => 'decimal:2',
             'paid_at' => 'datetime',
             'delivered_at' => 'datetime',
+            'stock_returned_at' => 'datetime',
         ];
     }
 
@@ -53,9 +55,18 @@ class Order extends Model
         // status (painel, API, webhook de pagamento, retirada) passa por
         // aqui e avisa o app do aluno.
         static::updated(function (Order $order) {
-            if ($order->wasChanged('status')) {
-                OrderStatusChanged::dispatch($order);
+            if (! $order->wasChanged('status')) {
+                return;
             }
+
+            // Pedido cancelado devolve os itens para a prateleira. Antes
+            // disso, cancelar sumia com o produto do cardápio para sempre:
+            // o estoque baixava na criação e nada nunca o repunha.
+            if ($order->status === 'canceled') {
+                $order->restoreStock();
+            }
+
+            OrderStatusChanged::dispatch($order);
         });
     }
 
@@ -72,6 +83,42 @@ class Order extends Model
         } while (static::where('pickup_code', $code)->exists());
 
         return $code;
+    }
+
+    /**
+     * Devolve os itens deste pedido ao estoque.
+     *
+     * Seguro de chamar mais de uma vez: quem decide é a marca
+     * `stock_returned_at`, gravada na mesma transação da devolução. Chamar
+     * duas vezes não cria produto do nada.
+     *
+     * `saveQuietly` no fim de propósito — a marca não é mudança de status e
+     * não deve disparar de novo o evento de tempo real.
+     */
+    public function restoreStock(): bool
+    {
+        if ($this->stock_returned_at !== null) {
+            return false;
+        }
+
+        return DB::transaction(function (): bool {
+            // Relê com trava: entre a checagem acima e este ponto, outro
+            // processo pode ter devolvido.
+            $atual = static::whereKey($this->getKey())->lockForUpdate()->first();
+
+            if (! $atual || $atual->stock_returned_at !== null) {
+                return false;
+            }
+
+            foreach ($this->products as $product) {
+                Product::whereKey($product->id)->increment('stock', $product->pivot->quantity);
+            }
+
+            $this->stock_returned_at = now();
+            $this->saveQuietly();
+
+            return true;
+        });
     }
 
     /**

@@ -60,6 +60,11 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
 - Cardápio agrupado por categoria, com preço, descrição, imagem e estoque.
 - Carrinho local (AsyncStorage) com edição de quantidade e remoção.
 - Criação de pedido, que congela o preço unitário e baixa o estoque.
+- **Estoque volta quando o pedido não vira venda.** Cancelar devolve os itens
+  à prateleira, e um Pix gerado e nunca pago é cancelado sozinho depois da
+  validade (comando agendado). A devolução é marcada no pedido, então
+  repeti-la não cria produto do nada. Cancelado e retirado são estados
+  terminais: descancelar devolveria estoque duas vezes.
 - Listagem dos pedidos do aluno com status e itens.
 - Perfil: ver dados, editar nome/e-mail, trocar senha. O prontuário não é
   editável pelo app.

@@ -61,7 +61,10 @@ class OrdersTable
                     ->options(fn (Order $record): array => $record->status === 'delivered'
                         ? Order::STATUSES
                         : collect(Order::STATUSES)->except('delivered')->all())
-                    ->disabled(fn (Order $record): bool => $record->status === 'delivered')
+                    // Retirado e cancelado sao terminais. Descancelar seria
+                    // pior do que parece: o estoque ja voltou para a
+                    // prateleira, e reabrir o pedido nao o baixaria de novo.
+                    ->disabled(fn (Order $record): bool => in_array($record->status, ['delivered', 'canceled'], true))
                     ->selectablePlaceholder(false),
                 TextColumn::make('total_value')
                     ->label('Total')
