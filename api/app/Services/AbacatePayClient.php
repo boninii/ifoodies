@@ -7,14 +7,21 @@ use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
 /**
- * Cliente HTTP da AbacatePay (Pix).
+ * Cliente HTTP da AbacatePay (Pix), API v2.
  *
- * Endpoints usados (API v1, Bearer token):
- * - POST /pixQrCode/create  → cria a cobrança { amount em centavos, expiresIn,
- *   description, customer?, metadata? } e devolve { id, brCode, brCodeBase64,
- *   amount, status, expiresAt } dentro de `data`.
- * - GET  /pixQrCode/check?id= → devolve o status atual (PENDING | PAID |
- *   EXPIRED | CANCELLED) dentro de `data`.
+ * A v1 usava /pixQrCode/*; as chaves atuais (abc_dev_… / abc_live_…) são da
+ * v2 e respondem 401 "API key version mismatch" nos endpoints antigos. A v2
+ * concentra tudo em /transparents com um envelope { method, data }.
+ *
+ * Endpoints usados (Bearer token):
+ * - POST /transparents/create            → cria a cobrança e devolve
+ *   { id, amount, status, devMode, brCode, brCodeBase64, expiresAt } em `data`
+ * - GET  /transparents/check?id=         → status atual (PENDING | PAID |
+ *   EXPIRED | CANCELLED) em `data`
+ * - POST /transparents/simulate-payment?id= → só em devMode: marca como paga
+ *
+ * O `customer` é opcional e exige CPF e telefone quando enviado — o app não
+ * pede nenhum dos dois ao aluno, então a cobrança vai sem ele.
  *
  * Confirmação de pagamento em produção chega pelo webhook
  * (AbacatePayWebhookController); o check existe para consulta ativa.
@@ -25,6 +32,12 @@ class AbacatePayClient
     public function enabled(): bool
     {
         return (bool) config('abacatepay.enabled') && filled(config('abacatepay.api_key'));
+    }
+
+    /** True quando a chave é de sandbox: nenhuma cobrança move dinheiro real. */
+    public function devMode(): bool
+    {
+        return str_starts_with((string) config('abacatepay.api_key'), 'abc_dev_');
     }
 
     protected function http(): PendingRequest
@@ -48,20 +61,22 @@ class AbacatePayClient
     ): array {
         $this->assertEnabled();
 
-        $payload = [
+        $data = [
             'amount' => $amountInCents,
             'expiresIn' => (int) config('abacatepay.pix_expires_in'),
             'description' => $description,
         ];
 
         if ($customer !== []) {
-            $payload['customer'] = $customer;
+            $data['customer'] = $customer;
         }
         if ($metadata !== []) {
-            $payload['metadata'] = $metadata;
+            $data['metadata'] = $metadata;
         }
 
-        $response = $this->http()->post('/pixQrCode/create', $payload)->throw();
+        $response = $this->http()
+            ->post('/transparents/create', ['method' => 'PIX', 'data' => $data])
+            ->throw();
 
         return $response->json('data') ?? [];
     }
@@ -75,7 +90,29 @@ class AbacatePayClient
     {
         $this->assertEnabled();
 
-        $response = $this->http()->get('/pixQrCode/check', ['id' => $id])->throw();
+        $response = $this->http()->get('/transparents/check', ['id' => $id])->throw();
+
+        return $response->json('data') ?? [];
+    }
+
+    /**
+     * Marca a cobrança como paga — só existe em devMode. É o que permite
+     * testar o fluxo inteiro sem um Pix de verdade.
+     *
+     * @return array{status: string}
+     */
+    public function simulatePayment(string $id): array
+    {
+        $this->assertEnabled();
+
+        if (! $this->devMode()) {
+            throw new RuntimeException('Simular pagamento só funciona com chave de desenvolvimento.');
+        }
+
+        // O id vai na query string; o corpo precisa existir mas fica vazio.
+        $response = $this->http()
+            ->post('/transparents/simulate-payment?id='.urlencode($id), [])
+            ->throw();
 
         return $response->json('data') ?? [];
     }

@@ -5,6 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useFocusEffect, useRouter } from 'expo-router'
 import { api } from '@/services/api'
 import { useAuth } from '@/hooks/useAuth'
+import { PAYMENTS_ENABLED } from '@/services/payments'
 import { useTheme } from '@/theme/useTheme'
 import { useType } from '@/theme/preferences'
 import { money, radius, spacing } from '@/theme/tokens'
@@ -24,10 +25,13 @@ type CartProduct = {
   stock: number
 }
 
-/** Formas de pagamento desenhadas, porém ainda sem integração no backend. */
+/**
+ * Pix é real (AbacatePay). Cartão segue desenhado e inativo — não existe
+ * integração de cartão, e fingir que existe seria mentira na tela.
+ */
 const PAYMENT_METHODS = [
-  { key: 'pix', label: 'Pix', icon: 'qrcode' as const },
-  { key: 'card', label: 'Cartão', icon: 'credit-card-outline' as const },
+  { key: 'pix', label: 'Pix', icon: 'qrcode' as const, ativo: PAYMENTS_ENABLED },
+  { key: 'card', label: 'Cartão', icon: 'credit-card-outline' as const, ativo: false },
 ]
 
 export default function Carrinho() {
@@ -96,12 +100,19 @@ export default function Carrinho() {
     setSubmitting(true)
     try {
       const body = { products: products.map((p) => ({ id: p.id, quantity: p.quantity })) }
-      const { ok } = await api('/orders', { method: 'POST', body })
+      const { ok, data } = await api<{ order_id?: number }>('/orders', { method: 'POST', body })
 
       if (ok) {
         await AsyncStorage.removeItem(STORAGE_KEY)
         setProducts([])
-        router.replace('/pedidos')
+
+        // O pedido já está registrado. Com Pix ligado, a próxima parada é
+        // pagar; sem ele, é acompanhar a fila e pagar no balcão.
+        if (PAYMENTS_ENABLED && data?.order_id) {
+          router.replace(`/pagamento?order=${data.order_id}`)
+        } else {
+          router.replace('/pedidos')
+        }
       } else {
         Alert.alert(
           'Pedido não enviado',
@@ -196,21 +207,39 @@ export default function Carrinho() {
           {PAYMENT_METHODS.map((m) => (
             <View
               key={m.key}
-              // Desenhado, mas explicitamente inativo: não é um botão.
-              accessibilityElementsHidden
-              importantForAccessibility="no-hide-descendants"
-              style={[styles.method, { borderColor: colors.rule }]}
+              // O inativo continua fora do alcance do leitor de tela: está
+              // ali para dizer o que existe, não para ser tocado.
+              accessibilityElementsHidden={!m.ativo}
+              importantForAccessibility={m.ativo ? 'yes' : 'no-hide-descendants'}
+              style={[
+                styles.method,
+                { borderColor: m.ativo ? colors.primary : colors.rule },
+                m.ativo && { backgroundColor: colors.primarySoft },
+              ]}
             >
-              <MaterialCommunityIcons name={m.icon} size={22} color={colors.inkMuted} />
-              <Text style={[type.label, { color: colors.inkMuted }]}>{m.label}</Text>
+              <MaterialCommunityIcons
+                name={m.icon}
+                size={22}
+                color={m.ativo ? colors.primary : colors.inkMuted}
+              />
+              <Text style={[type.label, { color: m.ativo ? colors.primary : colors.inkMuted }]}>
+                {m.label}
+              </Text>
             </View>
           ))}
         </View>
 
-        <Notice label="Em breve">
-          O pagamento por Pix dentro do app está chegando. Por enquanto, envie o pedido e
-          pague no balcão ao retirar.
-        </Notice>
+        {PAYMENTS_ENABLED ? (
+          <Notice label="Pix na próxima tela" tone="neutral">
+            Ao enviar, o app gera o QR do Pix. Pagar adianta o preparo — mas dá para fechar
+            a tela e pagar no balcão, que o pedido continua valendo.
+          </Notice>
+        ) : (
+          <Notice label="Em breve">
+            O pagamento por Pix dentro do app está chegando. Por enquanto, envie o pedido e
+            pague no balcão ao retirar.
+          </Notice>
+        )}
       </View>
     </Screen>
   )

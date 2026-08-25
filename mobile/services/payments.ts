@@ -3,12 +3,15 @@ import { api } from '@/services/api'
 /**
  * Pagamento no app via AbacatePay (Pix).
  *
- * A integração está PREPARADA mas desligada: o backend expõe os endpoints e
- * responde 503 enquanto `ABACATEPAY_ENABLED=false` no servidor. Quando as
- * credenciais forem configuradas lá, basta virar `PAYMENTS_ENABLED` para
- * true que a UI de pagamento passa a chamar estes serviços.
+ * Ligada. O backend cria a cobrança na AbacatePay (API v2) e devolve o
+ * copia-e-cola e o QR; a confirmação chega pelo webhook e, como reforço,
+ * pela consulta ativa em `/orders/{id}/payment`, que pergunta ao gateway.
+ *
+ * Se o servidor estiver com `ABACATEPAY_ENABLED=false`, os endpoints
+ * respondem 503 e a tela de pagamento mostra o recado de pagar no balcão —
+ * o pedido continua valendo de qualquer jeito.
  */
-export const PAYMENTS_ENABLED = false
+export const PAYMENTS_ENABLED = true
 
 export type PixCharge = {
   payment_id: string

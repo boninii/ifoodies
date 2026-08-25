@@ -25,6 +25,10 @@ verde kelly sobre superfícies mint, cards sem contorno, Unbounded em todos
 os títulos + Figtree, filtro de categorias sobreposto, tema claro (padrão)
 e escuro.
 
+Paga por **Pix** dentro do app (AbacatePay): o QR e o copia-e-cola aparecem
+na tela e a confirmação chega sozinha. Pagar é opcional — o pedido vale de
+qualquer forma e dá para pagar no balcão.
+
 Ver [mobile/README.md](mobile/README.md) para detalhes e como rodar.
 
 ## 🛠️ api — Backend

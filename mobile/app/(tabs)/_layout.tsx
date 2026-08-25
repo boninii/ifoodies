@@ -31,6 +31,7 @@ function ThemedStack() {
       <Stack.Screen name="register" options={{ title: 'Criar conta' }} />
       <Stack.Screen name="perfil" options={{ title: 'Perfil' }} />
       <Stack.Screen name="carrinho" options={{ title: 'Carrinho' }} />
+      <Stack.Screen name="pagamento" options={{ title: 'Pagamento' }} />
       <Stack.Screen name="pedidos" options={{ title: 'Pedidos' }} />
     </Stack>
   )

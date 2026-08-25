@@ -32,13 +32,12 @@ class PaymentController extends Controller
             return response()->json(['error' => 'Este pedido não está mais aguardando pagamento.'], 422);
         }
 
+        // Sem `customer`: a AbacatePay só aceita o bloco completo, com CPF e
+        // telefone, e o app não pede nenhum dos dois ao aluno. O pedido é
+        // reconciliado pelo payment_id e pelo metadata.order_id.
         $pix = $client->createPixQrCode(
             amountInCents: (int) round(((float) $order->total_value) * 100),
             description: "iFoodies — pedido #{$order->id}",
-            customer: [
-                'name' => $request->user()->name,
-                'email' => $request->user()->email,
-            ],
             metadata: ['order_id' => (string) $order->id],
         );
 

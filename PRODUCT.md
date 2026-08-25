@@ -65,6 +65,12 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
   editável pelo app.
 - Recuperação de senha por código de 6 dígitos enviado por e-mail (válido por
   15 minutos, uso único, derruba todas as sessões antigas).
+- **Pagamento por Pix (AbacatePay, API v2).** O app gera o QR e o
+  copia-e-cola; a confirmação chega por dois caminhos — o webhook do gateway
+  e a consulta ativa em `/orders/{id}/payment` — e a tela vira sozinha.
+  Pagar é opcional: o pedido vale mesmo sem pagamento, e o aluno pode fechar
+  a tela e pagar no balcão. Cartão continua desenhado e inativo, porque não
+  existe integração de cartão.
 - Painel da equipe em `/admin` (Filament): fila de pedidos com troca de
   status inline, criação de pedido no balcão, CRUD de produtos/categorias e
   visão geral do dia.
@@ -86,11 +92,6 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
 
 **Explicitamente NÃO implementado (não fabricar como pronto):**
 
-- **Pagamento no app.** É a intenção declarada do produto. A integração com a
-  **AbacatePay (Pix)** está PREPARADA no backend (endpoints, webhook, campos
-  de pagamento no pedido) mas DESLIGADA aguardando credenciais do usuário —
-  os endpoints respondem 503 e o app mostra "em breve". Não apresentar como
-  funcional até ABACATEPAY_ENABLED=true.
 - **Aviso com o app fechado.** Com o app aberto na tela de pedidos, o status
   chega na hora pelo WebSocket. Mas não há push notification: com o app
   fechado, o aluno só descobre que ficou `ready` quando abrir o app. Push
@@ -146,8 +147,8 @@ máxima selecionável por produto.
    informação crítica, não detalhe.
 3. **O aluno decide o desfecho.** Consumir no local ou levar embora é escolha
    dele; o produto não empurra um fluxo.
-4. **Não prometer o que não existe.** Enquanto pagamento e aviso de "pronto"
-   não forem reais, a interface não pode sugerir que são.
+4. **Não prometer o que não existe.** O Pix agora é real; cartão e push
+   notification não são, e a interface não pode sugerir que sejam.
 5. **Portfólio primeiro, mas plausível.** Deve impressionar como peça de
    portfólio sem virar algo que não sobreviveria a um intervalo real.
 
