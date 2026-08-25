@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ExpirePixCharge;
 use App\Models\Order;
 use App\Services\AbacatePayClient;
 use Illuminate\Http\JsonResponse;
@@ -46,6 +47,16 @@ class PaymentController extends Controller
             'payment_id' => $pix['id'] ?? null,
             'status' => 'awaiting_payment',
         ]);
+
+        // A validade do Pix já é conhecida agora, então o cancelamento é
+        // marcado na hora em vez de descoberto depois por varredura.
+        //
+        // O driver `sync` executaria o job na hora, ignorando o atraso — e
+        // cancelaria o pedido antes de o aluno ver o QR.
+        if ($order->payment_id && config('queue.default') !== 'sync') {
+            ExpirePixCharge::dispatch($order->id, $order->payment_id)
+                ->delay(now()->addSeconds((int) config('abacatepay.pix_expires_in') + 300));
+        }
 
         return response()->json([
             'payment_id' => $pix['id'] ?? null,
