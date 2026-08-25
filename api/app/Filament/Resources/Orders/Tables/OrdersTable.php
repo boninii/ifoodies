@@ -11,6 +11,7 @@ use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class OrdersTable
 {
@@ -46,11 +47,20 @@ class OrdersTable
                     ->limit(45)
                     ->wrap(),
                 // O trabalho do balcão acontece aqui: trocar o status direto
-                // na fila, sem abrir página nenhuma. "Retirado" fica de fora
-                // de propósito — quem encerra o pedido é o código do aluno.
+                // na fila, sem abrir página nenhuma.
+                //
+                // "Retirado" só entra na lista quando o pedido JÁ está
+                // retirado — aí para conseguir exibir o rótulo certo, com o
+                // select travado. Nos demais, ele fica fora: quem encerra um
+                // pedido é o código do aluno, não um clique.
+                //
+                // Sem esse cuidado, um pedido retirado caía na primeira
+                // opção da lista e aparecia como "Aberto" para o balcão.
                 SelectColumn::make('status')
                     ->label('Status')
-                    ->options(collect(Order::STATUSES)->except('delivered')->all())
+                    ->options(fn (Order $record): array => $record->status === 'delivered'
+                        ? Order::STATUSES
+                        : collect(Order::STATUSES)->except('delivered')->all())
                     ->disabled(fn (Order $record): bool => $record->status === 'delivered')
                     ->selectablePlaceholder(false),
                 TextColumn::make('total_value')
@@ -64,8 +74,26 @@ class OrdersTable
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
+                // A tela do balcão é sobre o que ainda dá trabalho. Retirado
+                // e cancelado saem da frente por padrão, sem sumir de vez.
+                SelectFilter::make('situacao')
+                    ->label('Mostrar')
+                    ->options([
+                        'ativos' => 'Fila ativa',
+                        'prontos' => 'Prontos para retirada',
+                        'encerrados' => 'Encerrados',
+                        'todos' => 'Todos',
+                    ])
+                    ->default('ativos')
+                    ->selectablePlaceholder(false)
+                    ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? 'ativos') {
+                        'prontos' => $query->where('status', 'ready'),
+                        'encerrados' => $query->whereIn('status', ['delivered', 'canceled']),
+                        'todos' => $query,
+                        default => $query->whereNotIn('status', ['delivered', 'canceled']),
+                    }),
                 SelectFilter::make('status')
-                    ->label('Status')
+                    ->label('Status exato')
                     ->options(Order::STATUSES),
             ])
             ->recordActions([
