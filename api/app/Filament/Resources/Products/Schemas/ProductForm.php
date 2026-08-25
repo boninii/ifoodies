@@ -39,6 +39,9 @@ class ProductForm
                 FileUpload::make('image')
                     ->label('Foto do produto')
                     ->image()
+                    // Lista explicita em vez de confiar so no ->image(): o
+                    // arquivo vai para um diretorio servido diretamente.
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                     ->disk('public')
                     ->directory('produtos')
                     ->visibility('public')

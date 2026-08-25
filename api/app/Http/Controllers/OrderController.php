@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -66,15 +67,38 @@ class OrderController extends Controller
     }
 
     /**
-     * Lista os pedidos do usuário autenticado (mais recentes primeiro), com
-     * os produtos e o pivot { quantity, value_unitary } que o app exibe.
+     * Lista os pedidos do usuário autenticado (mais recentes primeiro).
+     *
+     * A resposta é montada campo a campo, e não devolvendo o model inteiro.
+     * Antes iam junto `user_id`, `payment_id` (id do gateway), timestamps do
+     * pivot, `category_id` e `stock` de cada produto — nada disso cruzava
+     * usuários, mas é superfície interna exposta sem motivo, e cresce sozinha
+     * a cada coluna nova no banco.
      */
     public function userOrders(Request $request): JsonResponse
     {
         $orders = $request->user()->orders()
             ->with('products')
             ->latest()
-            ->get();
+            ->get()
+            ->map(fn (Order $order): array => [
+                'id' => $order->id,
+                'status' => $order->status,
+                'total_value' => $order->total_value,
+                'created_at' => $order->created_at,
+                // Só faz sentido enquanto serve para retirar; depois disso é
+                // um código queimado que não precisa sair daqui.
+                'pickup_code' => $order->awaitingPickup() ? $order->pickup_code : null,
+                'delivered_at' => $order->delivered_at,
+                'products' => $order->products->map(fn (Product $product): array => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'pivot' => [
+                        'quantity' => $product->pivot->quantity,
+                        'value_unitary' => $product->pivot->value_unitary,
+                    ],
+                ]),
+            ]);
 
         return response()->json(['orders' => $orders]);
     }

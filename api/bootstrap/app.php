@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,14 @@ return Application::configure(basePath: dirname(__DIR__))
         // Sem isto a API aceita tentativas de login infinitas. Os limites
         // estão definidos em AppServiceProvider.
         $middleware->throttleApi();
+
+        // Cabeçalhos de segurança em toda resposta, API e painel.
+        $middleware->append(SecurityHeaders::class);
+
+        // Atrás de um proxy que termina TLS, sem isto o Laravel acha que a
+        // conexão é http: o cookie de sessão perde o Secure e as URLs das
+        // fotos saem em http numa página https (mixed content, foto some).
+        $middleware->trustProxies(at: '*');
 
         // O padrão do framework manda o visitante não autenticado para a
         // rota `login`, que não existe aqui (a do painel se chama

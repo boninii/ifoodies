@@ -24,12 +24,23 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
+        $dominios = config('cantina.register_email_domains');
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'email' => array_filter([
+                'required', 'string', 'email', 'max:255', 'unique:users,email',
+                $dominios ? 'ends_with:'.implode(',', array_map(fn ($d) => '@'.$d, $dominios)) : null,
+            ]),
             'student_id' => ['required', 'string', 'max:255', 'unique:users,student_id'],
             'password' => ['required', 'string', Password::min(8), 'confirmed'],
+            // Armadilha para robô: campo que o app nunca preenche. `prohibited`
+            // passa quando ele vem vazio ou ausente, e barra quando vem cheio.
+            // Custo zero e nenhum falso positivo com gente de verdade.
+            'website' => ['prohibited'],
         ]);
+
+        unset($data['website']);
 
         $user = User::create($data);
 

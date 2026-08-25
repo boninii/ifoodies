@@ -50,9 +50,13 @@ class AbacatePayWebhookController extends Controller
         $order = $this->resolveOrder($request);
 
         if (! $order) {
+            // Só o suficiente para investigar. O payload inteiro traria
+            // dados do pagador vindos do gateway para dentro do nosso log.
             Log::info('Webhook AbacatePay sem pedido correspondente.', [
                 'event' => $event,
-                'payload' => $request->all(),
+                'log_id' => $request->input('id'),
+                'data_id' => $request->input('data.id'),
+                'chaves_recebidas' => array_keys((array) $request->input('data', [])),
             ]);
 
             return response()->json(['received' => true]);
