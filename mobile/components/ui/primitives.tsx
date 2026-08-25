@@ -1,3 +1,4 @@
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import React from 'react'
 import {
   ActivityIndicator,
@@ -131,11 +132,22 @@ export function Field({
   label,
   error,
   style,
+  revealable = false,
   ...inputProps
-}: TextInputProps & { label: string; error?: string }) {
+}: TextInputProps & {
+  label: string
+  error?: string
+  /**
+   * Campo de senha com o olho para revelar o texto. O estado mora aqui: a
+   * tela só diz que o campo é revelável e não precisa carregar um booleano
+   * nem um botão solto embaixo do campo.
+   */
+  revealable?: boolean
+}) {
   const { colors } = useTheme()
   const type = useType()
   const [focused, setFocused] = React.useState(false)
+  const [revealed, setRevealed] = React.useState(false)
 
   const border = error ? colors.struck : focused ? colors.primary : colors.rule
 
@@ -145,30 +157,54 @@ export function Field({
         {label}
       </Text>
 
-      <TextInput
-        {...inputProps}
-        onFocus={(e) => {
-          setFocused(true)
-          inputProps.onFocus?.(e)
-        }}
-        onBlur={(e) => {
-          setFocused(false)
-          inputProps.onBlur?.(e)
-        }}
-        placeholderTextColor={colors.inkMuted}
-        accessibilityLabel={label}
-        style={[
-          styles.field,
-          type.body,
-          {
-            backgroundColor: colors.surface,
-            borderColor: border,
-            borderWidth: focused || error ? 2 : StyleSheet.hairlineWidth * 2,
-            color: colors.ink,
-          },
-          style,
-        ]}
-      />
+      <View>
+        <TextInput
+          {...inputProps}
+          secureTextEntry={inputProps.secureTextEntry && !revealed}
+          onFocus={(e) => {
+            setFocused(true)
+            inputProps.onFocus?.(e)
+          }}
+          onBlur={(e) => {
+            setFocused(false)
+            inputProps.onBlur?.(e)
+          }}
+          placeholderTextColor={colors.inkMuted}
+          accessibilityLabel={label}
+          style={[
+            styles.field,
+            type.body,
+            {
+              backgroundColor: colors.surface,
+              borderColor: border,
+              borderWidth: focused || error ? 2 : StyleSheet.hairlineWidth * 2,
+              color: colors.ink,
+            },
+            // Abre espaço para o olho não deitar sobre o texto digitado.
+            revealable && { paddingRight: TOUCH_TARGET },
+            style,
+          ]}
+        />
+
+        {revealable ? (
+          <Pressable
+            onPress={() => setRevealed((v) => !v)}
+            hitSlop={8}
+            accessibilityRole="switch"
+            accessibilityState={{ checked: revealed }}
+            // O rótulo diz a AÇÃO, não o estado: é o que o leitor de tela
+            // anuncia para quem não vê o ícone.
+            accessibilityLabel={revealed ? 'Ocultar senha' : 'Mostrar senha'}
+            style={styles.reveal}
+          >
+            <MaterialCommunityIcons
+              name={revealed ? 'eye-off-outline' : 'eye-outline'}
+              size={20}
+              color={focused ? colors.primary : colors.inkMuted}
+            />
+          </Pressable>
+        ) : null}
+      </View>
 
       {error ? (
         <Text style={[type.bodySmall, { color: colors.struck, marginTop: spacing.xs }]}>
@@ -373,6 +409,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+  },
+  reveal: {
+    position: 'absolute',
+    right: spacing.xs,
+    top: 0,
+    bottom: 0,
+    width: TOUCH_TARGET,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   stepper: {
     flexDirection: 'row',

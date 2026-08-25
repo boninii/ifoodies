@@ -152,6 +152,7 @@ export default function EsqueciSenha() {
             onChangeText={setSenha}
             placeholder="Ao menos 8 caracteres"
             secureTextEntry
+            revealable
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -162,6 +163,7 @@ export default function EsqueciSenha() {
             onChangeText={setConfirmacao}
             placeholder="Repita a senha"
             secureTextEntry
+            revealable
             autoCapitalize="none"
             autoCorrect={false}
             error={erro}

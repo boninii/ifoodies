@@ -12,7 +12,6 @@ import { Button, Field } from '@/components/ui/primitives'
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -72,7 +71,8 @@ export default function Login() {
         value={password}
         onChangeText={setPassword}
         placeholder="Sua senha"
-        secureTextEntry={!showPassword}
+        secureTextEntry
+        revealable
         autoCapitalize="none"
         autoCorrect={false}
         textContentType="password"
@@ -80,19 +80,6 @@ export default function Login() {
       />
 
       <View style={styles.senhaLinha}>
-        <Pressable
-          onPress={() => setShowPassword((v) => !v)}
-          hitSlop={8}
-          accessibilityRole="switch"
-          accessibilityState={{ checked: showPassword }}
-          accessibilityLabel="Mostrar senha"
-          style={styles.toggle}
-        >
-          <Text style={[type.label, { color: colors.primary }]}>
-            {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-          </Text>
-        </Pressable>
-
         <Link href="/esqueci-senha" asChild>
           <Pressable hitSlop={8} accessibilityRole="link" style={styles.toggle}>
             <Text style={[type.label, { color: colors.inkMuted }]}>Esqueci minha senha</Text>
@@ -122,7 +109,7 @@ const styles = StyleSheet.create({
   senhaLinha: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
     flexWrap: 'wrap',
     marginBottom: spacing.md,
   },

@@ -22,7 +22,6 @@ export default function Register() {
   const [email, setEmail] = useState('')
   const [studentId, setStudentId] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [submitting, setSubmitting] = useState(false)
 
@@ -128,24 +127,12 @@ export default function Register() {
         value={password}
         onChangeText={setPassword}
         placeholder="Ao menos 6 caracteres"
-        secureTextEntry={!showPassword}
+        secureTextEntry
+        revealable
         autoCapitalize="none"
         autoCorrect={false}
         error={errors.password}
       />
-
-      <Pressable
-        onPress={() => setShowPassword((v) => !v)}
-        hitSlop={8}
-        accessibilityRole="switch"
-        accessibilityState={{ checked: showPassword }}
-        accessibilityLabel="Mostrar senha"
-        style={styles.toggle}
-      >
-        <Text style={[type.label, { color: colors.primary }]}>
-          {showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-        </Text>
-      </Pressable>
 
       {errors.general ? (
         <Text style={[type.bodySmall, { color: colors.struck, marginBottom: spacing.md }]}>

@@ -167,6 +167,7 @@ export default function Perfil() {
           onChangeText={setOldPassword}
           placeholder="Sua senha de hoje"
           secureTextEntry
+          revealable
           autoCapitalize="none"
         />
         <Field
@@ -175,6 +176,7 @@ export default function Perfil() {
           onChangeText={setNewPassword}
           placeholder="Ao menos 6 caracteres"
           secureTextEntry
+          revealable
           autoCapitalize="none"
         />
         <Field
@@ -183,6 +185,7 @@ export default function Perfil() {
           onChangeText={setConfirmPassword}
           placeholder="Repita a nova senha"
           secureTextEntry
+          revealable
           autoCapitalize="none"
           error={passwordError}
         />
