@@ -20,7 +20,11 @@ return [
     'base_url' => env('ABACATEPAY_BASE_URL', 'https://api.abacatepay.com/v2'),
     'webhook_secret' => env('ABACATEPAY_WEBHOOK_SECRET'),
 
-    // Validade da cobrança Pix, em segundos (default: 30 min — um pedido de
-    // cantina que não foi pago em meia hora não vai mais ser retirado).
-    'pix_expires_in' => (int) env('ABACATEPAY_PIX_EXPIRES_IN', 1800),
+    // Validade da cobrança Pix, em segundos.
+    //
+    // 10 minutos, e não os 30 do começo: o estoque fica reservado desde o
+    // pedido, então cada minuto de Pix parado é um minuto de produto sumido
+    // do cardápio estando na prateleira. Ninguém precisa de meia hora para
+    // pagar um QR de R$ 7,50 — e o intervalo do aluno tem 15.
+    'pix_expires_in' => (int) env('ABACATEPAY_PIX_EXPIRES_IN', 600),
 ];

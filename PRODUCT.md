@@ -62,10 +62,10 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
 - Criação de pedido, que congela o preço unitário e baixa o estoque.
 - **Estoque volta quando o pedido não vira venda.** Cancelar devolve os itens
   à prateleira, e um Pix gerado e nunca pago é cancelado sozinho depois da
-  validade — sem cron: quem dá o tique é o tráfego do próprio sistema, no
-  máximo uma vez por minuto e depois da resposta já ter saído. A ressalva
-  honesta é que sem nenhum movimento nada expira. A devolução é marcada no
-  pedido, então
+  validade (10 minutos: o estoque fica reservado desde o pedido, e ninguém
+  precisa de meia hora para pagar um QR de R$ 7,50) — sem cron: o Pix
+  agenda o próprio cancelamento ao nascer, e há um caminho movido pelo
+  tráfego como reserva. A devolução é marcada no pedido, então
   repeti-la não cria produto do nada. Cancelado e retirado são estados
   terminais: descancelar devolveria estoque duas vezes.
 - Listagem dos pedidos do aluno com status e itens.
