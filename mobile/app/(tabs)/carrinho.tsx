@@ -26,13 +26,29 @@ type CartProduct = {
 }
 
 /**
- * Pix é real (AbacatePay). Cartão segue desenhado e inativo — não existe
- * integração de cartão, e fingir que existe seria mentira na tela.
+ * A escolha que o aluno REALMENTE tem: pagar agora pelo app ou pagar no
+ * balcão ao retirar.
+ *
+ * Antes havia dois quadros, "Pix" e "Cartão", que não eram um controle —
+ * nada acontecia ao tocar, e cartão não existe em lugar nenhum do código.
+ * Vitrine de bandeira de pagamento é promessa que a interface não cumpre.
  */
-const PAYMENT_METHODS = [
-  { key: 'pix', label: 'Pix', icon: 'qrcode' as const, ativo: PAYMENTS_ENABLED },
-  { key: 'card', label: 'Cartão', icon: 'credit-card-outline' as const, ativo: false },
+const PAYMENT_CHOICES = [
+  {
+    key: 'pix' as const,
+    label: 'Pix agora',
+    icon: 'qrcode' as const,
+    hint: 'QR na próxima tela',
+  },
+  {
+    key: 'balcao' as const,
+    label: 'No balcão',
+    icon: 'store-outline' as const,
+    hint: 'Ao retirar o pedido',
+  },
 ]
+
+type PaymentChoice = (typeof PAYMENT_CHOICES)[number]['key']
 
 export default function Carrinho() {
   const { isAuthenticated, isLoading } = useAuth()
@@ -42,6 +58,9 @@ export default function Carrinho() {
 
   const [products, setProducts] = useState<CartProduct[]>([])
   const [submitting, setSubmitting] = useState(false)
+  // Pix é o padrão: adianta o preparo e é o caminho que a cantina prefere.
+  // Sem pagamento no app ligado, sobra só o balcão.
+  const [metodo, setMetodo] = useState<PaymentChoice>(PAYMENTS_ENABLED ? 'pix' : 'balcao')
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) router.replace('/login')
@@ -106,9 +125,9 @@ export default function Carrinho() {
         await AsyncStorage.removeItem(STORAGE_KEY)
         setProducts([])
 
-        // O pedido já está registrado. Com Pix ligado, a próxima parada é
-        // pagar; sem ele, é acompanhar a fila e pagar no balcão.
-        if (PAYMENTS_ENABLED && data?.order_id) {
+        // O pedido já está registrado nos dois casos. A escolha só decide
+        // para onde o aluno vai agora.
+        if (metodo === 'pix' && PAYMENTS_ENABLED && data?.order_id) {
           router.replace(`/pagamento?order=${data.order_id}`)
         } else {
           router.replace('/pedidos')
@@ -144,7 +163,13 @@ export default function Carrinho() {
       subtitle="Revise antes de enviar para a cantina."
       footer={
         <Button
-          label={submitting ? 'Enviando…' : 'Enviar pedido'}
+          label={
+            submitting
+              ? 'Enviando…'
+              : metodo === 'pix' && PAYMENTS_ENABLED
+                ? 'Enviar e pagar'
+                : 'Enviar pedido'
+          }
           onPress={submit}
           loading={submitting}
           accessibilityLabel={`Enviar pedido de ${count} itens, total ${money(total)}`}
@@ -203,41 +228,57 @@ export default function Carrinho() {
       <BandHeader label="Pagamento" />
 
       <View style={[styles.payment, { backgroundColor: colors.surface }]}>
-        <View style={styles.methods}>
-          {PAYMENT_METHODS.map((m) => (
-            <View
-              key={m.key}
-              // O inativo continua fora do alcance do leitor de tela: está
-              // ali para dizer o que existe, não para ser tocado.
-              accessibilityElementsHidden={!m.ativo}
-              importantForAccessibility={m.ativo ? 'yes' : 'no-hide-descendants'}
-              style={[
-                styles.method,
-                { borderColor: m.ativo ? colors.primary : colors.rule },
-                m.ativo && { backgroundColor: colors.primarySoft },
-              ]}
-            >
-              <MaterialCommunityIcons
-                name={m.icon}
-                size={22}
-                color={m.ativo ? colors.primary : colors.inkMuted}
-              />
-              <Text style={[type.label, { color: m.ativo ? colors.primary : colors.inkMuted }]}>
-                {m.label}
-              </Text>
-            </View>
-          ))}
-        </View>
-
         {PAYMENTS_ENABLED ? (
-          <Notice label="Pix na próxima tela" tone="neutral">
-            Ao enviar, o app gera o QR do Pix. Pagar adianta o preparo — mas dá para fechar
-            a tela e pagar no balcão, que o pedido continua valendo.
-          </Notice>
+          <>
+            <View style={styles.methods} accessibilityRole="radiogroup">
+              {PAYMENT_CHOICES.map((m) => {
+                const escolhido = metodo === m.key
+                return (
+                  <Pressable
+                    key={m.key}
+                    onPress={() => setMetodo(m.key)}
+                    accessibilityRole="radio"
+                    // `aria-checked` em vez de só accessibilityState: no
+                    // React Native ele mapeia para o estado nativo, e na web
+                    // vira o atributo de verdade — sem ele, o leitor de tela
+                    // não anuncia qual opção está marcada.
+                    aria-checked={escolhido}
+                    accessibilityState={{ checked: escolhido }}
+                    accessibilityLabel={`${m.label}. ${m.hint}.`}
+                    style={[
+                      styles.method,
+                      {
+                        borderColor: escolhido ? colors.primary : colors.rule,
+                        borderWidth: escolhido ? 2 : 1,
+                      },
+                      escolhido && { backgroundColor: colors.primarySoft },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name={m.icon}
+                      size={22}
+                      color={escolhido ? colors.primary : colors.inkMuted}
+                    />
+                    <Text
+                      style={[type.label, { color: escolhido ? colors.primary : colors.ink }]}
+                    >
+                      {m.label}
+                    </Text>
+                    <Text style={[type.micro, { color: colors.inkMuted }]}>{m.hint}</Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+
+            <Text style={[type.bodySmall, { color: colors.inkMuted }]}>
+              {metodo === 'pix'
+                ? 'O pedido é enviado e o QR aparece em seguida. Se mudar de ideia, é só fechar a tela e pagar no balcão.'
+                : 'O pedido vai direto para a fila. Você paga no balcão ao mostrar o código de retirada.'}
+            </Text>
+          </>
         ) : (
-          <Notice label="Em breve">
-            O pagamento por Pix dentro do app está chegando. Por enquanto, envie o pedido e
-            pague no balcão ao retirar.
+          <Notice label="Pagamento no balcão">
+            O pagamento pelo app está indisponível agora. Envie o pedido e pague ao retirar.
           </Notice>
         )}
       </View>
@@ -290,12 +331,12 @@ const styles = StyleSheet.create({
   },
   method: {
     flex: 1,
-    minHeight: 56,
-    borderWidth: StyleSheet.hairlineWidth * 2,
+    // Cabe rótulo + dica e continua acima do alvo mínimo de toque.
+    minHeight: 84,
+    paddingHorizontal: spacing.sm,
     borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.xs,
-    opacity: 0.55,
   },
 })
