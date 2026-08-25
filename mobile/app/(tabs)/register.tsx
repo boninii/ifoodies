@@ -41,7 +41,7 @@ export default function Register() {
     if (!name.trim()) missing.name = 'Informe seu nome.'
     if (!email.trim()) missing.email = 'Informe seu e-mail.'
     if (!studentId.trim()) missing.student_id = 'Informe seu prontuário.'
-    if (!password) missing.password = 'Crie uma senha de ao menos 6 caracteres.'
+    if (!password) missing.password = 'Crie uma senha de ao menos 8 caracteres.'
 
     if (Object.keys(missing).length) {
       setErrors(missing)
@@ -126,7 +126,7 @@ export default function Register() {
         label="Senha"
         value={password}
         onChangeText={setPassword}
-        placeholder="Ao menos 6 caracteres"
+        placeholder="Ao menos 8 caracteres"
         secureTextEntry
         revealable
         autoCapitalize="none"

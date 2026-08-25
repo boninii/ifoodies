@@ -174,7 +174,7 @@ export default function Perfil() {
           label="Nova senha"
           value={newPassword}
           onChangeText={setNewPassword}
-          placeholder="Ao menos 6 caracteres"
+          placeholder="Ao menos 8 caracteres"
           secureTextEntry
           revealable
           autoCapitalize="none"
