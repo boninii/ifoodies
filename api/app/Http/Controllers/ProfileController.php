@@ -35,6 +35,12 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        // Mesma razão do cadastro: e-mail é identidade e não pode mudar de
+        // dono por causa do caixa das letras.
+        if ($request->has('email')) {
+            $request->merge(['email' => mb_strtolower(trim((string) $request->input('email')))]);
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],

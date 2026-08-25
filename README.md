@@ -72,6 +72,17 @@ E o app:
 cd mobile && npx expo start
 ```
 
+### Painel lento em desenvolvimento?
+
+O `php artisan serve` atende **uma requisição por vez** — no Windows não há
+como mudar isso (`PHP_CLI_SERVER_WORKERS` depende de `fork()`). A página do
+painel pede 17 arquivos, que ficam em fila. **Isso não existe em produção**,
+onde o nginx serve os estáticos em paralelo.
+
+Se incomodar localmente, sirva a pasta `api/public` por um Apache/nginx que
+já esteja na máquina, numa porta própria, e use o `artisan serve` só para o
+app. Medido aqui: 2.390ms → 1.602ms de carga total, e o HTML de 906ms → 257ms.
+
 ## Antes de subir para produção
 
 O `.env.example` marca cada um destes, mas eles são fáceis de esquecer:

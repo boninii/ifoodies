@@ -24,6 +24,8 @@ class AuthController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
+        $this->normalizeEmail($request);
+
         $dominios = config('cantina.register_email_domains');
 
         $data = $request->validate([
@@ -57,6 +59,8 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
+        $this->normalizeEmail($request);
+
         $credentials = $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
@@ -99,6 +103,8 @@ class AuthController extends Controller
      */
     public function forgotPassword(Request $request): JsonResponse
     {
+        $this->normalizeEmail($request);
+
         $data = $request->validate([
             'email' => ['required', 'string', 'email'],
         ]);
@@ -133,6 +139,8 @@ class AuthController extends Controller
      */
     public function resetPassword(Request $request): JsonResponse
     {
+        $this->normalizeEmail($request);
+
         $data = $request->validate([
             'email' => ['required', 'string', 'email'],
             'code' => ['required', 'string'],
@@ -160,6 +168,22 @@ class AuthController extends Controller
             'message' => 'Senha redefinida! Entre com a senha nova.',
             'token' => $this->issueToken($user, $request),
         ]);
+    }
+
+    /**
+     * Deixa o e-mail em minúsculas ANTES da validação.
+     *
+     * Precisa ser antes: o `unique:users,email` compara com o que está no
+     * banco, e no SQLite essa comparação diferencia maiúsculas. Sem isto,
+     * "Aluno@x" passava pelo unique e virava uma segunda conta da mesma
+     * pessoa — enquanto o login com o e-mail capitalizado não achava
+     * ninguém.
+     */
+    private function normalizeEmail(Request $request): void
+    {
+        if ($request->has('email')) {
+            $request->merge(['email' => mb_strtolower(trim((string) $request->input('email')))]);
+        }
     }
 
     /**
