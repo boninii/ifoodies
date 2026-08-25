@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -23,9 +24,29 @@ return Application::configure(basePath: dirname(__DIR__))
         // Sem isto a API aceita tentativas de login infinitas. Os limites
         // estão definidos em AppServiceProvider.
         $middleware->throttleApi();
+
+        // O padrão do framework manda o visitante não autenticado para a
+        // rota `login`, que não existe aqui (a do painel se chama
+        // filament.admin.auth.login). Numa chamada à API sem token e sem
+        // `Accept: application/json` — um endereço colado no navegador —
+        // isso estourava um 500 com stack trace no lugar de um 401.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*')
+            ? null
+            : route('filament.admin.auth.login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        // Uma chamada à API sem token e sem `Accept: application/json` — um
+        // endereço colado no navegador, por exemplo — fazia o Laravel tentar
+        // redirecionar para a rota `login`, que não existe neste projeto (a
+        // do painel se chama filament.admin.auth.login). O resultado era um
+        // 500 com stack trace no lugar de um 401.
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json(['message' => 'Não autenticado.'], 401);
+            }
+        });
     })->create();
