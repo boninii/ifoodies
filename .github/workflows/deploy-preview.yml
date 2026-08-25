@@ -1,0 +1,80 @@
+name: Deploy preview
+
+# Variante COM BUILD: compila o projeto e publica a pasta gerada.
+# Para site sem build, use deploy-preview.yml (mais simples).
+#
+# Substituir antes de usar:
+#   ifoodies = nome da pasta remota / subdomínio  (ex: ifoodies)
+#   main  = branch de publicação               (ex: main)
+#   mobile     = subpasta do repo onde fica o app   (ex: mobile, ou . se raiz)
+#   npx expo export -p web   = comando de build                   (ex: npx expo export -p web)
+on:
+  push:
+    branches: [main]
+    # Só reconstrói quando o app muda — evita build à toa em commit de docs.
+    paths: ['mobile/**', '.github/workflows/**']
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-preview-ifoodies
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      # `npm ci` (e não `install`) instala exatamente o que está no lockfile:
+      # o build do CI passa a ser reprodutível em vez de pegar versões novas.
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build
+        env:
+          # Em site estático a URL da API é embutida no bundle durante o build,
+          # não lida em tempo de execução. Defina o secret no repositório se o
+          # app consome API; sem isso ele sobe apontando para lugar nenhum.
+          EXPO_PUBLIC_API_URL: ${{ secrets.API_URL }}
+          # Chave PUBLICA do Reverb (o segredo fica so no servidor). Sem ela o
+          # app nao quebra: cai na recarga periodica em vez do tempo real.
+          EXPO_PUBLIC_REVERB_APP_KEY: ${{ secrets.REVERB_APP_KEY }}
+          EXPO_PUBLIC_REVERB_HOST: ws.ifoodies.obonini.dev.br
+          EXPO_PUBLIC_REVERB_PORT: '443'
+          EXPO_PUBLIC_REVERB_SCHEME: https
+        run: npx expo export -p web
+
+      - name: Configurar chave SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Fixa a identidade do servidor: se o host key mudar, o deploy falha
+          # em vez de conectar cegamente (proteção contra MITM).
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Enviar build via rsync
+        env:
+          # Caminho explícito (não secret): o mascaramento do GitHub troca o
+          # valor por *** nos logs e torna impossível depurar erro de caminho.
+          REMOTE_PATH: /home/projects/ifoodies
+        run: |
+          test -d "dist" || { echo "Build não gerou a pasta 'dist' — confira o passo de Build"; exit 1; }
+          ssh -i ~/.ssh/deploy_key "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "mkdir -p '$REMOTE_PATH'"
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts" \
+            "dist/" "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$REMOTE_PATH/"
+
+      - name: Resultado
+        run: echo "Publicado em https://ifoodies.obonini.dev.br/"
