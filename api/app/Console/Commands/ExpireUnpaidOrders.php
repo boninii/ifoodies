@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Order;
+use App\Actions\ExpireAbandonedOrders as ExpirarPedidos;
 use Illuminate\Console\Command;
 
 /**
@@ -25,35 +25,13 @@ class ExpireUnpaidOrders extends Command
 
     protected $description = 'Cancela pedidos com Pix gerado e não pago além da validade, devolvendo o estoque';
 
-    public function handle(): int
+    public function handle(ExpirarPedidos $expirar): int
     {
-        // A validade do Pix mais uma folga: cancelar um pagamento que ainda
-        // podia ser feito seria pior do que segurar o estoque um pouco mais.
-        $limite = now()->subSeconds((int) config('abacatepay.pix_expires_in') + 300);
+        // `forcar`: rodado à mão ou por agendador, ignora o intervalo de um
+        // minuto que existe para o caminho movido a tráfego.
+        $total = $expirar(forcar: true);
 
-        $abandonados = Order::where('status', 'awaiting_payment')
-            ->whereNull('paid_at')
-            ->where('updated_at', '<', $limite)
-            ->with('products')
-            ->get();
-
-        if ($abandonados->isEmpty()) {
-            $this->info('Nenhum pedido para expirar.');
-
-            return self::SUCCESS;
-        }
-
-        foreach ($abandonados as $order) {
-            $order->update(['status' => 'canceled']);
-
-            $this->line(sprintf(
-                '  #%s expirado — %s item(ns) devolvido(s) ao estoque.',
-                str_pad((string) $order->id, 3, '0', STR_PAD_LEFT),
-                $order->products->sum('pivot.quantity'),
-            ));
-        }
-
-        $this->info($abandonados->count().' pedido(s) expirado(s).');
+        $this->info($total === 0 ? 'Nenhum pedido para expirar.' : $total.' pedido(s) expirado(s).');
 
         return self::SUCCESS;
     }

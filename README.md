@@ -98,9 +98,10 @@ O `.env.example` marca cada um destes, mas eles são fáceis de esquecer:
   herdado de outro projeto.
 - `REVERB_APP_KEY` igual nos dois lados (`api/.env` e `mobile/.env`), e o
   proxy encaminhando o WebSocket para a porta do Reverb.
-- Agendador ativo (`php artisan schedule:work` ou cron). **Não é opcional:**
-  é ele que limpa tokens vencidos e que cancela os pedidos com Pix gerado
-  e nunca pago — sem ele, cada Pix abandonado segura estoque para sempre.
+- Agendador (`php artisan schedule:work` ou cron) é **opcional**. Ele só
+  limpa tokens vencidos, que é higiene, não correção. A expiração de Pix
+  abandonado — a parte que segura estoque — não depende dele: acontece
+  sozinha, movida pelo tráfego do próprio sistema.
 
 ## Arquitetura
 

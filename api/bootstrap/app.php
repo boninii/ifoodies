@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ExpireAbandonedOrders;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -28,6 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Cabeçalhos de segurança em toda resposta, API e painel.
         $middleware->append(SecurityHeaders::class);
+
+        // Expira Pix abandonado sem depender de cron: quem dá o tique é o
+        // movimento do próprio sistema, e o trabalho roda depois da resposta.
+        $middleware->append(ExpireAbandonedOrders::class);
 
         // Atrás de um proxy que termina TLS, sem isto o Laravel acha que a
         // conexão é http: o cookie de sessão perde o Secure e as URLs das
