@@ -75,7 +75,13 @@ mesmas variáveis de ambiente, mudando só:
 
 - **Comando:** `php artisan reverb:start --host=0.0.0.0 --port=8080`
 - **Domínio:** `ws.ifoodies.obonini.dev.br`, HTTPS, porta interna `8080`
-- **Mesmo volume** da API: os dois precisam enxergar o mesmo banco
+- **Mesmo volume** da API
+- **Uma variável a mais: `SKIP_LARAVEL_BOOTSTRAP=true`.** Sem ela, este
+  container aplicaria migrations e montaria caches em paralelo com o da API,
+  nos mesmos arquivos — dois processos escrevendo no mesmo SQLite.
+- **O proxy precisa encaminhar o upgrade de WebSocket** (`Upgrade` e
+  `Connection`). Sem isso a conexão cai para HTTP e o handshake nunca fecha:
+  é a causa nº 1 de "o status não atualiza sozinho em produção".
 - **Importante:** o proxy precisa encaminhar o *upgrade* de WebSocket
   (`Upgrade` e `Connection`). Sem isso a conexão cai para HTTP e o handshake
   nunca completa — é a causa nº 1 de "o status não atualiza sozinho".

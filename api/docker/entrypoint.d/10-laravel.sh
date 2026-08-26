@@ -6,6 +6,15 @@
 # que não vira variável dentro de um RUN).
 set -e
 
+# O serviço do WebSocket usa ESTA MESMA imagem, só com outro comando. Sem esta
+# saída, ele aplicaria migrations e montaria caches em paralelo com a API, nos
+# mesmos arquivos — dois processos escrevendo no mesmo SQLite ao mesmo tempo.
+# Quem prepara o ambiente é o serviço da API, uma vez só.
+if [ "${SKIP_LARAVEL_BOOTSTRAP}" = "true" ]; then
+    echo "[iFoodies] SKIP_LARAVEL_BOOTSTRAP=true — pulando migrations e caches."
+    exit 0
+fi
+
 STORAGE=/var/www/html/storage
 DB="${DB_DATABASE:-$STORAGE/app/database.sqlite}"
 
