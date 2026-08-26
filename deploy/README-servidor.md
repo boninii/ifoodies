@@ -24,6 +24,17 @@ Caminho de build: `api` (é um monorepo — sem isso ele tenta construir a raiz)
 **Método de build:** Dockerfile (está em `api/Dockerfile`).
 **Porta interna:** `8080` (a imagem base escuta nela, não na 80).
 
+### Duas variáveis a mais, por causa do volume
+
+O container roda como `www-data`; a pasta montada no host pertence ao usuário
+`deploy` (uid/gid **1000**). Sem alinhar os dois, o Laravel não escreve no
+volume — nem log, nem sessão, nem o banco.
+
+```env
+PUID=1000
+PGID=1000
+```
+
 ### Volume — a parte que apaga dados se esquecer
 
 Sem volume, **todo deploy recria o container e leva o banco junto**. Uma
