@@ -44,7 +44,7 @@ export default function EsqueciSenha() {
 
     setEnviando(true)
     try {
-      const { ok } = await api<{ message: string }>('/forgot-password', {
+      const { ok, status, data } = await api<{ message: string; error?: string }>('/forgot-password', {
         method: 'POST',
         auth: false,
         body: { email },
@@ -53,9 +53,18 @@ export default function EsqueciSenha() {
       if (ok) {
         setEtapa('codigo')
         setAviso('Se este e-mail estiver cadastrado, o código chegou na caixa de entrada. Ele vale por 15 minutos.')
-      } else {
-        setErro('Muitas tentativas seguidas. Espere um minuto e tente de novo.')
+        return
       }
+
+      // O recado do servidor manda quando existe: 503 significa que esta
+      // instalação não tem como enviar e-mail, e dizer "muitas tentativas"
+      // ali mandaria o aluno tentar de novo para sempre.
+      setErro(
+        data?.error ??
+          (status === 429
+            ? 'Muitas tentativas seguidas. Espere um minuto e tente de novo.'
+            : 'Não foi possível pedir o código agora.'),
+      )
     } catch {
       setErro('Sem conexão com a cantina. Verifique sua internet e tente de novo.')
     } finally {

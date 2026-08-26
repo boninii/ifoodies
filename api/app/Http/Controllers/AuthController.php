@@ -105,6 +105,14 @@ class AuthController extends Controller
      */
     public function forgotPassword(Request $request): JsonResponse
     {
+        // Sem caminho de envio configurado, prometer que "o código chegará em
+        // instantes" seria mentira — e o aluno esperaria para sempre.
+        if (! config('cantina.password_recovery')) {
+            return response()->json([
+                'error' => 'A recuperação de senha por e-mail não está ativa nesta instalação. Procure a equipe da cantina para redefinir seu acesso.',
+            ], 503);
+        }
+
         $this->normalizeEmail($request);
 
         $data = $request->validate([
@@ -152,6 +160,12 @@ class AuthController extends Controller
      */
     public function resetPassword(Request $request): JsonResponse
     {
+        if (! config('cantina.password_recovery')) {
+            return response()->json([
+                'error' => 'A recuperação de senha por e-mail não está ativa nesta instalação.',
+            ], 503);
+        }
+
         $this->normalizeEmail($request);
 
         $data = $request->validate([

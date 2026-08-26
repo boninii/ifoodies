@@ -72,7 +72,10 @@ hábitos de consumo repetidos), o que difere de qualquer marketplace aberto.
 - Perfil: ver dados, editar nome/e-mail, trocar senha. O prontuário não é
   editável pelo app.
 - Recuperação de senha por código de 6 dígitos enviado por e-mail (válido por
-  15 minutos, uso único, derruba todas as sessões antigas).
+  15 minutos, uso único, derruba todas as sessões antigas). **Depende de haver
+  caminho de envio:** sem SMTP configurado, os endpoints respondem 503 com um
+  recado claro em vez de prometer um código que nunca sairia. Como este projeto
+  vive como portfólio, é o estado normal dele.
 - **Pagamento por Pix (AbacatePay, API v2).** O app gera o QR e o
   copia-e-cola; a confirmação chega por dois caminhos — o webhook do gateway
   e a consulta ativa em `/orders/{id}/payment` — e a tela vira sozinha.

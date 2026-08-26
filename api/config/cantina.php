@@ -24,4 +24,23 @@ return [
         'trim',
         explode(',', (string) env('REGISTER_EMAIL_DOMAINS', '')),
     ))),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Recuperação de senha
+    |--------------------------------------------------------------------------
+    |
+    | Só faz sentido oferecer se o servidor consegue mandar e-mail. Sem isso, o
+    | aluno pede o código e espera para sempre por algo que nunca sai — e a
+    | tela ainda diz que chegou.
+    |
+    | Ligada quando existe SMTP configurado, ou quando alguém força pela
+    | variável (útil em desenvolvimento, onde o código cai no log e serve
+    | perfeitamente para testar o fluxo).
+    |
+    */
+    'password_recovery' => (bool) env(
+        'PASSWORD_RECOVERY',
+        filled(env('MAIL_HOST')) || env('MAIL_MAILER') === 'log',
+    ),
 ];
