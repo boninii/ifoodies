@@ -6,21 +6,30 @@
 # que não vira variável dentro de um RUN).
 set -e
 
-# O banco SQLite vive em storage/, que é volume — assim ele sobrevive aos
-# deploys. Se ficasse em database/, o volume necessário apagaria as migrations.
-DB="${DB_DATABASE:-/var/www/html/storage/app/database.sqlite}"
+STORAGE=/var/www/html/storage
+DB="${DB_DATABASE:-$STORAGE/app/database.sqlite}"
+
+# As pastas que o Laravel exige dentro do volume. Num volume novo elas não
+# existem, e a ausência derruba o framework no primeiro request.
+mkdir -p "$STORAGE/framework/cache" "$STORAGE/framework/sessions" \
+         "$STORAGE/framework/views" "$STORAGE/logs" "$(dirname "$DB")" 2>/dev/null || true
+
+# Antes de qualquer coisa, provar que dá para escrever no volume. Falhar aqui
+# com uma mensagem clara é muito melhor do que morrer num `touch: Permission
+# denied` solto, que não diz a quem pertence o quê nem o que fazer.
+if ! touch "$STORAGE/.escrita-ok" 2>/dev/null; then
+    echo "[iFoodies] ERRO: não consigo escrever em $STORAGE."
+    echo "[iFoodies] O container roda como uid $(id -u), gid $(id -g)."
+    echo "[iFoodies] Alinhe com o dono da pasta no host pelas variáveis PUID e PGID,"
+    echo "[iFoodies] ou libere a escrita na pasta montada."
+    exit 1
+fi
+rm -f "$STORAGE/.escrita-ok"
+
 if [ ! -f "$DB" ]; then
-    mkdir -p "$(dirname "$DB")"
     touch "$DB"
     echo "[iFoodies] banco criado em $DB"
 fi
-
-# As pastas que o Laravel exige dentro do volume. Num volume novo elas não
-# existem, e a ausência delas derruba o framework no primeiro request.
-mkdir -p /var/www/html/storage/framework/cache \
-         /var/www/html/storage/framework/sessions \
-         /var/www/html/storage/framework/views \
-         /var/www/html/storage/logs
 
 php artisan migrate --force
 php artisan storage:link 2>/dev/null || true
