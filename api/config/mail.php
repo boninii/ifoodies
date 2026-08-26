@@ -14,7 +14,17 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    // Escolha automática, na ordem: o que estiver em MAIL_MAILER manda; se
+    // não houver, um MAIL_HOST preenchido significa SMTP; sem nenhum dos dois,
+    // produção cai no sendmail do sistema e desenvolvimento no log.
+    //
+    // ATENÇÃO ao sendmail em container: ele depende de um MTA instalado na
+    // imagem, e a base Alpine não traz nenhum. Sem MTA o envio falha — e falha
+    // calado, porque ninguém reclama de um e-mail que não saiu. Se este
+    // projeto for rodar em Docker, preencha MAIL_HOST.
+    'default' => env('MAIL_MAILER') ?: (filled(env('MAIL_HOST'))
+        ? 'smtp'
+        : (env('APP_ENV') === 'production' ? 'sendmail' : 'log')),
 
     /*
     |--------------------------------------------------------------------------

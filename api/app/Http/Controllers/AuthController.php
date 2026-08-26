@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Password;
+use Throwable;
 
 class AuthController extends Controller
 {
@@ -127,7 +129,18 @@ class AuthController extends Controller
             ['token' => Hash::make($code), 'created_at' => now()],
         );
 
-        $user->notify(new PasswordResetCode($code, self::RESET_CODE_MINUTES));
+        // O envio não pode derrubar a requisição nem mudar a resposta: se
+        // falhasse, o erro diria ao atacante que este e-mail existe. Mas
+        // também não pode sumir — e-mail que não sai é a falha mais silenciosa
+        // que existe, porque ninguém reclama do que nunca chegou.
+        try {
+            $user->notify(new PasswordResetCode($code, self::RESET_CODE_MINUTES));
+        } catch (Throwable $e) {
+            Log::error('Falha ao enviar o código de recuperação.', [
+                'mailer' => config('mail.default'),
+                'erro' => $e->getMessage(),
+            ]);
+        }
 
         return $resposta;
     }

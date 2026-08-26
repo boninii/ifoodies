@@ -107,13 +107,14 @@ ABACATEPAY_API_KEY=           # abc_live_… quando for cobrar de verdade
 ABACATEPAY_WEBHOOK_SECRET=b5f54c2fa85fdeb1ed2d7716184867f6
 ABACATEPAY_PIX_EXPIRES_IN=600
 
-# Sem SMTP o código de recuperação de senha NUNCA chega ao aluno.
-MAIL_MAILER=smtp
+# O mailer se escolhe sozinho: MAIL_HOST preenchido vira SMTP; vazio cai no
+# sendmail do sistema. MAS a imagem e Alpine e nao tem MTA — em container, sem
+# MAIL_HOST o e-mail nao sai. Deixe as linhas abaixo se for usar SMTP.
 MAIL_HOST=
 MAIL_PORT=587
 MAIL_USERNAME=
 MAIL_PASSWORD=
-MAIL_FROM_ADDRESS=
+MAIL_FROM_ADDRESS=nao-responda@ifoodies.obonini.dev.br
 
 # Opcional: restringe o cadastro aos domínios da instituição.
 REGISTER_EMAIL_DOMAINS=
