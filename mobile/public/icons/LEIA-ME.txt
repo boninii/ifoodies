@@ -1,0 +1,12 @@
+Ícones do PWA — substituir os PNG desta pasta.
+
+  icon-192.png         192x192   logo ocupando quase toda a area
+  icon-512.png         512x512   mesma arte, maior (gera a splash)
+  icon-maskable.png    512x512   logo dentro do circulo central de 410px,
+                                 fundo verde ate a borda, SEM transparencia
+  apple-touch-icon.png 180x180   sem transparencia (o iOS poe preto atras)
+
+A regra do maskable: o Android recorta o icone em formas diferentes e garante
+apenas os 80% centrais. Tudo fora do circulo de 410px pode ser cortado.
+
+Fonte vetorial: ../../assets/brand/ifoodies-mark.svg

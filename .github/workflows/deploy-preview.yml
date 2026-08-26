@@ -53,6 +53,12 @@ jobs:
           EXPO_PUBLIC_REVERB_SCHEME: https
         run: npx expo export -p web
 
+      # O `web.output` deste projeto é "single" (SPA), e nesse modo o Expo
+      # monta o index.html de um template fixo — o app/+html.tsx é ignorado.
+      # Este passo injeta manifest, tema e service worker no HTML gerado.
+      - name: Tags de PWA no HTML
+        run: node scripts/pwa-head.mjs
+
       - name: Configurar chave SSH
         run: |
           mkdir -p ~/.ssh

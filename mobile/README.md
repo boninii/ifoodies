@@ -142,6 +142,8 @@ theme/
 ├── tokens.ts          # paletas clara/escura, escala, tipografia
 ├── preferences.tsx    # preferência de tema (claro por padrão), persistida
 └── useTheme.ts        # tema resolvido a partir da preferência do usuário
+public/              # copiado para o dist: manifest, service worker, ícones
+scripts/pwa-head.mjs # injeta as tags de PWA no index.html gerado
 services/
 ├── api.ts             # cliente HTTP único (host automático em dev, token, 401)
 ├── auth.ts            # token no armazenamento seguro do sistema
