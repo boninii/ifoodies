@@ -40,17 +40,21 @@ class MenuSeeder extends Seeder
         ];
 
         foreach ($menu as $categoryName => $products) {
-            $category = Category::create(['name' => $categoryName]);
+            $category = Category::firstOrCreate(['name' => $categoryName]);
 
             foreach ($products as [$name, $description, $price, $stock, $photoId]) {
-                Product::create([
-                    'category_id' => $category->id,
-                    'name' => $name,
-                    'description' => $description,
-                    'price' => $price,
-                    'stock' => $stock,
-                    'image' => "https://images.unsplash.com/{$photoId}?w=300&q=80&auto=format&fit=crop",
-                ]);
+                // Procura pelo nome e só cria o que falta: assim rodar o
+                // seeder de novo não duplica o cardápio.
+                Product::firstOrCreate(
+                    ['name' => $name],
+                    [
+                        'category_id' => $category->id,
+                        'description' => $description,
+                        'price' => $price,
+                        'stock' => $stock,
+                        'image' => "https://images.unsplash.com/{$photoId}?w=300&q=80&auto=format&fit=crop",
+                    ],
+                );
             }
         }
     }

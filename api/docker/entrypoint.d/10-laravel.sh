@@ -43,6 +43,10 @@ fi
 php artisan migrate --force
 php artisan storage:link 2>/dev/null || true
 
+# Só age em banco vazio. Um `db:seed` a cada deploy ressuscitaria produtos que
+# a cantina apagou de propósito.
+php artisan db:seed-if-empty
+
 # Caches do framework: aqui valem, porque o ambiente está completo.
 php artisan view:cache
 php artisan filament:optimize
