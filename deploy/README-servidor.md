@@ -21,26 +21,39 @@ Caminho de build: `api` (é um monorepo — sem isso ele tenta construir a raiz)
 
 **Domínio:** `api.ifoodies.obonini.dev.br`, com HTTPS.
 
-### Volumes — a parte que apaga dados se esquecer
+**Método de build:** Dockerfile (está em `api/Dockerfile`).
+**Porta interna:** `8080` (a imagem base escuta nela, não na 80).
 
-Sem volume, **todo deploy recria o container e leva o banco junto**. Duas
-montagens obrigatórias:
+### Volume — a parte que apaga dados se esquecer
+
+Sem volume, **todo deploy recria o container e leva o banco junto**. Uma
+montagem só:
 
 | Caminho no Host | Caminho de Montagem | Guarda |
 |---|---|---|
-| `/home/projects/ifoodies-api/database` | `/app/database` | o banco SQLite |
-| `/home/projects/ifoodies-api/storage` | `/app/storage` | fotos dos produtos, logs, sessões |
+| `/home/projects/ifoodies-api/storage` | `/var/www/html/storage` | banco SQLite, fotos dos produtos, logs, sessões |
 
-Crie as pastas antes, senão o Docker as cria como `root`.
+**Por que só uma, e por que em `storage`:** o banco fica em
+`storage/app/database.sqlite`, e não na pasta `database/`. Montar um volume
+sobre `database/` apagaria as **migrations e seeders** do container — eles
+moram lá dentro. Colocando o SQLite em `storage/`, um volume resolve tudo.
 
-### Depois do primeiro deploy, rodar uma vez (console do serviço)
+Crie a pasta antes, senão o Docker a cria como `root`.
+
+### O que já acontece sozinho
+
+O `docker/entrypoint.d/10-laravel.sh` roda a cada boot: cria o arquivo do banco
+se não existir, aplica as migrations e faz o `storage:link`. Você não precisa
+abrir console para isso.
+
+Só o `APP_KEY` é manual, uma vez — gere e cole na variável de ambiente:
 
 ```bash
-php artisan key:generate --force
-php artisan migrate --force
-php artisan db:seed --force        # só se quiser os dados de exemplo
-php artisan storage:link
+php artisan key:generate --show
 ```
+
+Se quiser os dados de exemplo (14 produtos, 4 categorias, o admin), rode uma
+vez no console do serviço: `php artisan db:seed --force`
 
 ---
 
@@ -51,6 +64,7 @@ mesmas variáveis de ambiente, mudando só:
 
 - **Comando:** `php artisan reverb:start --host=0.0.0.0 --port=8080`
 - **Domínio:** `ws.ifoodies.obonini.dev.br`, HTTPS, porta interna `8080`
+- **Mesmo volume** da API: os dois precisam enxergar o mesmo banco
 - **Importante:** o proxy precisa encaminhar o *upgrade* de WebSocket
   (`Upgrade` e `Connection`). Sem isso a conexão cai para HTTP e o handshake
   nunca completa — é a causa nº 1 de "o status não atualiza sozinho".
@@ -70,6 +84,7 @@ APP_URL=https://api.ifoodies.obonini.dev.br
 APP_LOCALE=pt_BR
 
 DB_CONNECTION=sqlite
+DB_DATABASE=/var/www/html/storage/app/database.sqlite
 
 SESSION_DRIVER=database
 SESSION_SECURE_COOKIE=true
